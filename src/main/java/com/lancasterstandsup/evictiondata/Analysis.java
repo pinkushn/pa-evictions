@@ -80,7 +80,16 @@ public class Analysis {
 
         //antwi(list);
 
-        orgassPercentages(list);
+        //orgassPercentages(list);
+
+        ephrata(list);
+    }
+
+    public static void ephrata(List<PdfData> list) {
+        List<PdfData> eph = new LinkedList();
+        for (PdfData pdf: list) {
+            pdf.getZip();
+        }
     }
 
 //    public static void evictionsOrderedRecently(List<PdfData> list) {

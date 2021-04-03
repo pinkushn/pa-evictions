@@ -701,4 +701,10 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     public String getNotes() {
         return notes;
     }
+
+    public String[] getZip() {
+        String zips = defendantZips + "";
+        zips = zips.replace(",", " ");
+        return zips.split(" ");
+    }
 }
