@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile "com.itextpdf:itextpdf:5.5.13.2"
+    //spreadsheet maker
+    compile "com.github.jferard:fastods:0.7.3"
+    //web scraper
+    //compile "org.seleniumhq.selenium:selenium-java:3.X"
+    //browser support for scraper
+    //compile "org.seleniumhq.selenium:selenium-chrome-driver:3.X"
+    //apache http support
+    compile "org.apache.httpcomponents:httpclient:4.5.13"
+    compile "org.apache.commons:commons-lang3:3.11"
+}

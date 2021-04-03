@@ -1,0 +1,674 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head id="ctl00_ctl00_ctl00_head"><title>
+	Magisterial District Judge Docket Sheet
+</title><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+	<style type="text/css">
+		.OverlayPage {
+			position: fixed;
+			top: 0px;
+			bottom: 0px;
+			left: 0px;
+			right: 0px;
+			height: 100%;
+			width: 100%;
+			overflow: hidden;
+			padding: 0px;
+			margin: 0px;
+			background-color: #fff;
+			filter: alpha(opacity=5);
+			opacity: 0.05;
+			z-index: 20000005 !important;
+		}
+	</style>
+
+	<link href="../Scripts/jquery-ui-1.11.2/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <meta name="robots" content="noindex" />
+    
+<link href="../App_Themes/Default/BalloonPopupOvalStyle.css" type="text/css" rel="stylesheet" /><link href="../App_Themes/Default/Content.css" type="text/css" rel="stylesheet" /><link href="../App_Themes/Default/Help.css" type="text/css" rel="stylesheet" /><link href="../App_Themes/Default/jquery-ui.css" type="text/css" rel="stylesheet" /><link href="../App_Themes/Default/Main.css" type="text/css" rel="stylesheet" /><link href="../App_Themes/Default/Navigation.css" type="text/css" rel="stylesheet" /><link href="../App_Themes/Default/SystemErrors.css" type="text/css" rel="stylesheet" /><link href="../App_Themes/Default/WebControls.css" type="text/css" rel="stylesheet" /><link href="/WebResource.axd?d=8rnaEj-SJoSE-r608m_UZt1QgzKAbf6I71T-RThdzJ9LHjgqa3s-_kMQ8GJ6RVXDbBOeDypuNvkkkv6l5RZH9EqYzVh0zid0lj0JVrbOt9Yslfs4kFcMQOaBp9PQUey07qqZr46p7ViofOvugdiLFILq6Ws1&amp;t=637458103701968061" type="text/css" rel="stylesheet" /><link href="/WebResource.axd?d=Im4W6BFLm3bedQ5qKUYKnfCaRj2R7KQYnf_9C2G8yxuSkmL_NaggFzWr92yWYJGy5grnS5RVEZ2XDBjGofZWTmQXBv_JhGuE2xx2oWgn_rs8HPvJb41RMkFqDV1UfLZGFZ1nDvEVB6uJ7m8X0&amp;t=637458103701968061" type="text/css" rel="stylesheet" /></head>
+
+<body>
+	<form name="aspnetForm" method="post" action="./MDJ.aspx" id="aspnetForm" autocomplete="off">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="4e5321d5-dcc4-4876-92eb-63eac97c4d4e" />
+
+
+<script src="/WebResource.axd?d=6uaK0KrEHpMbKPa6qcVGzuJkkwfVHa8UpicG6i_Joilfc7ZV6iQ3kupkntaAXXP8e0GEX8mYF3C-P7D70&amp;t=637346642097037378" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=v7Wrf49oI4u9_N3-4YsqjNLhfmn_qkLoRQNlB_SMS0edWT90csqeyWIIic2EJ9urkcRJU_2I3UNGP_gRIk17HPJS9bVrXil6e207SnEYlcP2ERDqh2karvfTOF9-6U7oYUV2ER5sXXEtjxQ70&amp;t=ffffffff9540cdbc" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=Jzyla4Y4iWf-hAb4Uh8GYgck_lSXB6oyF5lQ_8sP8ekGSHYUySF3dKnRsE5pSNh9RmO7o87kYY1qVHdhg6CDPh4MUBRDQ2c-Vwy6k_Goh-KoyiYFbDJjE5ppWK0UORPrjcSxZ7gTt5w1-qoImui-07TGJcg1&amp;t=ffffffffdfc97409" type="text/javascript"></script>
+<script src="../Scripts/jquery-1.11.3.min.js" type="text/javascript"></script>
+<script src="../Scripts/jquery-ui-1.11.2/jquery-ui.min.js" type="text/javascript"></script>
+<script src="../Scripts/jquery.ba-resize.min.js" type="text/javascript"></script>
+<script src="../Scripts/fieldset.js" type="text/javascript"></script>
+<script src="../Scripts/miniForm.js" type="text/javascript"></script>
+<script src="../Scripts/multiButton.js" type="text/javascript"></script>
+<script src="../Scripts/spin.min.js" type="text/javascript"></script>
+<script src="../Scripts/spinner.js" type="text/javascript"></script>
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="4AB257F3" />
+		
+
+		<script type="text/javascript">
+			var timeoutId;
+			var elemActive;
+			var currentId = null;
+
+			jQuery(document).ready(function ()
+			{
+				jQuery.noConflict();
+				jQuery('.MultiButton').multiButton();
+				jQuery('fieldset.GreyFade').fieldset();
+				jQuery('.MiniForm').miniForm();
+
+				jQuery("#HelpDeskAccordion").accordion({
+					active: false,
+					collapsible: true
+				});
+
+				jQuery(window).resize(function ()
+				{
+
+					var $parent = null;
+
+					jQuery('.ui-accordion').find('.ui-accordion-content').each(function ()
+					{
+						var $this = jQuery(this);
+
+						if ($parent != null && $parent != $this.parent().width())
+						{
+							$this.parent().width($parent);
+						}
+
+						if ($parent == null)
+						{
+							$parent = $this.parent().width();
+						}
+						// This is a formula which basically resets overflow of content,
+						// whenever browser window resizes.
+						$this.width($this.parent().width() - ($this.outerWidth() - $this.width()));
+
+					});
+				});
+			});
+
+		</script>
+
+		<div style="min-width: 955px">
+			<div id="user-header">
+				<table class="global section">
+					<tr>
+						<td style="width: 85%;"></td>
+						<td style="width: 15%; white-space: nowrap;">
+							
+							<div id="ctl00_ctl00_ctl00_unauthenticatedUserContainer" style="text-align: right; padding-right: .75em;">
+								<a id="ctl00_ctl00_ctl00_createNewAccountLink" href="../Register.aspx"><font color="White">Create New Account</font></a>
+								<a id="ctl00_ctl00_ctl00_loginLink" href="../LogIn.aspx"><font color="White">Login</font></a>
+							</div>
+						</td>
+					</tr>
+				</table>
+				<div class="header-content">
+					<table style="margin-left: auto; margin-right: auto;">
+						<tr id="header">
+							<td style="width: 162px;">
+								<div class="aopcLogo">
+									<a href="../../../../Default.aspx" onfocus="this.blur()">
+										<img id="ctl00_ctl00_ctl00_imgLogo" align="right" alt="Seal of the Supreme Court of Pennsylvania" src="../Images/header-banner.png" height="182" width="162" border="0" />
+									</a>
+								</div>
+							</td>
+							<td width="28px"></td>
+							<td class="aopc" style="width: 600px;">
+								<em>The Unified</em> JUDICIAL<br />
+								SYSTEM <em>of</em> PENNSYLVANIA<br />
+								WEB PORTAL</td>
+
+							<td class="nav-secondary" style="width: 180px;">
+								<ul>
+									<li><a href="http://www.pacourts.us" target="_blank">Unified Judicial System website</a></li>
+									<li>&nbsp;</li>
+									<li><a href="http://www.pacourts.us/Forms/Default.htm" target="_blank">UJS Forms</a></li>
+									<li>
+										<a id="ctl00_ctl00_ctl00_epayBrochureLink" href="https://help.pacourts.us/PortalHelpDocs/PAePayBrochure.pdf" target="_blank">PAePay<sup><small>®</small></sup> Brochure</a></li>
+									<li>
+										<a id="ctl00_ctl00_ctl00_collectionsHandoutLink" href="https://help.pacourts.us/PortalHelpDocs/CollectionsHandout.pdf" target="_blank">Collections in the Courts</a></li>
+									<li><a href="/FinancialRecords/FinancialRecords.aspx">Financial Records</a></li>
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="header-nav section">
+					<table style="height: 28px; margin-left: auto; margin-right: auto;" id="primaryNavigation">
+						<tr id="menuRow">
+							<td style="width: 180px;">&nbsp;</td>
+							<td id="menuContainer">
+								
+								
+								<table id="ctl00_ctl00_ctl00_MainMenu" cellpadding="0" cellspacing="0" border="0">
+	<tr>
+		<td onmouseover="Menu_HoverStatic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun0"><table class="topMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tr>
+				<td nowrap="nowrap"><a class="topMenuItem" href="/Default.aspx">Home</a></td>
+			</tr>
+		</table></td><td width="3"></td><td onmouseover="Menu_HoverStatic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun1"><table class="topMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tr>
+				<td nowrap="nowrap"><a class="topMenuItem" href="#">Case Information</a></td>
+			</tr>
+		</table></td><td width="3"></td><td onmouseover="Menu_HoverStatic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun2"><table class="topMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tr>
+				<td nowrap="nowrap"><a class="topMenuItem" href="#">Pay Online</a></td>
+			</tr>
+		</table></td><td width="3"></td><td onmouseover="Menu_HoverStatic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun3"><table class="topMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%">
+			<tr>
+				<td nowrap="nowrap"><a class="topMenuItem" href="#">Help & Support</a></td>
+			</tr>
+		</table></td>
+	</tr>
+</table><div id="ctl00_ctl00_ctl00_MainMenun1Items" style="display:none;">
+	<table border="0" cellpadding="0" cellspacing="0">
+		<tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun4">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="#"><font color="#577E34">Court Case</font></a></td><td width="0"><img src="../Images/MenuArrow.png" alt="Expand Court Case" valign="middle" /></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun5">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="#"><font color="#577E34">Calendars</font></a></td><td width="0"><img src="../Images/MenuArrow.png" alt="Expand Calendars" valign="middle" /></td>
+				</tr>
+			</table></td>
+		</tr>
+	</table><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun1ItemsUp" onmouseover="PopOut_Up(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=0qTA-Sw-dxGoEp1xi8nO0_ily7_PBAo8rwuR2bhnSE41QzWXhqt14iDpicG1hpVzKEOpg0RVgRRQ6pK52gxyycxyehQ1&amp;t=637346642097037378" alt="Scroll up" />
+	</div><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun1ItemsDn" onmouseover="PopOut_Down(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=tOkxUI5n_TEYoFNrHMNnLpmTT3BU-OmfTBspogBcJHsrQjFBjEnncgh8Mz8vR974qg4YM8vH1_s3K2Nt4d7twnCXcM81&amp;t=637346642097037378" alt="Scroll down" />
+	</div>
+</div><div id="ctl00_ctl00_ctl00_MainMenun4Items" style="display:none;">
+	<table border="0" cellpadding="0" cellspacing="0">
+		<tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun6">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/DocketSheets/MDJ.aspx"><font color="#577E34">Magisterial District Courts</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun7">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/DocketSheets/MC.aspx"><font color="#577E34">Philadelphia Municipal Court</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun8">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/DocketSheets/CP.aspx"><font color="#577E34">Common Pleas Court</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun9">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/DocketSheets/Appellate.aspx"><font color="#577E34">Appellate Courts</font></a></td>
+				</tr>
+			</table></td>
+		</tr>
+	</table><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun4ItemsUp" onmouseover="PopOut_Up(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=0qTA-Sw-dxGoEp1xi8nO0_ily7_PBAo8rwuR2bhnSE41QzWXhqt14iDpicG1hpVzKEOpg0RVgRRQ6pK52gxyycxyehQ1&amp;t=637346642097037378" alt="Scroll up" />
+	</div><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun4ItemsDn" onmouseover="PopOut_Down(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=tOkxUI5n_TEYoFNrHMNnLpmTT3BU-OmfTBspogBcJHsrQjFBjEnncgh8Mz8vR974qg4YM8vH1_s3K2Nt4d7twnCXcM81&amp;t=637346642097037378" alt="Scroll down" />
+	</div>
+</div><div id="ctl00_ctl00_ctl00_MainMenun5Items" style="display:none;">
+	<table border="0" cellpadding="0" cellspacing="0">
+		<tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun10">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/MDJCalendarSchedule/Search.aspx"><font color="#577E34">Magisterial District Courts</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun11">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/CPCalendarSchedule/Search.aspx"><font color="#577E34">Common Pleas Courts</font></a></td>
+				</tr>
+			</table></td>
+		</tr>
+	</table><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun5ItemsUp" onmouseover="PopOut_Up(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=0qTA-Sw-dxGoEp1xi8nO0_ily7_PBAo8rwuR2bhnSE41QzWXhqt14iDpicG1hpVzKEOpg0RVgRRQ6pK52gxyycxyehQ1&amp;t=637346642097037378" alt="Scroll up" />
+	</div><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun5ItemsDn" onmouseover="PopOut_Down(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=tOkxUI5n_TEYoFNrHMNnLpmTT3BU-OmfTBspogBcJHsrQjFBjEnncgh8Mz8vR974qg4YM8vH1_s3K2Nt4d7twnCXcM81&amp;t=637346642097037378" alt="Scroll down" />
+	</div>
+</div><div id="ctl00_ctl00_ctl00_MainMenun2Items" style="display:none;">
+	<table border="0" cellpadding="0" cellspacing="0">
+		<tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun12">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/ePay/Default.aspx"><font color="#577E34">Fines, Costs, & Restitution</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun13">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/bail/Default.aspx"><font color="#577E34">Bail</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun14">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/ProbationParole/Default.aspx"><font color="#577E34">State Probation/Parole Fees</font></a></td>
+				</tr>
+			</table></td>
+		</tr>
+	</table><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun2ItemsUp" onmouseover="PopOut_Up(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=0qTA-Sw-dxGoEp1xi8nO0_ily7_PBAo8rwuR2bhnSE41QzWXhqt14iDpicG1hpVzKEOpg0RVgRRQ6pK52gxyycxyehQ1&amp;t=637346642097037378" alt="Scroll up" />
+	</div><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun2ItemsDn" onmouseover="PopOut_Down(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=tOkxUI5n_TEYoFNrHMNnLpmTT3BU-OmfTBspogBcJHsrQjFBjEnncgh8Mz8vR974qg4YM8vH1_s3K2Nt4d7twnCXcM81&amp;t=637346642097037378" alt="Scroll down" />
+	</div>
+</div><div id="ctl00_ctl00_ctl00_MainMenun3Items" style="display:none;">
+	<table border="0" cellpadding="0" cellspacing="0">
+		<tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun15">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/PortalSelfHelp.aspx"><font color="#577E34">Help Center</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun16">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/help.ashx?section=documents" target="_blank"><font color="#577E34">Reference Documents</font></a></td>
+				</tr>
+			</table></td>
+		</tr><tr onmouseover="Menu_HoverDynamic(this)" onmouseout="Menu_Unhover(this)" onkeyup="Menu_Key(event)" id="ctl00_ctl00_ctl00_MainMenun17">
+			<td><table class="subMenuItem" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="Transparent">
+				<tr>
+					<td nowrap="nowrap" width="100%"><a class="subMenuItem" href="/help.ashx?section=videos" target="_blank"><font color="#577E34">Video Tutorials</font></a></td>
+				</tr>
+			</table></td>
+		</tr>
+	</table><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun3ItemsUp" onmouseover="PopOut_Up(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=0qTA-Sw-dxGoEp1xi8nO0_ily7_PBAo8rwuR2bhnSE41QzWXhqt14iDpicG1hpVzKEOpg0RVgRRQ6pK52gxyycxyehQ1&amp;t=637346642097037378" alt="Scroll up" />
+	</div><div class="subMenuItem" id="ctl00_ctl00_ctl00_MainMenun3ItemsDn" onmouseover="PopOut_Down(this)" onmouseout="PopOut_Stop(this)" align="center" style="display:none;">
+		<img src="/WebResource.axd?d=tOkxUI5n_TEYoFNrHMNnLpmTT3BU-OmfTBspogBcJHsrQjFBjEnncgh8Mz8vR974qg4YM8vH1_s3K2Nt4d7twnCXcM81&amp;t=637346642097037378" alt="Scroll down" />
+	</div>
+</div>
+							</td>
+
+							<td></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div style="min-height: 680px;">
+				<table class="Layout" cellspacing="0" cellpadding="0" border="0">
+
+					<script type="text/javascript">
+						document.getElementById('menuRow').style.display = '';
+					</script>
+					<tr>
+
+						<td id="ContentContainer">
+							<div id="javaScriptWarningPanel" style="text-align: center; color: #B00307; font-size: large;">
+								<p>Warning - JavaScript is disabled in your browser.  Please enable JavaScript to get the full use of this site.</p>
+							</div>
+							<script type="text/javascript">
+								document.getElementById('javaScriptWarningPanel').style.display = 'none';
+							</script>
+
+							<div id="mainContentPanel">
+								<br />
+								
+    <script type="text/javascript" src="../../Scripts/GTSFocusSettingFeature.js"  ></script>
+ 
+    <div id="dynamicContentContainer">
+        <table border="0" class="Layout">
+            <tr>
+                <td>
+                    <h2 id="secondaryHeader">
+    <span class="bold">Magisterial District Courts</span> Docket Sheets
+</h2>
+                </td>
+                <td>
+                    <div id="helpContainer">                       
+                        <a id="ctl00_ctl00_ctl00_cphMain_lnkHelp" href="https://help.pacourts.us/PortalHelpDocs/UJS%20Docket%20Sheets.pdf" target="_blank"><img src="../Images/Icons/help-icon-red.png" border="0" style="width: 15px; height: 15px; vertical-align: middle; margin-right: 3px;" />Help</a></div></td></tr></table>
+
+    <p>On April 1, 2012, AOPC implemented a new protocol in its Magisterial District Judge System to ensure that when the 
+    official paper case records of an individual case have been or should have been destroyed in accordance with the Record 
+    Retention and Disposition Schedule with Guidelines (“Schedule”) promulgated pursuant to Pa.R.J.A. No. 507 that the public 
+    web docket sheet for the case will no longer be accessible.  These actions are consistent with the Schedule’s purpose to 
+    implement record disposition consistently throughout the UJS.  Therefore, destruction of the official record pursuant to 
+    the Schedule will also result in the electronic case record information regarding the record no longer being accessible to the public.
+    </p>
+    
+    <p>Recent entries made in the court filing offices may not be immediately reflected on these docket
+    sheets. Neither the courts of the Unified Judicial System of the Commonwealth of Pennsylvania nor the
+    Administrative Office of Pennsylvania Courts assumes any liability for inaccurate or delayed data,
+    errors or omissions on these docket sheets.  Docket sheet information should not be used in place of a
+    criminal history background check, which can only be provided by the Pennsylvania State Police.
+    Employers who do not comply with the provisions of the Criminal History Record Information Act
+    (18 Pa.C.S. Section 9101 et seq.) may be subject to civil liability as set forth in 18 Pa.C.S. Section
+    9183.
+    </p>
+    
+    <p>MDJ docket sheets are available for specific docket types (see Participant Name search type). 
+       If you want to search by docket number, you will first need to fill out the county and court boxes. 
+        If you do not have that information, you cannot search by docket number.
+    </p>
+    
+    <div class="Disclaimer">The webpage you are viewing is operated and maintained by Pennsylvania's Unified Judicial System as a source of public information. The webpage is not affiliated with any search system for public records provided by private organizations for which fees may be incurred. <span class="Attention">The ability to search for and review information contained in these web docket sheets is a free public service.</span></div>
+
+    <h3>Select a MDJ Docket Search Type from the dropdown <span style="font-style:italic;">(default search type is by Docket Number)</span></h3>
+    
+    <!-- Search Type Selector -->
+    <table id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_InputForm1" width="100%" border="0" cellpadding="0" cellspacing="0">
+	<tr id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_InputFormFieldRow1">
+		<td align="right" width="50%" valign="top" nowrap="nowrap"><span title=""><span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_ctl01_lblAsterisk" title="This is a required field"><b><font color="#B00407">*</font></b></span>&nbsp;&nbsp;<span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_ctl01_lblLabel">Search Type:</span>&nbsp;</span></td><td><table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td valign="top"><table border="0" cellpadding="0" cellspacing="0" height="22">
+					<tr>
+						<td align="left" nowrap="nowrap" valign="middle"><span><select name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$ddlSearchType" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_ddlSearchType" class="standard">
+							<option value="CitationNumber">Citation Number</option>
+							<option value="DateFiled">Date Filed</option>
+							<option selected="selected" value="DocketNumber">Docket Number</option>
+							<option value="Organization">Organization</option>
+							<option value="OTN">OTN</option>
+							<option value="Parcel">Parcel</option>
+							<option value="ParticipantName">Participant Name</option>
+							<option value="PoliceIncident_Complaint">Police Incident/Complaint Number</option>
+							<option value="SID">SID</option>
+
+						</select></span></td>
+					</tr>
+				</table></td>
+			</tr>
+		</table></td><td align="left" width="50%" nowrap="nowrap" valign="top"><span></span></td>
+	</tr>
+</table>
+    
+    <h3>Enter the desired search criteria and click Search <span style="font-style:italic;">(available search criteria changes based upon the type selected above)</span></h3>
+    
+    <!-- Various Search Controls -->
+    <div id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_pnlViews">
+	
+        
+    
+    
+    
+<table id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_InputForm1" width="100%" border="0" cellpadding="0" cellspacing="0">
+		<tr id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_InputFormFieldRow1">
+			<td align="right" width="50%" valign="top" nowrap="nowrap"><span title=""><span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ctl01_lblAsterisk" title="This is a required field"><b><font color="#B00407">*</font></b></span>&nbsp;&nbsp;<span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ctl01_lblLabel">County:</span>&nbsp;</span></td><td><table border="0" cellpadding="0" cellspacing="0" width="100%">
+				<tr>
+					<td valign="top"><table border="0" cellpadding="0" cellspacing="0" height="22">
+						<tr>
+							<td align="left" nowrap="nowrap" valign="middle"><span><select name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$cphSearchControls$udsDocketNumber$ddlCounty" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ddlCounty" class="standard">
+								<option value=""></option>
+								<option value="Adams">Adams</option>
+								<option value="Allegheny">Allegheny</option>
+								<option value="Armstrong">Armstrong</option>
+								<option value="Beaver">Beaver</option>
+								<option value="Bedford">Bedford</option>
+								<option value="Berks">Berks</option>
+								<option value="Blair">Blair</option>
+								<option value="Bradford">Bradford</option>
+								<option value="Bucks">Bucks</option>
+								<option value="Butler">Butler</option>
+								<option value="Cambria">Cambria</option>
+								<option value="Cameron">Cameron</option>
+								<option value="Carbon">Carbon</option>
+								<option value="Centre">Centre</option>
+								<option value="Chester">Chester</option>
+								<option value="Clarion">Clarion</option>
+								<option value="Clearfield">Clearfield</option>
+								<option value="Clinton">Clinton</option>
+								<option value="Columbia">Columbia</option>
+								<option value="Crawford">Crawford</option>
+								<option value="Cumberland">Cumberland</option>
+								<option value="Dauphin">Dauphin</option>
+								<option value="Delaware">Delaware</option>
+								<option value="Elk">Elk</option>
+								<option value="Erie">Erie</option>
+								<option value="Fayette">Fayette</option>
+								<option value="Forest">Forest</option>
+								<option value="Franklin">Franklin</option>
+								<option value="Fulton">Fulton</option>
+								<option value="Greene">Greene</option>
+								<option value="Huntingdon">Huntingdon</option>
+								<option value="Indiana">Indiana</option>
+								<option value="Jefferson">Jefferson</option>
+								<option value="Juniata">Juniata</option>
+								<option value="Lackawanna">Lackawanna</option>
+								<option selected="selected" value="Lancaster">Lancaster</option>
+								<option value="Lawrence">Lawrence</option>
+								<option value="Lebanon">Lebanon</option>
+								<option value="Lehigh">Lehigh</option>
+								<option value="Luzerne">Luzerne</option>
+								<option value="Lycoming">Lycoming</option>
+								<option value="McKean">McKean</option>
+								<option value="Mercer">Mercer</option>
+								<option value="Mifflin">Mifflin</option>
+								<option value="Monroe">Monroe</option>
+								<option value="Montgomery">Montgomery</option>
+								<option value="Montour">Montour</option>
+								<option value="Northampton">Northampton</option>
+								<option value="Northumberland">Northumberland</option>
+								<option value="Perry">Perry</option>
+								<option value="Pike">Pike</option>
+								<option value="Potter">Potter</option>
+								<option value="Schuylkill">Schuylkill</option>
+								<option value="Snyder">Snyder</option>
+								<option value="Somerset">Somerset</option>
+								<option value="Sullivan">Sullivan</option>
+								<option value="Susquehanna">Susquehanna</option>
+								<option value="Tioga">Tioga</option>
+								<option value="Union">Union</option>
+								<option value="Venango">Venango</option>
+								<option value="Warren">Warren</option>
+								<option value="Washington">Washington</option>
+								<option value="Wayne">Wayne</option>
+								<option value="Westmoreland">Westmoreland</option>
+								<option value="Wyoming">Wyoming</option>
+								<option value="York">York</option>
+
+							</select></span></td>
+						</tr>
+					</table></td>
+				</tr>
+			</table></td><td align="left" width="50%" nowrap="nowrap" valign="top"><span></span></td>
+		</tr><tr id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_InputFormFieldRow2">
+			<td align="right" width="50%" valign="top" nowrap="nowrap"><span title=""><span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ctl08_lblAsterisk" title="This is a required field"><b><font color="#B00407">*</font></b></span>&nbsp;&nbsp;<span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ctl08_lblLabel">Court Office:</span>&nbsp;</span></td><td><table border="0" cellpadding="0" cellspacing="0" width="100%">
+				<tr>
+					<td valign="top"><table border="0" cellpadding="0" cellspacing="0" height="22">
+						<tr>
+							<td align="left" nowrap="nowrap" valign="middle"><span><select name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$cphSearchControls$udsDocketNumber$ddlCourtOffice" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ddlCourtOffice" class="standard">
+								<option value="0"></option>
+								<option value="2000">MDJ-02-0-00 - Ashworth, David L.</option>
+								<option value="2101">MDJ-02-1-01 - Witkonis, Adam J.</option>
+								<option value="2102">MDJ-02-1-02 - Miller, David P.</option>
+								<option value="2103">MDJ-02-1-03 - Bixler, Miles K.</option>
+								<option value="2201">MDJ-02-2-01 - Richardson, Jodie E.</option>
+								<option value="2202">MDJ-02-2-02 - Roth, Bruce A.</option>
+								<option value="2203">MDJ-02-2-03 - Mongiovi Sponaugle, Mary</option>
+								<option value="2204">MDJ-02-2-04 - LeFever, Andrew T.</option>
+								<option value="2205">MDJ-02-2-05 - Chudzik, Brian E.</option>
+								<option value="2206">MDJ-02-2-06 - Keller, Joshua R.</option>
+								<option value="2207">MDJ-02-2-07 - Russell, Tony S.</option>
+								<option value="2208">MDJ-02-2-08 - Tobin, Edward A.</option>
+								<option value="2301">MDJ-02-3-01 - Albert, Scott E.</option>
+								<option value="2302">MDJ-02-3-02 - Commins, B. Denise</option>
+								<option value="2303">MDJ-02-3-03 - Benner, William E. Jr.</option>
+								<option value="2304">MDJ-02-3-04 - Mylin, Stuart J.</option>
+								<option value="2305">MDJ-02-3-05 - Sheller, Raymond S.</option>
+								<option selected="selected" value="2306">MDJ-02-3-06 - Heisse, Jonathan W.</option>
+								<option value="2307">MDJ-02-3-07 - Hamill, Nancy G.</option>
+								<option value="2309">MDJ-02-3-09 - Miller, Randall L.</option>
+								<option value="2999">MDJ-02-9-99 - Lancaster City</option>
+
+							</select></span></td>
+						</tr>
+					</table></td>
+				</tr>
+			</table></td><td align="left" width="50%" nowrap="nowrap" valign="top"><span></span></td>
+		</tr><tr id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_DocketNumberRow">
+			<td align="right" width="50%" valign="top" nowrap="nowrap"><span title=""><span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ctl22_lblAsterisk" title="This is a required field"><b><font color="#B00407">*</font></b></span>&nbsp;&nbsp;<span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ctl22_lblLabel">Docket Number:</span>&nbsp;</span></td><td><table border="0" cellpadding="0" cellspacing="0" width="100%">
+				<tr>
+					<td valign="top"><table border="0" cellpadding="0" cellspacing="0" height="22">
+						<tr>
+							<td align="left" nowrap="nowrap" valign="middle"><span><span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_Label1">MJ</span> - <span id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_lblCourt">02306</span> - <select name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$cphSearchControls$udsDocketNumber$ddlDocketType" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_ddlDocketType">
+								<option selected="selected" value=""></option>
+								<option value="CR">CR</option>
+								<option value="CV">CV</option>
+								<option value="LT">LT</option>
+								<option value="NT">NT</option>
+								<option value="TR">TR</option>
+
+							</select> - <input name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$cphSearchControls$udsDocketNumber$txtSequenceNumber" type="text" maxlength="7" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_txtSequenceNumber" onblur="return OnNumericTextBoxClientBlur(this);" style="width: 3.75em;" /> - <input name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$cphSearchControls$udsDocketNumber$txtYear" type="text" maxlength="4" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_cphSearchControls_udsDocketNumber_txtYear" onfocus="return OnYearTextBoxFocus(this);" onblur="return OnYearTextBoxClientBlur(this, (new Date()).getYear());" style="width: 2.5em;" /></span></td>
+						</tr><tr>
+							<td colspan="1" class="ExampleText" align="left"><font size="1">(Example: MJ-09305-TR-0000010-2021)</font></td>
+						</tr>
+					</table></td>
+				</tr>
+			</table></td><td align="left" width="50%" nowrap="nowrap" valign="top"><span></span></td>
+		</tr><tr>
+			<td colspan="3" class="Error"><table>
+				<tr>
+					<td align="left">
+        
+    </td>
+				</tr>
+			</table></td>
+		</tr>
+	</table>
+    
+    
+    
+    
+    
+    
+
+    
+</div>
+    
+    <!-- Control Buttons -->
+    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td colspan="3" align="center">
+            <input type="submit" name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$btnSearch" value="Search" onclick="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$ctl00$ctl00$cphMain$cphDynamicContent$btnSearch&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_btnSearch" class="standard" />
+            <input type="submit" name="ctl00$ctl00$ctl00$cphMain$cphDynamicContent$btnClear" value="Clear" id="ctl00_ctl00_ctl00_cphMain_cphDynamicContent_btnClear" class="standard" />            
+        </td>
+	</tr>
+</table>
+    
+    <!-- Results -->
+    
+
+    </div>
+
+							</div>
+							<script type="text/javascript">
+								document.getElementById('mainContentPanel').style.display = '';
+							</script>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div id="contactContainer" style="display: none;">
+			<ul class="ContactList">
+				<li class="First">
+					<a id="ctl00_ctl00_ctl00_lnkContact" href="../PortalSelfHelp.aspx">Help Center</a></li>
+				<li>
+					<a href="../Privacy.aspx">Privacy Policy</a></li>
+				<li class="Last">
+					<a href="../Terms.aspx">Terms & Conditions</a></li>
+			</ul>
+		</div>
+		<script type="text/javascript">
+			document.getElementById('contactContainer').style.display = '';
+		</script>
+
+		<div id="siteNotesContainer" style="display: none;">
+			<div id="siteRequirementsContainer">
+				<h4>Site Requirements</h4>
+				<p>
+					This site requires a current browser with Javascript and cookies enabled to access our eServices properly.
+		            Other browsers and browsers without Javascript and cookies enabled will see graphical errors or may be denied
+		            access completely. Due to the technology used in creating this site, using Internet Explorer 11 will provide 
+                    the most satisfying user experience. Beginning April 16, 2018, any internet browser limited to SSL or TLS 1.0/1.1 
+                    encryption protocols will no longer be supported on this website. Using a browser that supports TLS 1.2 or 
+                    higher will be required to access the UJS Web Portal. The reporting functions on the site require Adobe Acrobat 
+                    Reader. Please be advised that if you are running pop-up blockers, you may be unable to view all of the pages 
+                    and reports on this site.
+				</p>
+			</div>
+			<div id="siteDisclaimerContainer">
+				<h4>Disclaimer</h4>
+				<p>
+					The Unified Judicial System and its related personnel make no representation as to the accuracy, completeness or utility,
+                    and assume no liability for any general or specific use of the information provided herein. Recent entries made in the court offices
+                    may not be immediately reflected on this site. Periodically, secure login accounts will be deactivated due to a lack of use for
+                    a minimum period of six months. To re-activate a secure account, a new login request form signed by the appropriate county
+                    official must be submitted.
+				</p>
+			</div>
+			<div id="copyrightContainer">
+				&copy; Copyright 2005 -
+                <span id="ctl00_ctl00_ctl00_lblCurrentYear">2021</span>
+				Administrative Office of Pennsylvania Courts. All Rights Reserved.
+			</div>
+		</div>
+		<script type="text/javascript">
+			document.getElementById('siteNotesContainer').style.display = '';
+		</script>
+		<input type="hidden" name="ctl00$ctl00$ctl00$ctl07$captchaAnswer" id="ctl00_ctl00_ctl00_ctl07_captchaAnswer" value="601075150" />
+
+		
+
+<script type="text/javascript">
+
+    function refreshSession(
+    ) {
+
+        var viewStateID = document.getElementById( '__VIEWSTATE' ).value;
+
+        if( viewStateID.length == 36 ) {
+            jQuery.get( '../SessionHeartbeat.ashx?viewStateID=' + viewStateID );
+        } else {
+            jQuery.get( '../SessionHeartbeat.ashx' );
+        }
+    }
+
+    // Refresh the user's session part-way through the session timeout period
+    setInterval(function() {
+        refreshSession( );
+    }, 5 * 60 * 1000 );
+
+</script>
+
+		<div id="loading" class="loading" style="display: none;">
+			<div id="loadingcontent" class="loadingcontent">
+				<p id="loadingspinner" class="loadingspinner">
+					&nbsp;
+				</p>
+			</div>
+		</div>
+		<div id="OverlayDiv" class="OverlayPage" style="display: none;"></div>
+	
+
+<script type="text/javascript">
+//<![CDATA[
+document.getElementById( 'ctl00_ctl00_ctl00_ctl07_captchaAnswer' ).value = '601075150';
+var ctl00_ctl00_ctl00_MainMenu_Data = new Object();
+ctl00_ctl00_ctl00_MainMenu_Data.disappearAfter = 500;
+ctl00_ctl00_ctl00_MainMenu_Data.horizontalOffset = 0;
+ctl00_ctl00_ctl00_MainMenu_Data.verticalOffset = 4;
+ctl00_ctl00_ctl00_MainMenu_Data.iframeUrl = '/WebResource.axd?d=-YoPLF8HC-iAB9GcuLL9hvKpv8qvFSCWWdNG0y8YDaA79Vjkrf9N_rIJ09S9JWONyCZVnG8aj6Cmr9lT0&t=637346642097037378';
+//]]>
+</script>
+</form>
+</body>
+</html>
+<script id="f5_cspm">(function(){var f5_cspm={f5_p:'IKKKGKGFEOPMODGFGAEPMIJLBLCLMPKKJGBMJLJLPOJPLOJAOABIJHAOJOPLHLBOLEIBMANHAABOGCIFOBBAAKLGAALDPCKKOAJOFBJMBKMNHIHOHMHJHPFAJNBLIIKB',setCharAt:function(str,index,chr){if(index>str.length-1)return str;return str.substr(0,index)+chr+str.substr(index+1);},get_byte:function(str,i){var s=(i/16)|0;i=(i&15);s=s*32;return((str.charCodeAt(i+16+s)-65)<<4)|(str.charCodeAt(i+s)-65);},set_byte:function(str,i,b){var s=(i/16)|0;i=(i&15);s=s*32;str=f5_cspm.setCharAt(str,(i+16+s),String.fromCharCode((b>>4)+65));str=f5_cspm.setCharAt(str,(i+s),String.fromCharCode((b&15)+65));return str;},set_latency:function(str,latency){latency=latency&0xffff;str=f5_cspm.set_byte(str,40,(latency>>8));str=f5_cspm.set_byte(str,41,(latency&0xff));str=f5_cspm.set_byte(str,35,2);return str;},wait_perf_data:function(){try{var wp=window.performance.timing;if(wp.loadEventEnd>0){var res=wp.loadEventEnd-wp.navigationStart;if(res<60001){var cookie_val=f5_cspm.set_latency(f5_cspm.f5_p,res);window.document.cookie='f5avr1753653273aaaaaaaaaaaaaaaa_cspm_='+encodeURIComponent(cookie_val)+';path=/';}
+return;}}
+catch(err){return;}
+setTimeout(f5_cspm.wait_perf_data,100);return;},go:function(){var chunk=window.document.cookie.split(/\s*;\s*/);for(var i=0;i<chunk.length;++i){var pair=chunk[i].split(/\s*=\s*/);if(pair[0]=='f5_cspm'&&pair[1]=='1234')
+{var d=new Date();d.setTime(d.getTime()-1000);window.document.cookie='f5_cspm=;expires='+d.toUTCString()+';path=/;';setTimeout(f5_cspm.wait_perf_data,100);}}}}
+f5_cspm.go();}());</script>
