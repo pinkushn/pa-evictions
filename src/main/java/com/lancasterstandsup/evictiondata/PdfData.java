@@ -70,21 +70,24 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     private String orderForPossessionRequested;
     private LocalDate orderForPossessionServedDate;
     private String orderForPossessionServed;
-    private String tenantWin;
+    //private String tenantWin;
     private String served;
     private String withdrawn;
     private String dismissed;
     private String dismissedWithPrejudice;
     private String settled;
     boolean stayed;
+    boolean appealed;
     boolean judgmentForPlaintiff;
     boolean judgmentForDefendant;
     private String dispositionDate;
     private boolean bankruptcy;
     private String notes;
-    private List<String> attorneys;
-    private boolean defendantAttorneyExists;
-    private boolean plaintiffAttorneyExists;
+    //private List<String> attorneys;
+    //private boolean defendantAttorneyExists;
+    //private boolean plaintiffAttorneyExists;
+    private String plaintiffAttorney;
+    private String defendantAttorney;
 
     private LocalDate comparableDate;
 
@@ -94,48 +97,13 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     public String[] getRow() {
         String[] ret = new String[Parser.colHeaders.length];
 
+        //obfuscate defendant names
+
         for (Integer i: row.keySet()) {
             ret[i] = row.get(i);
         }
 
-        //We're adding server fees and damages dynamically to notes
-        //kinda assuming we'll give them their own column
-        String moddedNotes = getModdedNotes();
-
-        if (moddedNotes != null) {
-            int notesI = -1;
-            for (int x = Parser.colHeaders.length - 1; x >= 0; x--) {
-                String header = Parser.colHeaders[x];
-                if (header.equals("Notes")) {
-                    notesI = x;
-                }
-            }
-
-            ret[notesI] = moddedNotes;
-        }
-
         return ret;
-    }
-
-    private String getModdedNotes() {
-        String notes = this.notes;
-        if (serverFees != null) {
-            if (notes == null) notes = "Server fees: " + serverFees;
-            else notes += "; " + "Server fees: " + serverFees;
-        }
-        if (damages != null) {
-            if (notes == null) notes = "Damages: " + damages;
-            else notes += "; " + "Damages: " + damages;
-        }
-        if (attorneyFees != null) {
-            if (notes == null) notes = "Attorney fees: " + attorneyFees;
-            else notes += "; " + "Attorney fees: " + attorneyFees;
-        }
-        if (rentReservedAndDue != null) {
-            if (notes == null) notes = "Rent reserved and due: " + rentReservedAndDue;
-            else notes += "; " + "Rent reserved and due: " + rentReservedAndDue;
-        }
-        return notes;
     }
 
     public void setCourtOffice(String courtOffice) {
@@ -183,7 +151,18 @@ public class PdfData implements Comparable<PdfData>, Serializable {
 
     public void setDefendant(String defendantNames) {
         this.defendantNames = defendantNames;
-        row.put(7, defendantNames);
+        row.put(7, obfuscateNames(defendantNames));
+    }
+
+    private String obfuscateNames(String s) {
+        String [] split = s.split(" ");
+        String ret = "";
+        for (String x: split) {
+            ret += x.substring(0, 1).toUpperCase() + ".";
+            if (x.lastIndexOf(',') == x.length() - 1) ret += ",";
+            ret += " ";
+        }
+        return ret.trim();
     }
 
     public void setDefendantZips(String defendantZips) {
@@ -236,34 +215,6 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         row.put(14, filingFees);
     }
 
-    public void setServerFees(String m) {
-        if (serverFees == null) serverFees = m;
-        else {
-            serverFees = addMoneyStrings(serverFees, m);
-        }
-    }
-
-    public void setRentReservedAndDue(String m) {
-        if (rentReservedAndDue == null) rentReservedAndDue = m;
-        else {
-            rentReservedAndDue = addMoneyStrings(rentReservedAndDue, m);
-        }
-    }
-
-    public void setAttorneyFees(String m) {
-        if (attorneyFees == null) attorneyFees = m;
-        else {
-            attorneyFees = addMoneyStrings(attorneyFees, m);
-        }
-    }
-
-    public void setDamages(String m) {
-        if (damages == null) damages = m;
-        else {
-            damages = addMoneyStrings(damages, m);
-        }
-    }
-
     public void setCosts(String m) {
         if (costs == null) costs = m;
         else {
@@ -272,85 +223,158 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         row.put(15, costs);
     }
 
+    public void setServerFees(String m) {
+        if (serverFees == null) serverFees = m;
+        else {
+            serverFees = addMoneyStrings(serverFees, m);
+        }
+        row.put(16, serverFees);
+    }
+
+    public void setDamages(String m) {
+        if (damages == null) damages = m;
+        else {
+            damages = addMoneyStrings(damages, m);
+        }
+        row.put(17, damages);
+    }
+
+    public void setAttorneyFees(String m) {
+        if (attorneyFees == null) attorneyFees = m;
+        else {
+            attorneyFees = addMoneyStrings(attorneyFees, m);
+        }
+        row.put(18, attorneyFees);
+    }
+
+    public void setRentReservedAndDue(String m) {
+        if (rentReservedAndDue == null) rentReservedAndDue = m;
+        else {
+            rentReservedAndDue = addMoneyStrings(rentReservedAndDue, m);
+        }
+        row.put(19, rentReservedAndDue);
+    }
+
     public void setInterest(String m) {
         if (interest == null) interest = m;
         else {
             interest = addMoneyStrings(interest, m);
         }
+        row.put(20, interest);
     }
 
     public void setMonthlyRent(String s) {
         this.monthlyRent = s;
-        row.put(16, s);
+        row.put(21, s);
     }
 
     public void setWithdrawn(boolean b) {
         this.withdrawn = b ? "TRUE" : "FALSE";
-        row.put(17, this.withdrawn);
+        row.put(22, this.withdrawn);
     }
 
     public void setDismissed(boolean b) {
         this.dismissed = b ? "TRUE" : "FALSE";
-        row.put(18, this.dismissed);
-
-        if (b) setTenantWin(true);
+        row.put(23, this.dismissed);
     }
 
     public void setDismissedWithPrejudice(boolean b) {
-        this.dismissedWithPrejudice = b ? "TRUE" : "FALSE";
+        if (!b) return;
+        this.dismissedWithPrejudice ="TRUE";
 
-        if (b) setTenantWin(true);
+        row.put(23, "TRUE");
+    }
+
+    public boolean isTenantWin() {
+        return judgmentForDefendant || dismissed != null || dismissedWithPrejudice != null;
     }
 
     public void setGrantPossession(String gp) {
         //System.out.println(docketNumber);
         this.grantPossession = gp;
-        row.put(19, gp);
+        row.put(24, gp);
     }
 
     public void setGrantPossessionIf(String gp) {
         this.grantPossessionIf = gp;
-        row.put(20, gp);
+        row.put(25, gp);
     }
 
     public void setOrderForPossessionRequested(boolean b, String date) {
         this.orderForPossessionRequested = b ? "TRUE" : "FALSE";
-        row.put(21, this.orderForPossessionRequested);
+        row.put(26, this.orderForPossessionRequested);
 
         orderForPossessionServedDate = LocalDate.parse(date, dateFormatter);
     }
 
     public void setOrderForPossessionServed(boolean b) {
         this.orderForPossessionServed = b ? "TRUE" : "FALSE";
-        row.put(22, this.orderForPossessionServed);
+        row.put(27, this.orderForPossessionServed);
     }
 
-    //judgment for defendant or dismissed
-    public void setTenantWin(boolean b) {
-        this.tenantWin = b ? "TRUE" : "FALSE";
-        row.put(23, this.tenantWin);
+//    //judgment for defendant or dismissed
+//    public void setTenantWin(boolean b) {
+//        this.tenantWin = b ? "TRUE" : "FALSE";
+//        row.put(28, this.tenantWin);
+//    }
+
+    public void judgmentForPlaintiff(boolean b) {
+        judgmentForPlaintiff = b;
+        row.put(28, b ? "TRUE" : "FALSE");
+    }
+
+    public void judgmentForDefendant(boolean b) {
+        judgmentForDefendant = b;
+        row.put(29, b ? "TRUE" : "FALSE");
+    }
+
+    public void setSettled(boolean b, String date) {
+        if (!b) return;
+        this.settled = date != null ? date : "TRUE";
+        row.put(30, this.settled);
+    }
+
+    public void setStayed (String stayedString) {
+        if (stayedString == null) return;
+        stayed = true;
+        row.put(31, "TRUE");
     }
 
     public void setServed(boolean b) {
         this.served = b ? "TRUE" : "FALSE";
-        row.put(24, this.served);
+        //row.put(31, this.served);
     }
 
-    public void setSettled(boolean b, String date) {
-        this.settled = b ? "TRUE" : "FALSE";
+    public void setAppeal(String s) {
+        this.appealed = true;
 
-        String note = "Case was settled";
-        if (date != null) note += " " + date;
-        addNote(note);
-    }
+        if (notes != null) {
+            notes += "; " + s;
+        }
+        else notes = s;
 
-    public void setStayed (String stayedString) {
-        stayed = true;
-        addNote(stayedString);
+        row.put(32, "TRUE");
     }
 
     private boolean isStayed() {
         return stayed;
+    }
+
+    public void addAttorney(String name, String representing) {
+        if (containsMatchingEntity(representing, defendantNames)) {
+            if (defendantAttorney == null) defendantAttorney = name;
+            else defendantAttorney += ", " + name;
+            row.put(34, defendantAttorney);
+        }
+        else if (containsMatchingEntity(representing, plaintiffNames)) {
+            if (plaintiffAttorney == null) plaintiffAttorney = name;
+            else plaintiffAttorney += ", " + name;
+            row.put(33, plaintiffAttorney);
+        }
+        else if (!ignoreAttorneyProvenance.contains(getDocketNumber())) {
+            System.err.println("Can't determine attorney provenance for " + docketNumber);
+            addNote("Attorney " + name + " with indeterminant provenance");
+        }
     }
 
     public void addNote(String note) {
@@ -360,7 +384,7 @@ public class PdfData implements Comparable<PdfData>, Serializable {
             notes += "; " + note;
         }
         else notes = note;
-        row.put(26, notes);
+        row.put(35, notes);
     }
 
     public String getJudgeName() {
@@ -415,10 +439,12 @@ public class PdfData implements Comparable<PdfData>, Serializable {
                 "grant possession if: " + grantPossessionIf + "\n" +
                 "order for possession requested: " + orderForPossessionRequested + "\n" +
                 "order for possession served: " + orderForPossessionServed + "\n" +
-                "tenant win: " + tenantWin + "\n" +
+                //"tenant win: " + tenantWin + "\n" +
+                "judgment for plaintiff: " + judgmentForPlaintiff + "\n" +
+                "judgment for defendant: " + judgmentForDefendant + "\n" +
                 "served: " + served + "\n" +
                 "settled: " + settled + "\n" +
-                "notes: " + getModdedNotes() + "\n\n" +
+                "notes: " + notes + "\n\n" +
                 toTestDataRowOutput();
     }
 
@@ -541,10 +567,6 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         return "TRUE".equals(withdrawn);
     }
 
-    private boolean isTenantWin() {
-        return "TRUE".equals(tenantWin);
-    }
-
     private boolean isTransferred() {
         return notes != null && notes.indexOf("transferred") > -1;
     }
@@ -559,26 +581,6 @@ public class PdfData implements Comparable<PdfData>, Serializable {
 
     private void invalidMessage(String msg) {
         System.err.println(docketNumber + " INVALID: " + msg);
-    }
-
-    public void addAttorney(String name, String representing) {
-        if (attorneys == null) {
-            attorneys = new ArrayList<>();
-        }
-        String attorneyPhrase = name + " representing " + representing;
-        if (containsMatchingEntity(representing, defendantNames)) {
-            attorneyPhrase = name + " representing defendant " + representing;
-            defendantAttorneyExists = true;
-        }
-        else if (containsMatchingEntity(representing, plaintiffNames)) {
-            attorneyPhrase = name + " representing plaintiff " + representing;
-            plaintiffAttorneyExists = true;
-        }
-        else if (!ignoreAttorneyProvenance.contains(getDocketNumber())) {
-            System.err.println("Can't determine attorney provenance for " + docketNumber);
-        }
-        attorneys.add(attorneyPhrase);
-        addNote(attorneyPhrase);
     }
 
     private boolean containsMatchingEntity(String represented, String parties) {
@@ -612,15 +614,6 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         return getDocketNumber().equals(op.getDocketNumber());
     }
 
-    public void judgmentForPlaintiff(boolean b) {
-        judgmentForPlaintiff = true;
-    }
-
-    public void judgmentForDefendant(boolean b) {
-        judgmentForDefendant = true;
-        setTenantWin(true);
-    }
-
     public void setDispositionDate(String dispositionDate) {
         this.dispositionDate = dispositionDate;
     }
@@ -646,11 +639,11 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     }
 
     public boolean isPlaintiffAttorney() {
-        return plaintiffAttorneyExists;
+        return plaintiffAttorney != null;
     }
 
     public boolean isDefendantAttorney() {
-        return defendantAttorneyExists;
+        return defendantAttorney != null;
     }
 
     public boolean isGrantPossessionOrOrderForEvictionServed() {
