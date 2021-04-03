@@ -120,6 +120,11 @@ public class Parser {
             "Rent in Arrears",
             "Filing Fees",
             "Costs",
+            "Server Fees", //new
+            "Damages", //new
+            "Attorney Fees", //new
+            "Rent Reserved and Due", //new
+            "Interest", //new
             "Monthly Rent",
             "Withdrawn",
             "Dismissed",
@@ -127,9 +132,13 @@ public class Parser {
             "Grant Pos if Judge Not Satisfied",
             "Order for Poss Req",
             "Order for Poss Served",
-            "Tenant Win",
-            "Served?",
-            "Affidavit of Compliance w CARES Act",
+            "Judgment for Plaintiff",
+            "Judgment for Defendant",
+            "Settled",
+            "Stayed",
+            "Appealed",
+            "Plaintiff Attorney",
+            "Defendant Attorney",
             "Notes"
     };
 
@@ -343,6 +352,23 @@ public class Parser {
     private static String presidingJudgeStart = "Judge Assigned: Magisterial District Judge ";
     private static String magisterialDistrictJudge = "Magisterial District Judge ";
     private static String docketNumberStart = "Docket Number: ";
+
+    private static String stay = "Rule 513 - Stay of Proceedings";
+    private static String orderForPosReq = "Order for Possession Requested";
+    private static String bankruptcy = "Bankruptcy Petition Filed";
+    private static String orderForPosServed = "Order for Possession Successfully Served";
+    private static String served = "Landlord/Tenant Complaint Successfully";
+    private static String execution = "Order of Execution Issued";
+    private static String commonPleas = "Certified Judgment to Common Pleas";
+    //String handDelivery = "Hand Delivery";
+    private static String transferred = "Case Transferred";
+    private static String tenantWinByDismissal = "Dismissed";
+    private static String dismissedWithPrejudice = "Dismissed with Prejudice";
+    private static String withdrawn = "Withdrawn";
+    private static String settled = "Settled";
+    private static String possessionAppeal = "Landlord/Tenant Possession Appeal Filed";
+    private static String monetaryAppeal = "Landlord/Tenant Monetary Appeal Filed";
+    private static String abandonment = "Home and Property Abandoned";
 
     private static void parseSection(Section section, PdfData data) {
         String[] strings = section.getStrings();
@@ -937,23 +963,6 @@ public class Parser {
 //            omissions on these docket sheets.  You should verify that the information is accurate and current by personally consulting the official record reposing in
 //            the court wherein the record is maintained.
 
-            String stay = "Rule 513 - Stay of Proceedings";
-            String orderForPosReq = "Order for Possession Requested";
-            String bankruptcy = "Bankruptcy Petition Filed";
-            String orderForPosServed = "Order for Possession Successfully Served";
-            String served = "Landlord/Tenant Complaint Successfully";
-            String execution = "Order of Execution Issued";
-            String commonPleas = "Certified Judgment to Common Pleas";
-            //String handDelivery = "Hand Delivery";
-            String transferred = "Case Transferred";
-            String tenantWinByDismissal = "Dismissed";
-            String dismissedWithPrejudice = "Dismissed with Prejudice";
-            String withdrawn = "Withdrawn";
-            String settled = "Settled";
-            String possessionAppeal = "Landlord/Tenant Possession Appeal Filed";
-            String monetaryAppeal = "Landlord/Tenant Monetary Appeal Filed";
-            String abandonment = "Home and Property Abandoned";
-
             for (String s: strings) {
                 if (s.indexOf(orderForPosReq) > -1) {
                     String date = s.substring(0, s.indexOf(' '));
@@ -998,13 +1007,13 @@ public class Parser {
                     data.addNote("Case transferred");
                 }
                 else if (s.indexOf(possessionAppeal) > -1) {
-                    data.addNote(possessionAppeal);
+                    data.setAppeal(possessionAppeal);
                 }
                 else if (s.indexOf(bankruptcy) > -1) {
                     data.bankruptcy("Bankruptcy Petition Filed");
                 }
                 else if (s.indexOf(monetaryAppeal) > -1) {
-                    data.addNote(monetaryAppeal);
+                    data.setAppeal(monetaryAppeal);
                 }
                 else if (s.indexOf(abandonment) > -1) {
                     data.addNote(abandonment);
