@@ -30,7 +30,7 @@ public class Analysis {
         //String[] years = {"2017", "2018", "2019", "2020"};
         String[] years = {"2017", "2018", "2019", "2020", "2021"};
 
-        List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+        //List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
         //monthly(list);
         //weekly(list);
@@ -82,7 +82,18 @@ public class Analysis {
 
         //orgassPercentages(list);
 
-        ephrata(list);
+        //ephrata(list);
+
+        preVersusPostPandemic("Lancaster");
+    }
+
+    /**PDFs must exist for as many days BEFORE pandemic as since pandemic
+     *
+     * @param county
+     */
+    public static void preVersusPostPandemic(String county) {
+        //how many days since 3/15/2020?
+        //get all PDF
     }
 
     public static void ephrata(List<PdfData> list) {

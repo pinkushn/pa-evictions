@@ -45,6 +45,7 @@ public class ParseMDJAddresses {
         String strong = "<strong>";
         String endStrong = "</strong>";
         String br = "<br>";
+        String brbr = br + br;
         String em = "<em>";
         while ((next = in.readLine()) != null) {
             int i = next.indexOf(first);
@@ -68,32 +69,50 @@ public class ParseMDJAddresses {
                 String judgeName = next.substring(0, i).trim();
 
                 //address
-//                i = next.indexOf(br) + br.length();
-//                next = next.substring(i);
-//                i = next.indexOf(br) + br.length();
-//                next = next.substring(i);
-//                i = next.indexOf(br) + br.length();
-//                next = next.substring(i);
-//                i = next.indexOf(br);
                 i += endStrong.length();
                 next = next.substring(i);
                 i = next.indexOf(em);
-                String street = next.substring(0, i);
-                street = street.replace(br, " ");
-                street = street.replace(",", "");
-                street = street.replace("\t", " ");
-                while (street.indexOf("  ") > -1) {
-                    street = street.replace("  ", " ");
+                String address = next.substring(0, i);
+                address.replace(brbr, br);
+                address = address.replace("\t", " ");
+                while (address.indexOf("  ") > -1) {
+                    address = address.replace("  ", " ");
                 }
-                street = street.trim();
+                address = address.trim();
+                String [] split = address.split(br);
+                String cityPlus = split[split.length - 1].trim();
+                cityPlus = cityPlus.replace(", ", " ");
+                String street = split[split.length - 2];
+                if (street.indexOf("PO Box") > -1) {
+                    street = split[split.length - 3];
+                }
 
-                System.out.println(county + ", " + court + ", " + judgeName + ", " + street);
+                street = street.replace(",", "").trim();
 
-                out.println(street + "," + county + "," + court + "," + judgeName);
+                address = street + " " + cityPlus;
+
+                //address = scrubExtraInfo(address);
+
+                System.out.println(county + ", " + court + ", " + judgeName + ", " + address);
+
+                if (county.equals("Lancaster")) {
+                    out.println(address + "," + county + "," + court + "," + judgeName);
+                }
             }
         }
 
         out.flush();
         out.close();
+    }
+
+    private static String scrubExtraInfo(String s) {
+        int i = s.indexOf('(');
+        if (i < 0) return s;
+
+        int j = s.indexOf(')');
+
+        //also remove first space;
+        s = s.substring(0, i - 2) + s.substring(j + 1);
+        return s;
     }
 }
