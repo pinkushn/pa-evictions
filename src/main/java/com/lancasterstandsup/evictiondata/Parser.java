@@ -120,11 +120,11 @@ public class Parser {
             "Rent in Arrears",
             "Filing Fees",
             "Costs",
-            "Server Fees", //new
-            "Damages", //new
-            "Attorney Fees", //new
-            "Rent Reserved and Due", //new
-            "Interest", //new
+            "Server Fees",
+            "Damages",
+            "Attorney Fees",
+            "Rent Reserved and Due",
+            "Interest",
             "Monthly Rent",
             "Withdrawn",
             "Dismissed",
