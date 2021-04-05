@@ -72,7 +72,8 @@
 		this._div.innerHTML = '<h4>Lanco Pandemic Eviction Case Rates</h4>' +  
 			'<h5>Ratio of pandemic to pre-pandemic filings</h5>' +
 		(props ?
-			'<b>' + props.ratio + '%' + ' (pre: ' + props.pre + ' post: ' + props.post + ')</b><br />' + props.court + ' ' + props.judgeName
+			'<div style="margin-bottom:5px"><b>' + props.ratio + '%' + ' (pre: ' + props.pre + ' post: ' + props.post + ')</b></div>' +
+			'<div>' + props.court + ' ' + props.judgeName + "</div>"
 			: 'Hover over an MDJ location');
 	};
 
