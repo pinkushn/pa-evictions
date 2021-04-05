@@ -19,6 +19,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class Analysis {
 
     private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static DateTimeFormatter dateFormatterShortYearSlashes = DateTimeFormatter.ofPattern("MM/dd/yy");
+    private static DateTimeFormatter dateFormatterShortYearUnderscores = DateTimeFormatter.ofPattern("MM/dd/yy");
     private static LocalDate covidStart = LocalDate.parse("03/15/2020", dateFormatter);
     private static LocalDate wolfMoratoriumEnds = LocalDate.parse("08/31/2020", dateFormatter);
 
@@ -91,6 +93,24 @@ public class Analysis {
         preVersusPostPandemic("Lancaster");
     }
 
+    public static LocalDate now = LocalDate.now();
+    public static LocalDate march15_2020 = LocalDate.of(2020, 3, 15);
+    public static LocalDate march14_2020 = LocalDate.of(2020, 3, 14);
+    public static int pandemicDays = (int) DAYS.between(march15_2020, now);
+    public static LocalDate preStart = march15_2020.minusDays(pandemicDays);
+
+    public static String presentName = now.getMonthValue() + "_" + now.getDayOfMonth() + "_" + now.getYear();
+    public static String preStartName = preStart.getMonthValue() + "_" + preStart.getDayOfMonth() + "_" + preStart.getYear();
+    public static String preEndName = march14_2020.getMonthValue() + "_" + march14_2020.getDayOfMonth() + "_" + march14_2020.getYear();
+    public static String pivotName = march15_2020.getMonthValue() + "_" + march15_2020.getDayOfMonth() + "_" + march15_2020.getYear();
+
+    public static String dirPath = "./webdata/";
+
+    private static String rootName = "lanco_eviction_cases";
+    public static String allName = rootName + "_1_1_2015_to_" + presentName + ".xlsx";
+    public static String postName = rootName + "_" + pivotName + "_to_" + presentName + ".xlsx";
+    public static String preName = rootName + "_" + preStartName + "_to_" + preEndName + ".xlsx";
+
     /**PDFs must exist for as many days BEFORE pandemic as since pandemic
      *
      * @param county
@@ -105,10 +125,6 @@ public class Analysis {
         //Name has days since pandemic: PreVersusPost_X_Days.csv
         //headers: Court,Pre,Post,Ratio
 
-        LocalDate now = LocalDate.now();
-        LocalDate march15_2020 = LocalDate.of(2020, 3, 15);
-        int pandemicDays = (int) DAYS.between(march15_2020, now);
-        LocalDate preStart = march15_2020.minusDays(pandemicDays);
         int startYear = preStart.getYear();
         int endYear = now.getYear();
         int len = endYear - startYear + 1;
@@ -150,30 +166,15 @@ public class Analysis {
         for (Double d: ratios.keySet()) {
             long l = Math.round(d*100);
             for (String court: ratios.get(d)) {
-                System.out.println(l + "% " + court + " (" + judges.get(court) + ")  pre: " + pre.get(court) + "  post: " + post.get(court));
+                //System.out.println(l + "% " + court + " (" + judges.get(court) + ")  pre: " + pre.get(court) + "  post: " + post.get(court));
                 courtToRatio.put(court, (int) l);
             }
         }
 
-        String fileName = county + "_PreVersusPost_" + pandemicDays + "_Days.csv";
-        String filePath = "./src/main/resources/" + fileName;
-        PrintWriter out = new PrintWriter(new FileWriter(filePath));
-
-        out.println("Court,Judge,PreCount,PostCount,Ratio");
-        for (String court: pre.keySet()) {
-            out.print(court + ",");
-            out.print(judges.get(court) + ",");
-            out.print(pre.get(court) + ",");
-            out.print(post.get(court) + ",");
-            out.println(courtToRatio.get(court));
-        }
-        out.flush();
-        out.close();
-
         //Map to lookup data per court
-        fileName = county.toLowerCase() + "_pre_versus_post.js";
-        filePath = "./src/main/web/" + fileName;
-        out = new PrintWriter(new FileWriter(filePath));
+        String fileName = county.toLowerCase() + "_pre_versus_post.js";
+        String filePath = "./webdata/" + fileName;
+        PrintWriter out = new PrintWriter(new FileWriter(filePath));
         out.println("let courtData = new Map([");
         for (String court: pre.keySet()) {
             out.println("\t['" + court + "', " +
@@ -182,9 +183,22 @@ public class Analysis {
                     "post: " + post.get(court) + "}" +
                     "],");
         }
+
         out.println("]);");
         out.println();
-        out.println("let pandemicDays = " + pandemicDays + ";");
+        
+        out.println("let pandemicDates = {");
+
+        out.println("\tpandemicDays:" + pandemicDays + ",");
+        out.println("\tprePandemicStartSlashes:'" + preStart.format(dateFormatterShortYearSlashes) + "',");
+        out.println("\tprePandemicEndSlashes:'3/14/20',");
+        out.println("\tpandemicStartSlashes:'3/15/20',");
+        out.println("\tpandemicEndSlashes:'" + now.format(dateFormatterShortYearSlashes) + "',");
+
+        out.println("\tallName:'" + allName + "',");
+        out.println("\tpostName:'" + postName + "',");
+        out.println("\tpreName:'" + preName + "',");
+        out.println("}");
 
         out.flush();
         out.close();
@@ -731,7 +745,7 @@ public class Analysis {
      * pre: 8/31/19 to 12/31/19
      * post: 8/31/20 to 12/31/20
      */
-    private static final LocalDate preStart = LocalDate.parse("09/01/2019", dateFormatter);
+    private static final LocalDate preStarter = LocalDate.parse("09/01/2019", dateFormatter);
     private static final LocalDate preEnd = LocalDate.parse("12/31/2019", dateFormatter);
     private static final LocalDate postStart = LocalDate.parse("09/01/2020", dateFormatter);
     private static final LocalDate postEnd = LocalDate.parse("12/31/2020", dateFormatter);
@@ -741,7 +755,7 @@ public class Analysis {
         int post = 0;
         for (PdfData pdf: data) {
             LocalDate ld = pdf.getFileDate();
-            if (ld.compareTo(preStart) > -1 && ld.compareTo(preEnd) < 1) {
+            if (ld.compareTo(preStarter) > -1 && ld.compareTo(preEnd) < 1) {
                 pre++;
             }
             else if (ld.compareTo(postStart) > -1 && ld.compareTo(postEnd) < 1) {

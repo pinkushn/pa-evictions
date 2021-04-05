@@ -20,4 +20,13 @@ let courtData = new Map([
 	['02-3-09', {ratio: 24, pre: 297, post: 72}],
 ]);
 
-let pandemicDays = 386;
+let pandemicDates = {
+pandemicDays:386,
+prePandemicStartSlashes:'02/23/19',
+prePandemicEndSlashes:'3/14/20',
+pandemicStartSlashes:'3/15/20',
+pandemicEndSlashes:'04/05/21',
+allName:'lanco_eviction_cases_1_1_2015_to_4_5_2021.xlsx',
+postName:'lanco_eviction_cases_3_15_2020_to_4_5_2021.xlsx',
+preName:'lanco_eviction_cases_2_23_2019_to_3_14_2020.xlsx',
+}

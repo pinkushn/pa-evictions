@@ -37,10 +37,19 @@
 
 <div id='map'></div>
 
+<h4>Raw Source Data</h4>
+<ul>
+	<li id="allExcel" style="margin-bottom: 5px"></li>
+	<li id="postExcel" style="margin-bottom: 5px"></li>
+	<li id="preExcel" style="margin-bottom: 5px"></li>
+</ul>
+
 <!-- <script type="text/javascript" src="data/lanco_zips_plus_number.js"></script> -->
 <script type="text/javascript" src="webdata/lancaster_municipalities2.js"></script>
 <script type="text/javascript" src="webdata/lancaster_pre_versus_post.js"></script>
 <script type="text/javascript" src="webdata/lancaster_mdjs.js"></script>
+
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script type="text/javascript">
 
@@ -245,6 +254,11 @@
 	};
 
 	legend.addTo(map);
+
+
+	$("#allExcel").html('All Lanco eviction cases <a href="webdata/' + pandemicDates.allName + '">1/1/15 to ' + pandemicDates.pandemicEndSlashes + "</a>");
+	$("#postExcel").html('All Lanco pandemic eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.postName + '">' + pandemicDates.pandemicStartSlashes + ' to ' + pandemicDates.pandemicEndSlashes + "</a>");
+	$("#preExcel").html('Corresponding pre-pandemic Lanco eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.preName + '">' + pandemicDates.prePandemicStartSlashes + ' to ' + pandemicDates.prePandemicEndSlashes + "</a>");
 
 </script>
 
