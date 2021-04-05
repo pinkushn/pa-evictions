@@ -95,9 +95,9 @@ public class ParseMDJAddresses {
 
                 System.out.println(county + ", " + court + ", " + judgeName + ", " + address);
 
-                if (county.equals("Lancaster")) {
+                //if (county.equals("Lancaster")) {
                     out.println(address + "," + county + "," + court + "," + judgeName);
-                }
+                //}
             }
         }
 

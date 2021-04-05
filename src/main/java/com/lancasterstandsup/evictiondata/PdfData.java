@@ -395,6 +395,15 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         return courtOffice;
     }
 
+    /**
+     *
+     * @return reduces courtOffice 'MDJ 06-3-08' to '06-3-08'
+     */
+    public String getCourtOfficeWithoutMDJ() {
+        int i = courtOffice.indexOf(' ');
+        return courtOffice.substring(i + 1);
+    }
+
     public String getCourtOfficeNumberOnly() {
         String ret = courtOffice.replaceAll("[\\D.]", "");
         while (ret.indexOf("0") == 0) ret = ret.substring(1);
