@@ -17,6 +17,7 @@
 		html, body {
 			height: 100%;
 			margin: 0;
+			font-family: Arial;
 		}
 		#map {
 			width: 600px;
@@ -257,7 +258,7 @@
 
 
 	$("#allExcel").html('All Lanco eviction cases <a href="webdata/' + pandemicDates.allName + '">1/1/15 to ' + pandemicDates.pandemicEndSlashes + "</a>");
-	$("#postExcel").html('All Lanco pandemic eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.postName + '">' + pandemicDates.pandemicStartSlashes + ' to ' + pandemicDates.pandemicEndSlashes + "</a>");
+	$("#postExcel").html('Lanco pandemic eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.postName + '">' + pandemicDates.pandemicStartSlashes + ' to ' + pandemicDates.pandemicEndSlashes + "</a>");
 	$("#preExcel").html('Corresponding pre-pandemic Lanco eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.preName + '">' + pandemicDates.prePandemicStartSlashes + ' to ' + pandemicDates.prePandemicEndSlashes + "</a>");
 
 </script>
