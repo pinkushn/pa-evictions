@@ -1,7 +1,11 @@
 package com.lancasterstandsup.evictiondata;
 
+import org.apache.commons.math3.util.Precision;
+
 import javax.print.attribute.standard.PDLOverrideSupported;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -91,9 +95,99 @@ public class Analysis {
      *
      * @param county
      */
-    public static void preVersusPostPandemic(String county) {
+    public static void preVersusPostPandemic(String county) throws IOException, ClassNotFoundException {
         //how many days since 3/15/2020?
-        //get all PDF
+        //get all PDFs from 3/15/2020 minus days since then
+        //split into two groups, pre and post
+        //two maps string to count: court to count. ONe for pre, one post
+
+        //result file as csv
+        //Name has days since pandemic: PreVersusPost_X_Days.csv
+        //headers: Court,Pre,Post,Ratio
+
+        LocalDate now = LocalDate.now();
+        LocalDate march15_2020 = LocalDate.of(2020, 3, 15);
+        int pandemicDays = (int) DAYS.between(march15_2020, now);
+        LocalDate preStart = march15_2020.minusDays(pandemicDays);
+        int startYear = preStart.getYear();
+        int endYear = now.getYear();
+        int len = endYear - startYear + 1;
+        String [] years = new String[len];
+        for (int x = 0; x < len; x++) {
+            years[x] = (startYear + x) + "";
+        }
+
+        List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+
+        Map<String, Integer> pre = new TreeMap<>();
+        Map<String, Integer> post = new TreeMap<>();
+        Map<String, Integer> courtToRatio = new TreeMap<>();
+        Map<String, String> judges = new TreeMap<>();
+
+        for (PdfData pdf: list) {
+            Map<String, Integer> useMe;
+            useMe = pdf.getFileDate().compareTo(march15_2020) < 0 ? pre : post;
+            String court = pdf.getCourtOfficeWithoutMDJ();
+            if (!useMe.containsKey(court)) {
+                useMe.put(court, 0);
+            }
+            useMe.put(court, useMe.get(court) + 1);
+            judges.put(court, pdf.getJudgeName());
+        }
+
+        Map<Double, List<String>> ratios = new TreeMap<>();
+        for (String s: pre.keySet()) {
+            int a = pre.get(s);
+            int b = post.get(s);
+            double ratio = Precision.round(((double) b) / a, 2);
+            //System.out.println(s + " (" + judges.get(s) + ") pre: " + a + "   post: " + b + "    ratio: " + ratio);
+            if (!ratios.containsKey(ratio)) {
+                ratios.put(ratio, new ArrayList<>());
+            }
+            ratios.get(ratio).add(s);
+        }
+
+        for (Double d: ratios.keySet()) {
+            long l = Math.round(d*100);
+            for (String court: ratios.get(d)) {
+                System.out.println(l + "% " + court + " (" + judges.get(court) + ")  pre: " + pre.get(court) + "  post: " + post.get(court));
+                courtToRatio.put(court, (int) l);
+            }
+        }
+
+        String fileName = county + "_PreVersusPost_" + pandemicDays + "_Days.csv";
+        String filePath = "./src/main/resources/" + fileName;
+        PrintWriter out = new PrintWriter(new FileWriter(filePath));
+
+        out.println("Court,Judge,PreCount,PostCount,Ratio");
+        for (String court: pre.keySet()) {
+            out.print(court + ",");
+            out.print(judges.get(court) + ",");
+            out.print(pre.get(court) + ",");
+            out.print(post.get(court) + ",");
+            out.println(courtToRatio.get(court));
+        }
+        out.flush();
+        out.close();
+
+        //Map to lookup data per court
+        fileName = county.toLowerCase() + "_pre_versus_post.js";
+        filePath = "./src/main/web/" + fileName;
+        out = new PrintWriter(new FileWriter(filePath));
+        out.println("let courtData = new Map([");
+        for (String court: pre.keySet()) {
+            out.println("\t['" + court + "', " +
+                    "{ratio: " + courtToRatio.get(court) + ", " +
+                    "pre: " + pre.get(court) + ", " +
+                    "post: " + post.get(court) + "}" +
+                    "],");
+        }
+        out.println("]);");
+        out.println();
+        out.println("let pandemicDays = " + pandemicDays + ";");
+
+        out.flush();
+        out.close();
     }
 
     public static void ephrata(List<PdfData> list) {

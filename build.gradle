@@ -21,4 +21,5 @@ dependencies {
     //apache http support
     compile "org.apache.httpcomponents:httpclient:4.5.13"
     compile "org.apache.commons:commons-lang3:3.11"
+    compile "org.apache.commons:commons-math3:3.5"
 }
