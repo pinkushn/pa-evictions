@@ -36,7 +36,7 @@ public class Analysis {
         //String[] years = {"2017", "2018", "2019", "2020"};
         String[] years = {"2017", "2018", "2019", "2020", "2021"};
 
-        //List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+        List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
         //monthly(list);
         //weekly(list);
@@ -47,7 +47,7 @@ public class Analysis {
 //        int plaintiffHasRep = countRepresentationForPlaintiffs(list);
 //        System.out.println("defendant repped: " + defendantHasRep + " out of " + list.size());
 //        System.out.println("plaintiff repped: " + plaintiffHasRep + " out of " + list.size());
-        //impactOfRepresentation(list);
+        impactOfRepresentation(list);
         //evictions(filterOutUnresolved(list));
         //plaintiffWinsByJudge(list);
         //evictionRateByJudge(list);
@@ -88,9 +88,10 @@ public class Analysis {
 
         //orgassPercentages(list);
 
-        //ephrata(list);
+        //mostFiled(ephrata(filterOutNonPandemic(list)), false, false);
+        //mostFiled(ephrata(list), false, false);
 
-        preVersusPostPandemic("Lancaster");
+        //preVersusPostPandemic("Lancaster");
     }
 
     public static LocalDate now = LocalDate.now();
@@ -111,6 +112,16 @@ public class Analysis {
     public static String postName = rootName + "_" + pivotName + "_to_" + presentName + ".xlsx";
     public static String preName = rootName + "_" + preStartName + "_to_" + preEndName + ".xlsx";
 
+    public static List<PdfData> filterOutNonPandemic(List<PdfData> list) {
+        List<PdfData> ret = new ArrayList<>();
+        for (PdfData pdf: list) {
+            if (pdf.getFileDate().compareTo(march15_2020) > -1) {
+                ret.add(pdf);
+            }
+        }
+
+        return ret;
+    }
     /**PDFs must exist for as many days BEFORE pandemic as since pandemic
      *
      * @param county
@@ -204,11 +215,15 @@ public class Analysis {
         out.close();
     }
 
-    public static void ephrata(List<PdfData> list) {
+    public static List<PdfData> ephrata(List<PdfData> list) {
         List<PdfData> eph = new LinkedList();
+        String target = "17522";
         for (PdfData pdf: list) {
-            pdf.getZip();
+            if (pdf.defendantZip(target)) {
+                eph.add(pdf);
+            }
         }
+        return eph;
     }
 
 //    public static void evictionsOrderedRecently(List<PdfData> list) {
@@ -315,7 +330,7 @@ public class Analysis {
         }
 
         for (Integer i: highs.keySet()) {
-            if (i >= 5) {
+            if (i >= 2) {
                 Set<String> set = highs.get(i);
                 for (String c: set) {
                     String per = Math.round(winPercentage.get(c)) + "% wins";
@@ -403,12 +418,14 @@ public class Analysis {
         int pWinNoRep = 0;
         String target = "grant/order";
         //String target = "eviction";
+        int defendantRepped = 0;
         for (PdfData pdf: list) {
             boolean pWin = pdf.isGrantPossessionOrOrderForEvictionServed();
             //boolean pWin = pdf.isEviction();
             if (pdf.isDefendantAttorney()) {
                 casesDefendantRep++;
                 pWinDefendantRep += pWin ? 1 : 0;
+                defendantRepped++;
             }
             else if (pdf.isPlaintiffAttorney()) {
                 casesPRepButNoDefendantRep++;
@@ -428,6 +445,9 @@ public class Analysis {
         per = 100 * ((double) pWinNoRep) / casesNoRep;
         System.out.println("No rep either party, plaintiff gets " + target + ": " + per +
                 "% (" + pWinNoRep + " of " + casesNoRep + ")");
+        per = 100 * ((double) defendantRepped) / list.size();
+        System.out.println("Defendant repped: " + per +
+                "% (" + defendantRepped + " of " + list.size() + ")");
     }
 
 //    private static void covidEvictions(List<PdfData> list) {
