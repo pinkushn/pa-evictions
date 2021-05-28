@@ -23,7 +23,8 @@ public class Scraper {
     private static int fivehundreds = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-        scrape("Lancaster", "2014");
+        //scrape("Lancaster", "2020");
+        scrape("Lancaster", "2021");
 
         //fully pulled 2015 4/4/21
         //scrape("Lancaster", "2015");
