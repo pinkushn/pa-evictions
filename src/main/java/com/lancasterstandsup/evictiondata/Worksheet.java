@@ -80,7 +80,7 @@ public class Worksheet {
 
         List<PdfData> list = (List<PdfData>) data[2];
 
-        writeExcel(Analysis.dirPath + county, list, null, null);
+        writeExcel(Analysis.dirPath + county + ".xlsx", list, null, null);
     }
 
     /**
