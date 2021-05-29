@@ -30,7 +30,8 @@ public class Worksheet {
         //String[] approvedYears = {"2017", "2018", "2019", "2020", "2021"};
         //allYears("Lancaster", approvedYears);
 
-        webRefresh("Lancaster");
+        //webRefresh("Lancaster");
+        webRefreshSurroundingCounty("York");
     }
 
     /**
@@ -63,6 +64,23 @@ public class Worksheet {
         writeExcel(Analysis.dirPath + Analysis.preName, list, Analysis.preStart, Analysis.march14_2020);
 
         //someday, maybe also write json object to use for table of 'processed source data'
+    }
+
+    public static void webRefreshSurroundingCounty(String county) throws IOException, ClassNotFoundException {
+        String[] years = {"2019", "2020", "2021"};
+        Object[] data = null;
+
+        try {
+            data = ParseAll.get(county, years, true);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("parser failed, abandoning allYears");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        List<PdfData> list = (List<PdfData>) data[2];
+
+        writeExcel(Analysis.dirPath + county, list, null, null);
     }
 
     /**
