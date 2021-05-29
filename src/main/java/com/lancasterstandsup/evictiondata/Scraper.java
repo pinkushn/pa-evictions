@@ -39,18 +39,22 @@ public class Scraper {
 
         //scrape("York", "2019");
         //scrape("York", "2020");
-        scrape("York", "2021");
+        //scrape("York", "2021");
 
         //scrape("Berks", "2019");
+
+        //redo these after bug discovered 5/29/21 is fixed
+        //scrape("Berks", "2020");
         //scrape("Berks", "2021");
 
+        //did this 5/29/21
         //scrape("Lebanon", "2019");
-//        scrape("Lebanon", "2020");
-//        scrape("Lebanon", "2021");
+        //scrape("Lebanon", "2020");
+        //scrape("Lebanon", "2021");
 
-        //scrape("Dauphin", "2019");
-        //scrape("Dauphin", "2020");
-        //scrape("Dauphin", "2021");
+        scrape("Dauphin", "2019");
+        scrape("Dauphin", "2020");
+        scrape("Dauphin", "2021");
 
 
 
