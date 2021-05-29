@@ -45,6 +45,11 @@
 	<li id="preExcel" style="margin-bottom: 5px"></li>
 </ul>
 
+<h4>Counties Near Lancaster</h4>
+<ul>
+	<li id="York" style="margin-bottom: 5px"></li>
+</ul>
+
 <!-- <script type="text/javascript" src="data/lanco_zips_plus_number.js"></script> -->
 <script type="text/javascript" src="webdata/lancaster_municipalities2.js"></script>
 <script type="text/javascript" src="webdata/lancaster_pre_versus_post.js"></script>
@@ -258,8 +263,17 @@
 
 
 	$("#allExcel").html('All Lanco eviction cases <a href="webdata/' + pandemicDates.allName + '">1/1/15 to ' + pandemicDates.pandemicEndSlashes + "</a>");
-	$("#postExcel").html('Lanco pandemic eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.postName + '">' + pandemicDates.pandemicStartSlashes + ' to ' + pandemicDates.pandemicEndSlashes + "</a>");
+	$("#postExcel").html('Lanco pandemic eviction cases (' +
+		pandemicDates.pandemicDays + ' days) <a href="webdata/' +
+		pandemicDates.postName + '">' +
+		pandemicDates.pandemicStartSlashes + ' to ' +
+		pandemicDates.pandemicEndSlashes + "</a>");
 	$("#preExcel").html('Corresponding pre-pandemic Lanco eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.preName + '">' + pandemicDates.prePandemicStartSlashes + ' to ' + pandemicDates.prePandemicEndSlashes + "</a>");
+
+	$("#York").html('York pandemic eviction cases <a href="webdata/' +
+		'York">1/1/19 to ' +
+		pandemicDates.pandemicEndSlashes + '</a>');
+
 
 </script>
 

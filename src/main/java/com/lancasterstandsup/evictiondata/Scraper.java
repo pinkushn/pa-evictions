@@ -24,7 +24,7 @@ public class Scraper {
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         //scrape("Lancaster", "2020");
-        scrape("Lancaster", "2021");
+        //scrape("Lancaster", "2021");
 
         //fully pulled 2015 4/4/21
         //scrape("Lancaster", "2015");
@@ -37,8 +37,9 @@ public class Scraper {
         //scrape("Lancaster", "2016");
         //scrape("Lancaster", "2015");
 
-        //scrape("York", "2021");
-        //scrape("York", "2018");
+        //scrape("York", "2019");
+        //scrape("York", "2020");
+        scrape("York", "2021");
 
         //scrape("Berks", "2019");
         //scrape("Berks", "2021");
@@ -50,6 +51,9 @@ public class Scraper {
         //scrape("Dauphin", "2019");
         //scrape("Dauphin", "2020");
         //scrape("Dauphin", "2021");
+
+
+
 
         //scrape("Chester", "2019");
 //        scrape("Chester", "2020");
