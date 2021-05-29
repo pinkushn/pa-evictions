@@ -158,9 +158,11 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         String [] split = s.split(" ");
         String ret = "";
         for (String x: split) {
-            ret += x.substring(0, 1).toUpperCase() + ".";
-            if (x.lastIndexOf(',') == x.length() - 1) ret += ",";
-            ret += " ";
+            if (x.trim().length() > 0) {
+                ret += x.substring(0, 1).toUpperCase() + ".";
+                if (x.lastIndexOf(',') == x.length() - 1) ret += ",";
+                ret += " ";
+            }
         }
         return ret.trim();
     }
