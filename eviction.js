@@ -203,7 +203,7 @@
 	legend.addTo(map);
 **/
 
-function initEvictions {
+function initEvictions () {
 
 	$("#allExcel").html('All Lanco eviction cases <a href="webdata/' + pandemicDates.allName + '">1/1/15 to ' + pandemicDates.pandemicEndSlashes + "</a>");
 	$("#postExcel").html('Lanco pandemic eviction cases (' +
