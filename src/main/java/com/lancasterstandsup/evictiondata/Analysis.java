@@ -26,18 +26,18 @@ public class Analysis {
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
         String county = "Lancaster";
-        //String county = "Lancaster";
         //String[] years = {"2019"};
         //String[] years = {"2020"};
         //String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
-        //String[] years = {"2020", "2021"};
+        String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
-        String[] years = {"2017"};//, "2018", "2019", "2020", "2021"};
+        //String[] years = {"2017", "2018", "2019", "2020", "2021"};
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
+        mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
         //monthly(list);
         //weekly(list);
         //daily(list);
@@ -48,7 +48,7 @@ public class Analysis {
 //        System.out.println("defendant repped: " + defendantHasRep + " out of " + list.size());
 //        System.out.println("plaintiff repped: " + plaintiffHasRep + " out of " + list.size());
         //impactOfRepresentation(list);
-        evictions(filterOutUnresolved(list));
+        //evictions(filterOutUnresolved(list));
         //plaintiffWinsByJudge(list);
         //evictionRateByJudge(list);
         //everyJudge(list);
@@ -333,18 +333,13 @@ public class Analysis {
             if (i >= 2) {
                 Set<String> set = highs.get(i);
                 for (String c: set) {
-                    String per = Math.round(winPercentage.get(c)) + "% wins";
+                    String per = " " + Math.round(winPercentage.get(c)) + "% wins";
                     if (hidePercentageWins) per = "";
-                    System.out.println(i + " cases " + per + ": " + grouped.get(c).get(0).getPlaintiff());
+                    System.out.println(i + " cases" + per + ": " + grouped.get(c).get(0).getPlaintiff());
                 }
             }
         }
     }
-
-//    //plaintiff --> pdfs
-//    private Map<String, List<PdfData>> belonging(List<PdfData> list) {
-//
-//    }
 
     //plaintiff 'core' to Pdfs
     private static Map<String, List<PdfData>> groupByPlaintiff(List<PdfData> list) {
@@ -479,6 +474,20 @@ public class Analysis {
         for (PdfData pdf: list) {
             LocalDate ld = pdf.getFileDate();
             if (ld.compareTo(covidStart) > -1) {
+                ret.add(pdf);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * returns all cases filed 9/1/20 or later
+     */
+    private static List<PdfData> filterPostWolfMoratoriumEnds(List<PdfData> list) {
+        List<PdfData> ret = new LinkedList<>();
+        for (PdfData pdf: list) {
+            LocalDate ld = pdf.getFileDate();
+            if (ld.compareTo(wolfMoratoriumEnds) > -1) {
                 ret.add(pdf);
             }
         }
