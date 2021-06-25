@@ -27,12 +27,12 @@ public class Worksheet {
 //        oneYear("Lancaster", "2020", false);
 //        oneYear("Lancaster", "2021", false);
 
-        //String[] approvedYears = {"2017", "2018", "2019", "2020", "2021"};
+        String[] approvedYears = {"2017", "2018", "2019", "2020", "2021"};
         //allYears("Lancaster", approvedYears);
 
-        //webRefresh("Lancaster");
+        webRefresh("Lancaster");
         //webRefreshSurroundingCounty("York");
-        webRefreshSurroundingCounty("Lebanon");
+        //webRefreshSurroundingCounty("Lebanon");
     }
 
     /**
