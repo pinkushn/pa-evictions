@@ -34,7 +34,7 @@ public class Analysis {
         //String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
-        String[] years = {"2017", "2018", "2019", "2020", "2021"};
+        String[] years = {"2017"};//, "2018", "2019", "2020", "2021"};
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
@@ -47,8 +47,8 @@ public class Analysis {
 //        int plaintiffHasRep = countRepresentationForPlaintiffs(list);
 //        System.out.println("defendant repped: " + defendantHasRep + " out of " + list.size());
 //        System.out.println("plaintiff repped: " + plaintiffHasRep + " out of " + list.size());
-        impactOfRepresentation(list);
-        //evictions(filterOutUnresolved(list));
+        //impactOfRepresentation(list);
+        evictions(filterOutUnresolved(list));
         //plaintiffWinsByJudge(list);
         //evictionRateByJudge(list);
         //everyJudge(list);
@@ -82,7 +82,7 @@ public class Analysis {
 
         //evictionsOrderedRecently(list);
 
-        //evictionWarning(list);
+        evictionWarning(list);
 
         //antwi(list);
 
