@@ -84,10 +84,10 @@ import java.io.*;
 import java.util.*;
 
 public class Parser {
-    public static final String TARGET_YEAR_FOR_MAIN = "2021";
-    public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
-    public static final String TARGET_COURT_FOR_MAIN = "2101";
-    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000051";
+    public static final String TARGET_YEAR_FOR_MAIN = "2020";
+    public static final String TARGET_COUNTY_FOR_MAIN = "Berks";
+    public static final String TARGET_COURT_FOR_MAIN = "23201";
+    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000233";
 
     static String judgmentForDefendant = "Judgment for Defendant";
     static String judgmentForPlaintiff = "Judgment for Plaintiff";

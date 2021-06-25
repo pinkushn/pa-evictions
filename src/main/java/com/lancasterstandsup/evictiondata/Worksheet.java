@@ -30,8 +30,9 @@ public class Worksheet {
         //String[] approvedYears = {"2017", "2018", "2019", "2020", "2021"};
         //allYears("Lancaster", approvedYears);
 
-        webRefresh("Lancaster");
+        //webRefresh("Lancaster");
         //webRefreshSurroundingCounty("York");
+        webRefreshSurroundingCounty("Lebanon");
     }
 
     /**

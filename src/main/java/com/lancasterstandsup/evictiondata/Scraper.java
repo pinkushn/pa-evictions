@@ -23,8 +23,10 @@ public class Scraper {
     private static int fivehundreds = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+        //***GOAL: Berks, Lebanon, Dauphin, York
+
         //scrape("Lancaster", "2020");
-        scrape("Lancaster", "2021");
+        //scrape("Lancaster", "2021");
 
         //fully pulled 2015 4/4/21
         //scrape("Lancaster", "2015");
@@ -37,25 +39,30 @@ public class Scraper {
         //scrape("Lancaster", "2016");
         //scrape("Lancaster", "2015");
 
+        //updated 6/14
         //scrape("York", "2019");
         //scrape("York", "2020");
         //scrape("York", "2021");
 
         //scrape("Berks", "2019");
 
-        //redo these after bug discovered 5/29/21 is fixed
+        //did this 6/15/21
         //scrape("Berks", "2020");
+        //did Berks 2021 6/14
         //scrape("Berks", "2021");
 
         //did this 5/29/21
         //scrape("Lebanon", "2019");
         //scrape("Lebanon", "2020");
+        //did this 6/15/21
         //scrape("Lebanon", "2021");
 
-        //scrape("Dauphin", "2019");
-        //scrape("Dauphin", "2020");
-        //scrape("Dauphin", "2021");
-
+        //did this 6/15/21
+        scrape("Dauphin", "2019");
+        //did this 6/15/21
+        scrape("Dauphin", "2020");
+        //did this 6/15/21
+        scrape("Dauphin", "2021");
 
 
 
