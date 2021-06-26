@@ -37,11 +37,11 @@ public class Analysis {
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
-        //nowHappening(filterMDJ(list, "2309"));
+        nowHappening(filterMDJ(list, "2309"));
         //nowHappening(filterMDJ(list, "2301"));
-
         //nowHappening(filterOutLancasterCity(list));
-        nowHappening(list);
+        //nowHappening(list);
+
         //mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
         //monthly(list);
         //weekly(list);
