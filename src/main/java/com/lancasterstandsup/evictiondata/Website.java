@@ -3,17 +3,15 @@ package com.lancasterstandsup.evictiondata;
 import j2html.tags.ContainerTag;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static j2html.TagCreator.*;
 
 public class Website {
-
-    public static String html = "";
 
     public final static String[] countiesRaw = {
             "Lancaster",
@@ -42,7 +40,6 @@ public class Website {
                 ),
                 body(
                         ul(
-                                //county("Lancaster")
                                 each(counties, county ->
                                         countyTabHeader(county)
                                 )
@@ -57,11 +54,13 @@ public class Website {
                 )
         ).renderFormatted();
 
-        System.out.println(html);
+        //System.out.println(html);
 
         BufferedWriter writer = new BufferedWriter(new FileWriter("tabbedIndex.html"));
         writer.write(html);
         writer.close();
+
+        System.out.println("Done");
     }
 
     public static ContainerTag countyTabHeader(String county) {
@@ -84,13 +83,55 @@ public class Website {
     public static ContainerTag countyTab(String county) {
         boolean active = county.equals("Lancaster");
         return div(
-            county + " region"
+            countyReport(county), countyMDJs(county)
         ).withClasses("tab-pane", "fade", iff(active, "show"), iff(active, "active"))
                 .withId(county)
                 .withRole("tabpanel")
                 .attr("aria-labelledby", county + "_tab");
     }
 
+    public static ContainerTag countyReport(String county) {
+        String countyPath = Analysis.dataPathWithDot + county;
+        File countyDir = new File(countyPath);
+
+        if (!countyDir.exists()) {
+            return div(county + " eviction data not currently available");
+        }
+
+        String worksheetIndicator = county + "_eviction_cases_";
+        File worksheet = null;
+        String worksheetFileName = null;
+
+        for (File file: countyDir.listFiles()) {
+            worksheetFileName = file.getName();
+            if (worksheetFileName.indexOf(worksheetIndicator) > -1) {
+                worksheet = file;
+                break;
+            }
+        }
+
+        if (worksheet == null) return div(county + " eviction data not available");
+
+        String dateRangePresentable = getDateRangePresentable(worksheetFileName.substring(worksheetIndicator.length()));
+        String worksheetNamePresentable = county + " eviction cases " + dateRangePresentable;
+
+        return div(
+                a(worksheetNamePresentable)
+                    .withHref(countyPath.substring(2) + "/" + worksheetFileName)
+        );
+    }
+
+    public static String getDateRangePresentable(String underscored) {
+        String[] parts = underscored.split("_");
+        return parts[0] + "/" + parts[1] + "/" + parts[2] + " " + parts[3] + " " +
+                parts[4] + "/" + parts[5] + "/" + parts[6];
+    }
+
+    public static ContainerTag countyMDJs(String county) {
+        return div(
+
+        );
+    }
 
 //    public static void main (String [] args) {
 //        System.out.println(test());

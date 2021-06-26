@@ -2,7 +2,6 @@ package com.lancasterstandsup.evictiondata;
 
 import org.apache.commons.math3.util.Precision;
 
-import javax.print.attribute.standard.PDLOverrideSupported;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -108,7 +107,8 @@ public class Analysis {
     public static String preEndName = march14_2020.getMonthValue() + "_" + march14_2020.getDayOfMonth() + "_" + march14_2020.getYear();
     public static String pivotName = march15_2020.getMonthValue() + "_" + march15_2020.getDayOfMonth() + "_" + march15_2020.getYear();
 
-    public static String dirPath = "./webdata/";
+    public static String dataPathWithoutDot = "webdata/";
+    public static String dataPathWithDot = "./" + dataPathWithoutDot;
 
     private static String rootName = "lanco_eviction_cases";
     public static String allName = rootName + "_1_1_2015_to_" + presentName + ".xlsx";
@@ -255,7 +255,7 @@ public class Analysis {
 
         //Map to lookup data per court
         String fileName = county.toLowerCase() + "_pre_versus_post.js";
-        String filePath = "./webdata/" + fileName;
+        String filePath = dataPathWithDot + fileName;
         PrintWriter out = new PrintWriter(new FileWriter(filePath));
         out.println("let courtData = new Map([");
         for (String court: pre.keySet()) {
