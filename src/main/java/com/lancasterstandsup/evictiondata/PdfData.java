@@ -111,6 +111,14 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         row.put(0, courtOffice);
     }
 
+    /**
+     *
+     * @return format for Lanco is "MDJ ##-#-##", ex: MDJ 02-3-09
+     */
+    public String getCourtOffice() {
+        return courtOffice;
+    }
+
     public void setJudgeName(String judgeName) {
         this.judgeName = judgeName;
         row.put(1, judgeName);
@@ -629,6 +637,10 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         this.dispositionDate = dispositionDate;
     }
 
+    public LocalDate getDispositionDate() {
+        return dispositionDate != null ? LocalDate.parse(dispositionDate, dateFormatter) : null;
+    }
+
     public void bankruptcy(String bankruptcy_petition_filed) {
         bankruptcy = true;
         addNote(bankruptcy_petition_filed);
@@ -690,12 +702,21 @@ public class PdfData implements Comparable<PdfData>, Serializable {
 
     /**
      * Is tenant in imminent danger of eviction?
+     *
+     * RETIRED 6/25/21 cuz 'resolved' may have occurred but eviction hasn't happened yet
      */
-    public boolean isEvictionWarning() {
-        if (isResolved() || !(isEitherGrant() || isOrderForPossessionServed())) {
-            return false;
-        }
-        return true;
+//    public boolean isEvictionWarning() {
+//        if (isResolved() || !(isEitherGrant() || isOrderForPossessionServed())) {
+//            return false;
+//        }
+//        return true;
+//    }
+
+    public boolean evictionWarning() {
+        if (dispositionDate == null) return false;
+        if (!isGrantPossessionOrOrderForEvictionServed()) return false;
+        LocalDate disposedPlusTwenty = getDispositionDate().plusDays(20);
+        return disposedPlusTwenty.compareTo(LocalDate.now()) >= 0;
     }
 
     public String getDefendant() {

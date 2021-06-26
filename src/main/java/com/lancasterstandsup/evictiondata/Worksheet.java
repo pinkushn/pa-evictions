@@ -247,4 +247,20 @@ public class Worksheet {
 
         System.out.println("Wrote spreadsheet " + fileName);
     }
+
+//    public void packageTopTen(List<PdfData> pdfs, String describeRegion, String describeDateRange) throws IOException {
+//        String fileName = describeRegion.toLowerCase() + "_" + describeDateRange + "_topTen.js";
+//        String filePath = "./webdata/" + fileName;
+//        PrintWriter out = new PrintWriter(new FileWriter(filePath));
+//        out.println("let  = new Map([");
+//        for (String court: pre.keySet()) {
+//            out.println("\t['" + court + "', " +
+//                    "{ratio: " + courtToRatio.get(court) + ", " +
+//                    "pre: " + pre.get(court) + ", " +
+//                    "post: " + post.get(court) + "}" +
+//                    "],");
+//        }
+//
+//        out.println("]);");
+//    }
 }

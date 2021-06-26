@@ -28,16 +28,21 @@ public class Analysis {
         String county = "Lancaster";
         //String[] years = {"2019"};
         //String[] years = {"2020"};
-        //String[] years = {"2021"};
+        String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
-        String[] years = {"2020", "2021"};
+        //String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
-        mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
+        //nowHappening(filterMDJ(list, "2309"));
+        //nowHappening(filterMDJ(list, "2301"));
+
+        //nowHappening(filterOutLancasterCity(list));
+        nowHappening(list);
+        //mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
         //monthly(list);
         //weekly(list);
         //daily(list);
@@ -82,8 +87,6 @@ public class Analysis {
 
         //evictionsOrderedRecently(list);
 
-        evictionWarning(list);
-
         //antwi(list);
 
         //orgassPercentages(list);
@@ -111,6 +114,74 @@ public class Analysis {
     public static String allName = rootName + "_1_1_2015_to_" + presentName + ".xlsx";
     public static String postName = rootName + "_" + pivotName + "_to_" + presentName + ".xlsx";
     public static String preName = rootName + "_" + preStartName + "_to_" + preEndName + ".xlsx";
+
+    /**
+     *
+     * open case or 'closed' but may result in eviction or order has been granted but may not have been filled
+     *
+     * @param list
+     */
+    public static void nowHappening(List<PdfData> list) {
+        List<PdfData> ret = new ArrayList<>();
+        int howMany = 0;
+        for (PdfData pdf: list) {
+            if (!pdf.isResolved()) ret.add(pdf);
+            else {
+                LocalDate dispositionDate = pdf.getDispositionDate();
+                if (dispositionDate == null) {
+                    ret.add(pdf);
+                }
+                else if (pdf.evictionWarning()) {
+                    ret.add(pdf);
+                    howMany++;
+                    //MJ-02208-LT-0000027-2021
+                    System.out.println("Eviction may be imminent for " + pdf.getDefendant() + " " + pdf.getDocketNumber());
+                }
+            }
+        }
+        System.out.println(howMany + " in danger of imminent eviction");
+    }
+
+    /**
+     *
+     * @param list
+     * @param targetMDJ format for Lancaster MDJs is ####, ex: 2309
+     * @return
+     */
+    public static List<PdfData> filterMDJ(List<PdfData> list, String targetMDJ) {
+        List<PdfData> ret = new ArrayList<>();
+        for (PdfData pdf: list) {
+            if (pdf.getCourtOfficeNumberOnly().equals(targetMDJ)) {
+                ret.add(pdf);
+            }
+        }
+        return ret;
+    }
+
+    /**
+     *
+     * @param list
+     * @param mdjs format for Lancaster MDJs is ####, ex: 2309
+     * @return
+     */
+    public static List<PdfData> filterOutMDJs(List<PdfData> list, Set<String> mdjs) {
+        List<PdfData> ret = new ArrayList<>();
+        for (PdfData pdf: list) {
+            if (!mdjs.contains(pdf.getCourtOfficeNumberOnly())) {
+                ret.add(pdf);
+            }
+        }
+        return ret;
+    }
+
+    public static List<PdfData> filterOutLancasterCity(List<PdfData> list) {
+        Set<String> lanc = new HashSet<>();
+        lanc.add("2101");
+        lanc.add("2201");
+        lanc.add("2202");
+        lanc.add("2204");
+        return filterOutMDJs(list, lanc);
+    }
 
     public static List<PdfData> filterOutNonPandemic(List<PdfData> list) {
         List<PdfData> ret = new ArrayList<>();
@@ -898,6 +969,8 @@ public class Analysis {
         System.out.println("grantEither but 'judgment for tenant': " + judgmentForD);
     }
 
+    /**
+     * RETIRED 6/25/21 cuz 'resolved' may have occurred but eviction hasn't happened yet
     private static void evictionWarning(List<PdfData> data) {
         List<PdfData> danger = new LinkedList<>();
         for (PdfData pdf: data) {
@@ -907,6 +980,7 @@ public class Analysis {
             }
         }
     }
+     **/
 
     private static void antwi(List<PdfData> data) {
         List<PdfData> list = new LinkedList<>();
