@@ -27,14 +27,23 @@ public class Worksheet {
 //        oneYear("Lancaster", "2020", false);
 //        oneYear("Lancaster", "2021", false);
 
-        String[] approvedYears = {"2017", "2018", "2019", "2020", "2021"};
-        allYears("Lancaster", approvedYears);
+        //String[] approvedYears = {"2017", "2018", "2019", "2020", "2021"};
+        //allYears("Lancaster", approvedYears);
 
+        //clearPreProcessed("Lancaster");
         webRefresh("Lancaster");
         //webRefreshSurroundingCounty("York");
         //webRefreshSurroundingCounty("Lebanon");
         //webRefreshSurroundingCounty("Dauphin");
         //webRefreshSurroundingCounty("Berks");
+
+        //String[] approvedYears = {"2019", "2020", "2021"};
+        //webRefreshSurroundingCounty2("York", approvedYears);
+
+        System.out.println("Missing Wennerstroms? next line, if present");
+        for (String s: PdfData.missingWennerstrom) {
+            System.out.print(s + "|");
+        }
     }
 
     /**
@@ -43,7 +52,9 @@ public class Worksheet {
 
     public static void webRefresh(String county) throws IOException, ClassNotFoundException {
         //writes 'pre_versus_post.js' to webdata
-        Analysis.preVersusPostPandemic(county);
+        //Analysis.preVersusPostPandemic(county);
+
+        clearPreProcessed(county);
 
         String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
         Object[] data = null;
@@ -51,22 +62,35 @@ public class Worksheet {
         try {
             data = ParseAll.get(county, years, true);
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("parser failed, abandoning allYears");
+            System.err.println("parser failed, abandoning webRefresh");
             e.printStackTrace();
             System.exit(1);
         }
 
         List<PdfData> list = (List<PdfData>) data[2];
 
-        writeExcel(Analysis.dirPath + Analysis.allName, list, null, null);
+        writeExcel(Analysis.dataPathWithDot + Analysis.allName, list, null, null);
 
         //write 'lanco_eviction_cases_3_15_2020_to_X_X_X.xls'
-        writeExcel(Analysis.dirPath + Analysis.postName, list, Analysis.march15_2020, Analysis.now);
+        //writeExcel(Analysis.dataPathWithDot + Analysis.postName, list, Analysis.march15_2020, Analysis.now);
 
         //write 'lanco_eviction_cases_Y_Y_Y_to_3_15_2020.xls'
-        writeExcel(Analysis.dirPath + Analysis.preName, list, Analysis.preStart, Analysis.march14_2020);
+        //writeExcel(Analysis.dataPathWithDot + Analysis.preName, list, Analysis.preStart, Analysis.march14_2020);
 
         //someday, maybe also write json object to use for table of 'processed source data'
+    }
+
+    public static void clearPreProcessed(String county) {
+        File dir = new File("./src/main/resources/pdfCache/" + county);
+        if (!dir.exists()) {
+            throw new IllegalStateException("No pdf cache at " + dir.getName());
+        }
+
+        for (File yearFile: dir.listFiles()) {
+            if (yearFile.getName().indexOf("preProcessed") > -1) {
+                yearFile.delete();
+            }
+        }
     }
 
     public static void webRefreshSurroundingCounty(String county) throws IOException, ClassNotFoundException {
@@ -83,8 +107,43 @@ public class Worksheet {
 
         List<PdfData> list = (List<PdfData>) data[2];
 
-        writeExcel(Analysis.dirPath + county + ".xlsx", list, null, null);
+        writeExcel(Analysis.dataPathWithDot + county + ".xlsx", list, null, null);
     }
+
+    public static void webRefreshSurroundingCounty2(String county, String[] years) throws IOException, ClassNotFoundException {
+        Object[] data = null;
+
+        try {
+            data = ParseAll.get(county, years, true);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("parser failed, abandoning allYears for " + county);
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        List<PdfData> list = (List<PdfData>) data[2];
+
+        String countyDirPath = Analysis.dataPathWithDot + county;
+        File countyDir = new File(countyDirPath);
+        if (!countyDir.exists()) {
+            countyDir.mkdir();
+        }
+
+        LocalDate now = Analysis.now;
+        int month = now.getMonthValue();
+        int day = now.getDayOfMonth();
+        int year = now.getYear();
+
+        writeExcel(countyDirPath +
+                "/" +
+                county + "_eviction_cases_" +
+                "1_1_" + years[0] + "_" +
+                "to_" +
+                month + "_" + day + "_" + year +
+                ".xlsx",
+                list, null, null);
+    }
+
 
     /**
      *

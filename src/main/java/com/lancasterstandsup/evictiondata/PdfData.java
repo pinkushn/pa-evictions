@@ -2,13 +2,15 @@ package com.lancasterstandsup.evictiondata;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.io.Serializable;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class PdfData implements Comparable<PdfData>, Serializable {
     private static final long serialVersionUID = 1L;
+
+    public static Set<String> missingWennerstrom = new HashSet<>();
 
     public static final String MISSING_ZIP = "MISSING ZIP";
     public static final String MONEY_FORMAT_ERROR = "ERROR";
@@ -29,6 +31,8 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     };
     private static Set<String> ignoreInvalidByActive;
 
+    private static Map<String, String> nameNormalizations;
+
     static {
         ignoreAttorneyProvenance = new HashSet<>();
         for (String s: ignoreAttorneyProvenanceSource) {
@@ -42,6 +46,21 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     }
 
     private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+    private static void initNameNormalizations() throws IOException {
+        nameNormalizations = new HashMap<>();
+        File source = new File("./src/main/resources/name_normalization.txt");
+        BufferedReader in = new BufferedReader(new FileReader(source));
+        String next = null;
+        while ((next = in.readLine()) != null) {
+            if (next.length() == 0) break;
+            String variantLine = in.readLine();
+            String [] variants = variantLine.split("\\|");
+            for (String v: variants) {
+                nameNormalizations.put(v, next);
+            }
+        }
+    }
 
     private String courtOffice;
     private String docketNumber;
@@ -148,6 +167,21 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     }
 
     public void setPlaintiffs(String plaintiffNames) {
+        if (nameNormalizations == null) {
+        try {
+            initNameNormalizations();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+        if (nameNormalizations.containsKey(plaintiffNames)) {
+            plaintiffNames = nameNormalizations.get(plaintiffNames);
+        }
+        else if (plaintiffNames.indexOf("Slatehouse") > -1) {
+            System.out.println("Alert: missed a Slatehouse variant: " + plaintiffNames);
+            missingWennerstrom.add(plaintiffNames);
+        }
         this.plaintiffNames = plaintiffNames;
         row.put(5, plaintiffNames);
     }
