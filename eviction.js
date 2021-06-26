@@ -205,6 +205,8 @@
 
 function initEvictions () {
 
+//******** LANCO EVICTIONS *********
+
 	$("#allExcel").html('All Lanco eviction cases <a href="webdata/' + pandemicDates.allName + '">1/1/15 to ' + pandemicDates.pandemicEndSlashes + "</a>");
 	$("#postExcel").html('Lanco pandemic eviction cases (' +
 		pandemicDates.pandemicDays + ' days) <a href="webdata/' +
@@ -212,6 +214,8 @@ function initEvictions () {
 		pandemicDates.pandemicStartSlashes + ' to ' +
 		pandemicDates.pandemicEndSlashes + "</a>");
 	$("#preExcel").html('Corresponding pre-pandemic Lanco eviction cases (' + pandemicDates.pandemicDays + ' days) <a href="webdata/' + pandemicDates.preName + '">' + pandemicDates.prePandemicStartSlashes + ' to ' + pandemicDates.prePandemicEndSlashes + "</a>");
+
+//******** NEARBY COUNTIES **********
 
 	$("#York").html('York eviction cases <a href="webdata/' +
 		'York.xlsx">1/1/19 to ' +
@@ -232,4 +236,10 @@ function initEvictions () {
 		'Dauphin.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
 		'6/15/21' + '</a>');
+
+//******** Lancaster Statistics ************
+
+//top 10 pandemic filers
+
+
 }
