@@ -21,25 +21,30 @@ public class Analysis {
     private static DateTimeFormatter dateFormatterShortYearSlashes = DateTimeFormatter.ofPattern("MM/dd/yy");
     private static DateTimeFormatter dateFormatterShortYearUnderscores = DateTimeFormatter.ofPattern("MM/dd/yy");
     private static LocalDate covidStart = LocalDate.parse("03/15/2020", dateFormatter);
+    private static LocalDate covidStart = LocalDate.parse("04/1/2020", dateFormatter);
     private static LocalDate wolfMoratoriumEnds = LocalDate.parse("08/31/2020", dateFormatter);
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
         String county = "Lancaster";
         //String[] years = {"2019"};
         //String[] years = {"2020"};
-        String[] years = {"2021"};
+        //String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
-        //String[] years = {"2020", "2021"};
+        String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
-        nowHappening(filterMDJ(list, "2309"));
+        //nowHappening(filterMDJ(list, "2309"));
         //nowHappening(filterMDJ(list, "2301"));
         //nowHappening(filterOutLancasterCity(list));
         //nowHappening(list);
+
+        list = filterOutNonPandemic(list);
+
+        orderForPossessionServed(filterOutNonPandemic(list));
 
         //mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
         //monthly(list);
@@ -753,13 +758,16 @@ public class Analysis {
                 ret.add(pdf);
                 System.out.println("order for possession served: " + pdf.getDocketNumber());
             }
-            else if (pdf.isGrantPossession()) {
-                System.out.println("grant possession: " + pdf.getDocketNumber());
-            }
-            else if (pdf.isJudgmentForPlaintiff()) {
-                System.out.println("judgment for plaintiff: " + pdf.getDocketNumber());
-            }
+//            else if (pdf.isGrantPossession()) {
+//                System.out.println("grant possession: " + pdf.getDocketNumber());
+//            }
+//            else if (pdf.isJudgmentForPlaintiff()) {
+//                System.out.println("judgment for plaintiff: " + pdf.getDocketNumber());
+//            }
         }
+
+        System.out.println(ret.size() + " order(s) for possession served");
+
         return ret;
     }
 
