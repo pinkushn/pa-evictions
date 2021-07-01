@@ -21,7 +21,7 @@ public class Analysis {
     private static DateTimeFormatter dateFormatterShortYearSlashes = DateTimeFormatter.ofPattern("MM/dd/yy");
     private static DateTimeFormatter dateFormatterShortYearUnderscores = DateTimeFormatter.ofPattern("MM/dd/yy");
     private static LocalDate covidStart = LocalDate.parse("03/15/2020", dateFormatter);
-    private static LocalDate covidStart = LocalDate.parse("04/1/2020", dateFormatter);
+    //private static LocalDate covidStart = LocalDate.parse("04/1/2020", dateFormatter);
     private static LocalDate wolfMoratoriumEnds = LocalDate.parse("08/31/2020", dateFormatter);
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
@@ -30,10 +30,11 @@ public class Analysis {
         //String[] years = {"2020"};
         //String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
-        String[] years = {"2020", "2021"};
+        //String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
+        String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
@@ -42,13 +43,13 @@ public class Analysis {
         //nowHappening(filterOutLancasterCity(list));
         //nowHappening(list);
 
-        list = filterOutNonPandemic(list);
+        //list = filterOutNonPandemic(list);
 
-        orderForPossessionServed(filterOutNonPandemic(list));
+        //orderForPossessionServed(filterOutNonPandemic(list));
 
         //mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
         //monthly(list);
-        //weekly(list);
+        weekly(list);
         //daily(list);
         //mostFiled(list, false, true);
         //mergeCheck(list);
@@ -343,7 +344,7 @@ public class Analysis {
 
     public static void weekly(List<PdfData> data) {
         Map<LocalDate, Integer> map = new TreeMap<>();
-        TemporalField woy = WeekFields.of(Locale.US).weekOfWeekBasedYear();
+        //TemporalField woy = WeekFields.of(Locale.US).weekOfWeekBasedYear();
         TemporalField hlep = WeekFields.of(Locale.US).dayOfWeek();
         for (PdfData d: data) {
             LocalDate date = d.getFileDate();
@@ -351,9 +352,23 @@ public class Analysis {
             if (!map.containsKey(key)) map.put(key, 0);
             map.put(key, map.get(key) + 1);
         }
+        LocalDate maxDate = null;
+        int max = 0;
         for (LocalDate key: map.keySet()) {
-            System.out.println(key + "\t" + map.get(key));
+            //System.out.println(key + "\t" + map.get(key));
+            if (maxDate == null) {
+                maxDate = key;
+                max = map.get(key);
+            }
+            else {
+                int next = map.get(key);
+                if (next > max) {
+                    maxDate = key;
+                    max = map.get(key);
+                }
+            }
         }
+        System.out.println(maxDate + "\t" + max);
     }
 
     public static void daily(List<PdfData> data) {
