@@ -52,9 +52,9 @@ public class Worksheet {
 
     public static void webRefresh(String county) throws IOException, ClassNotFoundException {
         //writes 'pre_versus_post.js' to webdata
-        //Analysis.preVersusPostPandemic(county);
+        Analysis.preVersusPostPandemic(county);
 
-        clearPreProcessed(county);
+        //clearPreProcessed(county);
 
         String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
         Object[] data = null;
