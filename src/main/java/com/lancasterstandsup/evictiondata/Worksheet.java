@@ -40,10 +40,10 @@ public class Worksheet {
         //String[] approvedYears = {"2019", "2020", "2021"};
         //webRefreshSurroundingCounty2("York", approvedYears);
 
-        System.out.println("Missing Wennerstroms? next line, if present");
-        for (String s: PdfData.missingWennerstrom) {
-            System.out.print(s + "|");
-        }
+//        System.out.println("Missing Wennerstroms? next line, if present");
+//        for (String s: PdfData.missingWennerstrom) {
+//            System.out.print(s + "|");
+//        }
     }
 
     /**
