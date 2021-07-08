@@ -27,14 +27,15 @@ public class Analysis {
     public static void main (String [] args) throws IOException, ClassNotFoundException {
         String county = "Lancaster";
         //String[] years = {"2019"};
-        //String[] years = {"2020"};
+        String[] years = {"2020"};
         //String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
         //String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
-        String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
+        //String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
+        //String[] years = {"2015", "2016", "2017", "2018", "2019"};
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
 
@@ -354,8 +355,10 @@ public class Analysis {
         }
         LocalDate maxDate = null;
         int max = 0;
+        int total = 0;
         for (LocalDate key: map.keySet()) {
             //System.out.println(key + "\t" + map.get(key));
+            total += map.get(key);
             if (maxDate == null) {
                 maxDate = key;
                 max = map.get(key);
@@ -368,7 +371,9 @@ public class Analysis {
                 }
             }
         }
+        double average = ((double) total) / map.size();
         System.out.println(maxDate + "\t" + max);
+        System.out.println("Average: " + average);
     }
 
     public static void daily(List<PdfData> data) {
