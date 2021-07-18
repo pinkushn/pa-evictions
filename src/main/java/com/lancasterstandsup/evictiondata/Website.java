@@ -121,6 +121,7 @@ public class Website {
                     .withHref(countyPath.substring(2) + "/" + worksheetFileName),
                 span(dateRangePresentable),
                 br(),
+                br(),
                 span("Data pulled from public "),
                 a("PA court records")
                     .withHref("https://ujsportal.pacourts.us/CaseSearch")
