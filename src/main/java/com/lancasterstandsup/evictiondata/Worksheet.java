@@ -32,10 +32,10 @@ public class Worksheet {
 
         //clearPreProcessed("Lancaster");
         webRefresh("Lancaster");
-        //webRefreshSurroundingCounty("York");
-        //webRefreshSurroundingCounty("Lebanon");
-        //webRefreshSurroundingCounty("Dauphin");
-        //webRefreshSurroundingCounty("Berks");
+        webRefreshSurroundingCounty("York");
+        webRefreshSurroundingCounty("Lebanon");
+        webRefreshSurroundingCounty("Dauphin");
+        webRefreshSurroundingCounty("Berks");
 
         //String[] approvedYears = {"2019", "2020", "2021"};
         //webRefreshSurroundingCounty2("York", approvedYears);

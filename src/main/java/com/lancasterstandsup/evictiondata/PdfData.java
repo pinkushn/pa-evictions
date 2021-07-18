@@ -168,19 +168,21 @@ public class PdfData implements Comparable<PdfData>, Serializable {
 
     public void setPlaintiffs(String plaintiffNames) {
         if (nameNormalizations == null) {
-        try {
-            initNameNormalizations();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
+            try {
+                initNameNormalizations();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
-    }
         if (nameNormalizations.containsKey(plaintiffNames)) {
             plaintiffNames = nameNormalizations.get(plaintiffNames);
         }
-        else if (plaintiffNames.indexOf("Slatehouse") > -1) {
-            System.out.println("Alert: missed a Slatehouse variant: " + plaintiffNames);
-            missingWennerstrom.add(plaintiffNames);
+        else if (plaintiffNames.indexOf("Slatehouse Group") > -1) {
+            plaintiffNames = "SlateHouse Group Property Management";
+        }
+        else if (plaintiffNames.indexOf("Wennerstrom") > -1) {
+            plaintiffNames = "Rick Wennerstrom";
         }
         this.plaintiffNames = plaintiffNames;
         row.put(5, plaintiffNames);
@@ -273,6 +275,26 @@ public class PdfData implements Comparable<PdfData>, Serializable {
             serverFees = addMoneyStrings(serverFees, m);
         }
         row.put(16, serverFees);
+    }
+
+    public int getDamages() {
+        return damages == null ? 0 : convertMoneyToDollars(damages);
+    }
+
+    public int getRentInArrears() {
+        return rentInArrears == null ? 0: convertMoneyToDollars(rentInArrears);
+    }
+
+    private int convertMoneyToDollars(String money) {
+        if (money.indexOf('$') == 0) {
+            money = money.substring(1);
+        }
+        int i = money.indexOf('.');
+        money = money.substring(0, i);
+
+        money = money.replace(",", "");
+
+        return Integer.parseInt(money);
     }
 
     public void setDamages(String m) {
