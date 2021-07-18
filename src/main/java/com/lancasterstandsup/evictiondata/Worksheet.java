@@ -69,15 +69,20 @@ public class Worksheet {
 
         List<PdfData> list = (List<PdfData>) data[2];
 
-        writeExcel(Analysis.dataPathWithDot + Analysis.allName, list, null, null);
+        //writeExcel(Analysis.dataPathWithDot + county + "/" + county + ".xlsx", list, null, null);
 
-        //write 'lanco_eviction_cases_3_15_2020_to_X_X_X.xls'
-        //writeExcel(Analysis.dataPathWithDot + Analysis.postName, list, Analysis.march15_2020, Analysis.now);
+        LocalDate now = Analysis.now;
+        int month = now.getMonthValue();
+        int day = now.getDayOfMonth();
+        int year = now.getYear();
 
-        //write 'lanco_eviction_cases_Y_Y_Y_to_3_15_2020.xls'
-        //writeExcel(Analysis.dataPathWithDot + Analysis.preName, list, Analysis.preStart, Analysis.march14_2020);
+        String excelFileName = county + "_eviction_cases_" +
+                "1_1_" + years[0] + "_" +
+                "to_" +
+                month + "_" + day + "_" + year +
+                ".xlsx";
 
-        //someday, maybe also write json object to use for table of 'processed source data'
+        writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
     }
 
     public static void clearPreProcessed(String county) {
@@ -107,7 +112,30 @@ public class Worksheet {
 
         List<PdfData> list = (List<PdfData>) data[2];
 
-        writeExcel(Analysis.dataPathWithDot + county + ".xlsx", list, null, null);
+        File dir = new File(Analysis.dataPathWithDot + county);
+        if (!dir.exists()) dir.mkdir();
+        else {
+            File [] files = dir.listFiles();
+            for (File file: files) {
+                if (file.getName().indexOf(".xlsx") > -1) file.delete();
+            }
+        }
+
+        LocalDate now = Analysis.now;
+        int month = now.getMonthValue();
+        int day = now.getDayOfMonth();
+        int year = now.getYear();
+
+        String excelFileName = county + "_eviction_cases_" +
+                "1_1_" + years[0] + "_" +
+                "to_" +
+                month + "_" + day + "_" + year +
+                ".xlsx";
+
+        //old website
+        //writeExcel(Analysis.dataPathWithDot + county + "/" + county + ".xlsx", list, null, null);
+        //new website
+        writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
     }
 
     public static void webRefreshSurroundingCounty2(String county, String[] years) throws IOException, ClassNotFoundException {
