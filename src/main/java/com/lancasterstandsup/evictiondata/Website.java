@@ -119,7 +119,11 @@ public class Website {
         return div(
                 a(county + " eviction cases")
                     .withHref(countyPath.substring(2) + "/" + worksheetFileName),
-                span(dateRangePresentable)
+                span(dateRangePresentable),
+                br(),
+                span("Data pulled from public "),
+                a("PA court records")
+                    .withHref("https://ujsportal.pacourts.us/CaseSearch")
         ).withStyle("margin: 10px");
     }
 
