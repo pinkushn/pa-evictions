@@ -98,8 +98,11 @@ public class Worksheet {
         }
     }
 
+    private static String[] lancoYears =  {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
+    private static String[] otherCountyYears = {"2019", "2020", "2021"};
     public static void webRefreshSurroundingCounty(String county) throws IOException, ClassNotFoundException {
-        String[] years = {"2019", "2020", "2021"};
+        String[] years = county.equals("Lancaster") ? lancoYears : otherCountyYears;
+
         Object[] data = null;
 
         try {
@@ -132,8 +135,6 @@ public class Worksheet {
                 month + "_" + day + "_" + year +
                 ".xlsx";
 
-        //old website
-        //writeExcel(Analysis.dataPathWithDot + county + "/" + county + ".xlsx", list, null, null);
         //new website
         writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
     }
