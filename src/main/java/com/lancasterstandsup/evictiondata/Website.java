@@ -56,7 +56,7 @@ public class Website {
 
         //System.out.println(html);
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter("tabbedIndex.html"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("index.html"));
         writer.write(html);
         writer.close();
 
@@ -110,15 +110,17 @@ public class Website {
             }
         }
 
-        if (worksheet == null) return div(county + " eviction data not available");
+        if (worksheet == null) return div(county + " eviction data not available").withStyle("margin: 10px");
 
         String dateRangePresentable = getDateRangePresentable(worksheetFileName.substring(worksheetIndicator.length()));
-        String worksheetNamePresentable = county + " eviction cases " + dateRangePresentable;
+        //trim .xslx
+        dateRangePresentable = dateRangePresentable.substring(0, dateRangePresentable.length() - 5);
 
         return div(
-                a(worksheetNamePresentable)
-                    .withHref(countyPath.substring(2) + "/" + worksheetFileName)
-        );
+                a(county + " eviction cases")
+                    .withHref(countyPath.substring(2) + "/" + worksheetFileName),
+                span(dateRangePresentable)
+        ).withStyle("margin: 10px");
     }
 
     public static String getDateRangePresentable(String underscored) {

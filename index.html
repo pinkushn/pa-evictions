@@ -1,71 +1,98 @@
-<!DOCTYPE html>
 <html>
-<head>
-	
-	<title>Lanco Pandemic Eviction Case Rates</title>
-
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-	<!-- Removing gis 6/25/21: judge percentage not useful
-	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-
-    <script type="text/javascript" src="webdata/lancaster_municipalities2.js"></script>
-    <script type="text/javascript" src="webdata/lancaster_mdjs.js"></script>
-    -->
-
-	<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-	<script type="text/javascript" src="webdata/lancaster_pre_versus_post.js"></script>
-	<script type="text/javascript" src="eviction.js"></script>
-
-	<style>
-		html, body {
-			height: 100%;
-			margin: 0;
-			font-family: Arial;
-		}
-		#map {
-			width: 600px;
-			height: 400px;
-		}
-	</style>
-
-	<style>
-		#map { width: 800px; height: 600px; }
-		.info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } 
-		.info h4 { margin: 0 0 5px; color: #777; }
-		.info h5 { margin: 0 0 5px; color: #777; }
-		.legend { text-align: left; line-height: 18px; color: #555; } 
-		.legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
-	</style>
-</head>
-<body>
-
-<!--
-<div id='map'></div>
--->
-
-<h4>Lancaster County Eviction Data</h4>
-<ul>
-	<li id="allExcel" style="margin-bottom: 5px"></li>
-</ul>
-
-<h4>Eviction Data for Counties Near Lancaster</h4>
-<ul>
-	<li id="York" style="margin-bottom: 5px"></li>
-	<li id="Lebanon" style="margin-bottom: 5px"></li>
-	<li id="Dauphin" style="margin-bottom: 5px"></li>
-	<li id="Berks" style="margin-bottom: 5px"></li>
-</ul>
-
-* Data pulled from <a href="https://ujsportal.pacourts.us/CaseSearch">PA court records</a>
-
-<script>
-	initEvictions();
-</script>
-
-</body>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+        </script>
+    </head>
+    <body>
+        <ul class="nav nav-tabs" role="tablist" id="myTab">
+                    <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="Lancaster_tab" data-bs-toggle="tab" data-bs-target="#Lancaster" type="button" role="tab" aria-controls="Lancaster" aria-selected="true">
+                    Lancaster
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="York_tab" data-bs-toggle="tab" data-bs-target="#York" type="button" role="tab" aria-controls="York" aria-selected="false">
+                    York
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="Berks_tab" data-bs-toggle="tab" data-bs-target="#Berks" type="button" role="tab" aria-controls="Berks" aria-selected="false">
+                    Berks
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="Dauphin_tab" data-bs-toggle="tab" data-bs-target="#Dauphin" type="button" role="tab" aria-controls="Dauphin" aria-selected="false">
+                    Dauphin
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="Lebanon_tab" data-bs-toggle="tab" data-bs-target="#Lebanon" type="button" role="tab" aria-controls="Lebanon" aria-selected="false">
+                    Lebanon
+                </button>
+            </li>
+                </ul>
+        <div class="tab-content">
+                    <div class="tab-pane fade show active" id="Lancaster" role="tabpanel" aria-labelledby="Lancaster_tab">
+                <div style="margin: 10px">
+                    <a href="webdata/Lancaster/Lancaster_eviction_cases_1_1_2015_to_7_18_2021.xlsx">
+                        Lancaster eviction cases
+                    </a>
+                    <span>
+                        1/1/2015 to 7/18/2021
+                    </span>
+                </div>
+                <div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="York" role="tabpanel" aria-labelledby="York_tab">
+                <div style="margin: 10px">
+                    <a href="webdata/York/York_eviction_cases_1_1_2019_to_7_18_2021.xlsx">
+                        York eviction cases
+                    </a>
+                    <span>
+                        1/1/2019 to 7/18/2021
+                    </span>
+                </div>
+                <div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="Berks" role="tabpanel" aria-labelledby="Berks_tab">
+                <div style="margin: 10px">
+                    <a href="webdata/Berks/Berks_eviction_cases_1_1_2019_to_7_18_2021.xlsx">
+                        Berks eviction cases
+                    </a>
+                    <span>
+                        1/1/2019 to 7/18/2021
+                    </span>
+                </div>
+                <div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="Dauphin" role="tabpanel" aria-labelledby="Dauphin_tab">
+                <div style="margin: 10px">
+                    <a href="webdata/Dauphin/Dauphin_eviction_cases_1_1_2019_to_7_18_2021.xlsx">
+                        Dauphin eviction cases
+                    </a>
+                    <span>
+                        1/1/2019 to 7/18/2021
+                    </span>
+                </div>
+                <div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="Lebanon" role="tabpanel" aria-labelledby="Lebanon_tab">
+                <div style="margin: 10px">
+                    <a href="webdata/Lebanon/Lebanon_eviction_cases_1_1_2019_to_7_18_2021.xlsx">
+                        Lebanon eviction cases
+                    </a>
+                    <span>
+                        1/1/2019 to 7/18/2021
+                    </span>
+                </div>
+                <div>
+                </div>
+            </div>
+                </div>
+    </body>
 </html>

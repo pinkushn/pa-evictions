@@ -128,6 +128,8 @@ public class ParseAll {
                         FileInputStream fin = new FileInputStream(preProcessedPath + "/" + stripPdf);
                         ObjectInputStream ois = new ObjectInputStream(fin);
                         data = (PdfData) ois.readObject();
+                        ois.close();
+                        fin.close();
                     } else {
                         InputStream targetStream = new FileInputStream(pdf);
                         data = Parser.process(targetStream, false);//, buildCities, cities);
@@ -135,6 +137,7 @@ public class ParseAll {
                             FileOutputStream fout = new FileOutputStream(preProcessedPath + "/" + stripPdf, false);
                             ObjectOutputStream oos = new ObjectOutputStream(fout);
                             oos.writeObject(data);
+                            oos.close();
                         }
                         targetStream.close();
                     }

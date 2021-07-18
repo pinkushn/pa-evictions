@@ -217,22 +217,22 @@ function initEvictions () {
 
 //******** NEARBY COUNTIES **********
 
-	$("#York").html('York eviction cases <a href="webdata/' +
+	$("#York").html('York eviction cases <a href="webdata/York/' +
 		'York.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
 		'7/18/21' + '</a>');
 
-	$("#Lebanon").html('Lebanon eviction cases <a href="webdata/' +
+	$("#Lebanon").html('Lebanon eviction cases <a href="webdata/Lebanon/' +
 		'Lebanon.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
 		'7/18/21' + '</a>');
 
-	$("#Berks").html('Berks eviction cases <a href="webdata/' +
+	$("#Berks").html('Berks eviction cases <a href="webdata/Berks/' +
 		'Berks.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
 		'7/18/21' + '</a>');
 
-	$("#Dauphin").html('Dauphin eviction cases <a href="webdata/' +
+	$("#Dauphin").html('Dauphin eviction cases <a href="webdata/Dauphin/' +
 		'Dauphin.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
 		'7/18/21' + '</a>');
