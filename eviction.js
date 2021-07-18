@@ -220,22 +220,22 @@ function initEvictions () {
 	$("#York").html('York eviction cases <a href="webdata/' +
 		'York.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
-		'6/14/21' + '</a>');
+		'7/18/21' + '</a>');
 
 	$("#Lebanon").html('Lebanon eviction cases <a href="webdata/' +
 		'Lebanon.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
-		'6/15/21' + '</a>');
+		'7/18/21' + '</a>');
 
 	$("#Berks").html('Berks eviction cases <a href="webdata/' +
 		'Berks.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
-		'6/15/21' + '</a>');
+		'7/18/21' + '</a>');
 
 	$("#Dauphin").html('Dauphin eviction cases <a href="webdata/' +
 		'Dauphin.xlsx">1/1/19 to ' +
 		//pandemicDates.pandemicEndSlashes + '</a>');
-		'6/15/21' + '</a>');
+		'7/18/21' + '</a>');
 
 //******** Lancaster Statistics ************
 

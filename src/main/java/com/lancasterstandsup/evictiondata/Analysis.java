@@ -27,10 +27,10 @@ public class Analysis {
     public static void main (String [] args) throws IOException, ClassNotFoundException {
         String county = "Lancaster";
         //String[] years = {"2019"};
-        String[] years = {"2020"};
+        //String[] years = {"2020"};
         //String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
-        //String[] years = {"2020", "2021"};
+        String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
@@ -42,15 +42,21 @@ public class Analysis {
         //nowHappening(filterMDJ(list, "2309"));
         //nowHappening(filterMDJ(list, "2301"));
         //nowHappening(filterOutLancasterCity(list));
-        //nowHappening(list);
+
+//        nowHappening(list);
 
         //list = filterOutNonPandemic(list);
 
         //orderForPossessionServed(filterOutNonPandemic(list));
 
+        //rentInArrears(orderForPossessionServed(list), 500);
+        noDamages(rentInArrears(orderForPossessionServed(filterOutNonPandemic(list)), 500));
+
         //mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
         //monthly(list);
-        weekly(list);
+
+ //       weekly(list);
+
         //daily(list);
         //mostFiled(list, false, true);
         //mergeCheck(list);
@@ -771,6 +777,33 @@ public class Analysis {
         return ret;
     }
 
+    public static List<PdfData> rentInArrears(List<PdfData> list, int min) {
+        List<PdfData> ret = new LinkedList<>();
+
+        for (PdfData pdf: list) {
+            if (pdf.getRentInArrears() >= min) {
+                ret.add(pdf);
+            }
+        }
+
+        System.out.println(ret.size() + " cases with rent in arrears >= $" + min);
+        return ret;
+    }
+
+    public static List<PdfData> noDamages(List<PdfData> list) {
+        List<PdfData> ret = new LinkedList<>();
+
+        for (PdfData pdf: list) {
+            if (pdf.getDamages() == 0) {
+                ret.add(pdf);
+            }
+        }
+
+        System.out.println(ret.size() + " without damages");
+
+        return ret;
+    }
+
     public static List<PdfData> orderForPossessionServed(List<PdfData> list) {
         List<PdfData> ret = new LinkedList<>();
         for (PdfData pdf: list) {
@@ -778,12 +811,6 @@ public class Analysis {
                 ret.add(pdf);
                 System.out.println("order for possession served: " + pdf.getDocketNumber());
             }
-//            else if (pdf.isGrantPossession()) {
-//                System.out.println("grant possession: " + pdf.getDocketNumber());
-//            }
-//            else if (pdf.isJudgmentForPlaintiff()) {
-//                System.out.println("judgment for plaintiff: " + pdf.getDocketNumber());
-//            }
         }
 
         System.out.println(ret.size() + " order(s) for possession served");
