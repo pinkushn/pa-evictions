@@ -46,10 +46,6 @@ public class Update {
             System.err.println("Failed to webRefresh " + county + ", abandon update");
             System.exit(1);
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.err.println("Failed to webRefresh " + county + ", abandon update");
-            System.exit(1);
-            e.printStackTrace();
         }
     }
 }
