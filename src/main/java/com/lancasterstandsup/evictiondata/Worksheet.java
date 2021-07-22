@@ -32,10 +32,10 @@ public class Worksheet {
 
         //clearPreProcessed("Lancaster");
         webRefresh("Lancaster");
-        webRefreshSurroundingCounty("York");
-        webRefreshSurroundingCounty("Lebanon");
-        webRefreshSurroundingCounty("Dauphin");
-        webRefreshSurroundingCounty("Berks");
+//        webRefreshSurroundingCounty("York");
+//        webRefreshSurroundingCounty("Lebanon");
+//        webRefreshSurroundingCounty("Dauphin");
+//        webRefreshSurroundingCounty("Berks");
 
         //String[] approvedYears = {"2019", "2020", "2021"};
         //webRefreshSurroundingCounty2("York", approvedYears);
@@ -50,40 +50,40 @@ public class Worksheet {
      * rebuild all artifacts used in web presentation
      */
 
-    public static void webRefresh(String county) throws IOException, ClassNotFoundException {
-        //writes 'pre_versus_post.js' to webdata
-        Analysis.preVersusPostPandemic(county);
-
-        //clearPreProcessed(county);
-
-        String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
-        Object[] data = null;
-
-        try {
-            data = ParseAll.get(county, years, true);
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("parser failed, abandoning webRefresh");
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        List<PdfData> list = (List<PdfData>) data[2];
-
-        //writeExcel(Analysis.dataPathWithDot + county + "/" + county + ".xlsx", list, null, null);
-
-        LocalDate now = Analysis.now;
-        int month = now.getMonthValue();
-        int day = now.getDayOfMonth();
-        int year = now.getYear();
-
-        String excelFileName = county + "_eviction_cases_" +
-                "1_1_" + years[0] + "_" +
-                "to_" +
-                month + "_" + day + "_" + year +
-                ".xlsx";
-
-        writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
-    }
+//    public static void webRefresh(String county) throws IOException, ClassNotFoundException {
+//        //writes 'pre_versus_post.js' to webdata
+//        Analysis.preVersusPostPandemic(county);
+//
+//        //clearPreProcessed(county);
+//
+//        String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
+//        Object[] data = null;
+//
+//        try {
+//            data = ParseAll.get(county, years, true);
+//        } catch (IOException | ClassNotFoundException e) {
+//            System.err.println("parser failed, abandoning webRefresh");
+//            e.printStackTrace();
+//            System.exit(1);
+//        }
+//
+//        List<PdfData> list = (List<PdfData>) data[2];
+//
+//        //writeExcel(Analysis.dataPathWithDot + county + "/" + county + ".xlsx", list, null, null);
+//
+//        LocalDate now = Analysis.now;
+//        int month = now.getMonthValue();
+//        int day = now.getDayOfMonth();
+//        int year = now.getYear();
+//
+//        String excelFileName = county + "_eviction_cases_" +
+//                "1_1_" + years[0] + "_" +
+//                "to_" +
+//                month + "_" + day + "_" + year +
+//                ".xlsx";
+//
+//        writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
+//    }
 
     public static void clearPreProcessed(String county) {
         File dir = new File("./src/main/resources/pdfCache/" + county);
@@ -100,7 +100,7 @@ public class Worksheet {
 
     private static String[] lancoYears =  {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
     private static String[] otherCountyYears = {"2019", "2020", "2021"};
-    public static void webRefreshSurroundingCounty(String county) throws IOException, ClassNotFoundException {
+    public static void webRefresh(String county) throws IOException {
         String[] years = county.equals("Lancaster") ? lancoYears : otherCountyYears;
 
         Object[] data = null;
