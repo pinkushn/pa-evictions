@@ -1,0 +1,32 @@
+let courtData = new Map([
+	['02-1-01', {ratio: 22, pre: 1176, post: 260}],
+	['02-1-02', {ratio: 23, pre: 473, post: 109}],
+	['02-1-03', {ratio: 19, pre: 680, post: 128}],
+	['02-2-01', {ratio: 18, pre: 671, post: 124}],
+	['02-2-02', {ratio: 22, pre: 378, post: 85}],
+	['02-2-03', {ratio: 17, pre: 859, post: 147}],
+	['02-2-04', {ratio: 20, pre: 654, post: 128}],
+	['02-2-05', {ratio: 25, pre: 466, post: 118}],
+	['02-2-06', {ratio: 13, pre: 583, post: 74}],
+	['02-2-07', {ratio: 20, pre: 384, post: 76}],
+	['02-2-08', {ratio: 17, pre: 405, post: 69}],
+	['02-3-01', {ratio: 19, pre: 563, post: 108}],
+	['02-3-02', {ratio: 21, pre: 542, post: 116}],
+	['02-3-03', {ratio: 23, pre: 146, post: 34}],
+	['02-3-04', {ratio: 28, pre: 333, post: 94}],
+	['02-3-05', {ratio: 27, pre: 297, post: 80}],
+	['02-3-06', {ratio: 19, pre: 253, post: 49}],
+	['02-3-07', {ratio: 21, pre: 126, post: 27}],
+	['02-3-09', {ratio: 17, pre: 533, post: 90}],
+]);
+
+let pandemicDates = {
+	pandemicDays:466,
+	prePandemicStartSlashes:'12/05/18',
+	prePandemicEndSlashes:'3/14/20',
+	pandemicStartSlashes:'3/15/20',
+	pandemicEndSlashes:'06/24/21',
+	allName:'lanco_eviction_cases_1_1_2015_to_6_24_2021.xlsx',
+	postName:'lanco_eviction_cases_3_15_2020_to_6_24_2021.xlsx',
+	preName:'lanco_eviction_cases_12_5_2018_to_3_14_2020.xlsx',
+}
