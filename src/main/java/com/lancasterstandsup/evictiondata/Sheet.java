@@ -6,6 +6,8 @@ import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -42,6 +44,19 @@ public class Sheet {
     private static final List<String> SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS);
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
 
+    private static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer) {
+        return new HttpRequestInitializer() {
+            @Override
+            public void initialize(HttpRequest httpRequest) throws IOException {
+                requestInitializer.initialize(httpRequest);
+                httpRequest.setConnectTimeout(3 * 60000);  // 3 minutes connect timeout
+                httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
+            }
+        };
+
+        //final Analytics analytics = Analytics.builder(new NetHttpTransport(), jsonFactory, setHttpTimeout(credential)).build();
+    }
+
     /**
      * Creates an authorized Credential object.
      * @param HTTP_TRANSPORT The network HTTP Transport.
@@ -74,74 +89,67 @@ public class Sheet {
         // Build a new authorized API client service.
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1lDBW0R9-DzNbURzVOCf82kQbp37m7RKVlcnn03-57Gc";
-//        final String range = "Sheet1!A1:B";
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, setHttpTimeout(getCredentials(HTTP_TRANSPORT)))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-//        ValueRange response = service.spreadsheets().values()
-//                .get(spreadsheetId, range)
-//                .execute();
-//        List<List<Object>> values = response.getValues();
-//        if (values == null || values.isEmpty()) {
-//            System.out.println("No data found.");
-//        } else {
-//            System.out.println("Name, Major");
-//            for (List row : values) {
-//                // Print columns A and E, which correspond to indices 0 and 4.
-//                System.out.printf("%s, %s\n", row.get(0), row.get(1));
-//            }
-//        }
 
+        String[] lancoYears =  {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
+        String[] otherCountyYears =  {"2019", "2020", "2021"};
 
+        List<List<Object>> rows =  new ArrayList<>();
+        ArrayList<Object> headers = new ArrayList<>();
+        headers.add(0, "County");
+        for (String header: Parser.colHeaders) {
+            headers.add(header);
+        }
+        rows.add(headers);
 
-//        ValueRange body = new ValueRange()
-//                .setValues(Arrays.asList(
-//                        Arrays.asList("Expenses January"),
-//                        Arrays.asList("books", "30"),
-//                        Arrays.asList("pens", "10"),
-//                        Arrays.asList("Expenses February"),
-//                        Arrays.asList("clothes", "20"),
-//                        Arrays.asList("shoes", "5")));
-//        UpdateValuesResponse result = service.spreadsheets().values()
-//                .update(spreadsheetId, "A1", body)
-//                .setValueInputOption("RAW")
-//                .execute();
+        try {
+            Object[] data = ParseAll.get("Lancaster", lancoYears, true);
+            List<PdfData> pdfs = (List<PdfData>) data[2];
+            rows.addAll(build(pdfs, "Lancaster"));
 
+            for (String county: Website.counties) {
+                if (!county.equals("Lancaster")) {
+                    data = ParseAll.get(county, otherCountyYears, true);
+                    rows.addAll(build((List<PdfData>) data[2], county));
+                }
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("parser failed, abandoning allYears");
+            e.printStackTrace();
+            System.exit(1);
+        }
 
+        ValueRange body = new ValueRange();
+        body.setValues(rows);
 
-        ValueRange body = build(pdfs);
+        System.out.println("Commencing upload of spreadsheet. This may take a while.");
 
         UpdateValuesResponse result = service.spreadsheets().values()
         .update(spreadsheetId, "A1", body)
-        .setValueInputOption("RAW")
+        .setValueInputOption("USER_ENTERED")
         .execute();
 
-//        Spreadsheet spreadsheet = new Spreadsheet()
-//                .setProperties(new SpreadsheetProperties()
-//                        .setTitle("delete me plz"));
-//        spreadsheet = service.spreadsheets().create(spreadsheet)
-//                .setFields("spreadsheetId")
-//                .execute();
-//        System.out.println("Spreadsheet ID: " + spreadsheet.getSpreadsheetId());
+        System.out.println("Finished upload of spreadsheet.");
     }
 
-    public static ValueRange build(List<PdfData> list) {
-        ValueRange valueRange = new ValueRange();
-        List<List<Object>> values = new ArrayList<>();
-        values.add(Arrays.asList(Parser.colHeaders));
+    public static List<List<Object>> build(List<PdfData> list, String county) {
+        List<List<Object>> ret = new ArrayList<>();
 
+        System.out.println("Starting build of Sheets ValueRange for " + county);
         for (PdfData pdf: list) {
             String[] rowData = pdf.getRow();
             List<Object> row = new ArrayList();
+            row.add(county);
             for (int c = 0; c < rowData.length; c++) {
                 String cellValue = rowData[c] == null ? "" : rowData[c];
                 row.add(cellValue);
             }
-            values.add(row);
+            ret.add(row);
         }
 
-        valueRange.setValues(values);
-
-        return valueRange;
+        return ret;
     }
 }

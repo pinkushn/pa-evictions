@@ -972,7 +972,8 @@ public class Parser {
                     data.setStayed(stay);
                 }
                 else if (s.indexOf(orderForPosServed) > -1) {
-                    data.setOrderForPossessionServed(true);
+                    String date = s.substring(0, s.indexOf(' '));
+                    data.setOrderForPossessionServed(true, date);
                 }
                 else if (s.indexOf(execution) > -1) {
                     data.addNote(execution);

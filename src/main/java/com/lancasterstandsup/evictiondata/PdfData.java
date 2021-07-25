@@ -87,8 +87,9 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     private String grantPossession;
     private String grantPossessionIf;
     private String orderForPossessionRequested;
-    private LocalDate orderForPossessionServedDate;
+    private LocalDate orderForPossessionRequestedDate;
     private String orderForPossessionServed;
+    private LocalDate orderForPossessionServedDate;
     //private String tenantWin;
     private String served;
     private String withdrawn;
@@ -368,14 +369,19 @@ public class PdfData implements Comparable<PdfData>, Serializable {
 
     public void setOrderForPossessionRequested(boolean b, String date) {
         this.orderForPossessionRequested = b ? "TRUE" : "FALSE";
-        row.put(26, this.orderForPossessionRequested);
 
-        orderForPossessionServedDate = LocalDate.parse(date, dateFormatter);
+        orderForPossessionRequestedDate = LocalDate.parse(date, dateFormatter);
+
+        row.put(26, date);
+
     }
 
-    public void setOrderForPossessionServed(boolean b) {
+    public void setOrderForPossessionServed(boolean b, String date) {
         this.orderForPossessionServed = b ? "TRUE" : "FALSE";
-        row.put(27, this.orderForPossessionServed);
+
+        orderForPossessionServedDate = LocalDate.parse(date, dateFormatter);
+
+        row.put(27, date);
     }
 
 //    //judgment for defendant or dismissed

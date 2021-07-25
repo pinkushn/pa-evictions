@@ -1,6 +1,7 @@
 package com.lancasterstandsup.evictiondata;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class Update {
 
@@ -14,6 +15,14 @@ public class Update {
             Website.main(null);
         } catch (IOException e) {
             System.err.println("Failed to create site, abandoning update");
+            System.exit(1);
+            e.printStackTrace();
+        }
+
+        try {
+            Sheet.main(null);
+        } catch (IOException | GeneralSecurityException e) {
+            System.err.println("Failed to update Google Sheet, abandoning update");
             System.exit(1);
             e.printStackTrace();
         }
