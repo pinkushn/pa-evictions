@@ -1,5 +1,9 @@
-#case pdfs
+# pa-evictions #
+################
+# case pdfs
 pdfCache/
+# google api creds
+credentials.json
 
 # Compiled source #
 ###################
