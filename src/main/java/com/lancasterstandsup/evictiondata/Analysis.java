@@ -25,8 +25,9 @@ public class Analysis {
     private static LocalDate wolfMoratoriumEnds = LocalDate.parse("08/31/2020", dateFormatter);
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
-        String county = "Lancaster";
+        //String county = "Lancaster";
         //String county = "Berks";
+        String county = "York";
 
         //String[] years = {"2019"};
         //String[] years = {"2020"};
