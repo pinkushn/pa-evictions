@@ -26,7 +26,7 @@ public class Scraper {
         //***GOAL: Berks, Lebanon, Dauphin, York
 
         //scrape("Lancaster", "2020");
-        //scrape("Lancaster", "2021");
+        scrape("Lancaster", "2021");
 
         //fully pulled 2015 4/4/21
         //scrape("Lancaster", "2015");
@@ -43,7 +43,7 @@ public class Scraper {
         //scrape("York", "2019");
         //scrape("York", "2020");
         //updated 6/26
-        scrape("York", "2021");
+        //scrape("York", "2021");
 
         //scrape("Berks", "2019");
 
@@ -56,14 +56,14 @@ public class Scraper {
         //scrape("Lebanon", "2019");
         //scrape("Lebanon", "2020");
         //did this 6/15/26
-        scrape("Lebanon", "2021");
+        //scrape("Lebanon", "2021");
 
         //did this 6/15/21
         //scrape("Dauphin", "2019");
         //did this 6/15/21
         //scrape("Dauphin", "2020");
         //did this 6/15/26
-        scrape("Dauphin", "2021");
+        //scrape("Dauphin", "2021");
 
 
 

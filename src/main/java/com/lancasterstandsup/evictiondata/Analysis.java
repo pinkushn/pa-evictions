@@ -24,10 +24,32 @@ public class Analysis {
     //private static LocalDate covidStart = LocalDate.parse("04/1/2020", dateFormatter);
     private static LocalDate wolfMoratoriumEnds = LocalDate.parse("08/31/2020", dateFormatter);
 
+    private static String[] mdjs = {
+            "2101",
+            "2102",
+            "2201",
+            "2202",
+            "2203",
+            "2204",
+            "2205",
+            "2206",
+            "2207",
+            "2208",
+            "2301",
+            "2302",
+            "2303",
+            "2304",
+            "2305",
+            "2306",
+            "2307",
+            "2308",
+            "2309"
+    };
+
     public static void main (String [] args) throws IOException, ClassNotFoundException {
-        //String county = "Lancaster";
+        String county = "Lancaster";
         //String county = "Berks";
-        String county = "York";
+        //String county = "York";
 
         //String[] years = {"2019"};
         //String[] years = {"2020"};
