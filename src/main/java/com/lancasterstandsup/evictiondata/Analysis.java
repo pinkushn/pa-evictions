@@ -26,18 +26,21 @@ public class Analysis {
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
         String county = "Lancaster";
+        //String county = "Berks";
+
         //String[] years = {"2019"};
         //String[] years = {"2020"};
         //String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
-        String[] years = {"2020", "2021"};
-        //String[] years = {"2019", "2020", "2021"};
+        //String[] years = {"2020", "2021"};
+        String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
         //String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
         //String[] years = {"2015", "2016", "2017", "2018", "2019"};
 
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+        //evictionRateByJudge(filterOutNonPandemic(list));
 
         //nowHappening(filterMDJ(list, "2309"));
         //nowHappening(filterMDJ(list, "2301"));
@@ -50,12 +53,15 @@ public class Analysis {
         //orderForPossessionServed(filterOutNonPandemic(list));
 
         //rentInArrears(orderForPossessionServed(list), 500);
-        noDamages(rentInArrears(orderForPossessionServed(filterOutNonPandemic(list)), 500));
+        //noDamages(rentInArrears(orderForPossessionServed(filterOutNonPandemic(list)), 500));
 
         //mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
-        //monthly(list);
+        //monthly(filterMDJ(list, "2202"));
+        monthly(list);
 
- //       weekly(list);
+        //weekly(list);
+        weekly(filterOutNonPandemic(list));  //30 as of 8/2/21
+        weekly(filterOutPandemic(list));
 
         //daily(list);
         //mostFiled(list, false, true);
@@ -206,6 +212,18 @@ public class Analysis {
 
         return ret;
     }
+
+    public static List<PdfData> filterOutPandemic(List<PdfData> list) {
+        List<PdfData> ret = new ArrayList<>();
+        for (PdfData pdf: list) {
+            if (pdf.getFileDate().compareTo(march15_2020) < 0) {
+                ret.add(pdf);
+            }
+        }
+
+        return ret;
+    }
+
     /**PDFs must exist for as many days BEFORE pandemic as since pandemic
      *
      * @param county
