@@ -85,9 +85,9 @@ import java.util.*;
 
 public class Parser {
     public static final String TARGET_YEAR_FOR_MAIN = "2020";
-    public static final String TARGET_COUNTY_FOR_MAIN = "Berks";
-    public static final String TARGET_COURT_FOR_MAIN = "23201";
-    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000233";
+    public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
+    public static final String TARGET_COURT_FOR_MAIN = "2304";
+    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000047";
 
     static String judgmentForDefendant = "Judgment for Defendant";
     static String judgmentForPlaintiff = "Judgment for Plaintiff";
@@ -1097,6 +1097,16 @@ public class Parser {
     //place zip name
     //could probe for whether comma is followed by 'PA', but for now
     //I'll check for zip location
+
+    //Could be (sigh):
+    //Rick Wennerstorm's Property Lancaster, PA 17###
+    //Management <--- all alone as second string
+
+    /**
+     *
+     * @param strings
+     * @return index 0 has name, index 1 has zip code
+     */
     private static String[] processParticipantChunk(List<String> strings) {
         List<String> noDoubleSpaces = new ArrayList<>(strings.size());
         for (String s: strings) {
@@ -1114,17 +1124,11 @@ public class Parser {
             ret[1] = probablyZipUnlessZipIsMissing;
         }
 
-        //if length is 1, it's
-        //name place zip
-        //if commaCount is > 1 and length is not 1,
-        //it's
-        //name place zip
-        //more name
-        long commaCount = firstString.chars().filter(ch -> ch == ',').count();
-        if (strings.size() == 1 || commaCount > 1) {
+        if (strings.size() == 1) {
+            long commaCount = firstString.chars().filter(ch -> ch == ',').count();
             int comma = firstString.indexOf(',');
             String toComma = firstString.substring(0, comma + 1);
-            //common case
+            //common case:
             if (commaCount > 1) {
                 String postComma = firstString.substring(comma + 1).trim();
                 postComma = postComma.substring(0, postComma.indexOf(' '));
@@ -1143,19 +1147,35 @@ public class Parser {
                 toComma = toComma.substring(0, lastSpace);
                 ret[0] = toComma.trim();
             }
+            return ret;
         }
+
         //if there are two strings (or more) it's
         //place zip
         //name
         //OR
         //name place zip
         //more name
-        if (strings.size() > 1) {
-            for (int x = 1; x < strings.size(); x++) {
-                String next = strings.get(x);
-                if (ret[0] == null) ret[0] = next.trim();
-                else ret[0] += " " + next.trim();
+        long commaCount = firstString.chars().filter(ch -> ch == ',').count();
+        int comma = firstString.indexOf(',');
+        String toComma = firstString.substring(0, comma + 1);
+        if (commaCount > 1) {
+            String postComma = firstString.substring(comma + 1).trim();
+            postComma = postComma.substring(0, postComma.indexOf(' '));
+            ret[0] = toComma + " " + postComma;
+        }
+        else {
+            int lastSpace = toComma.lastIndexOf(' ');
+            if (lastSpace > -1) {
+                toComma = toComma.substring(0, lastSpace);
+                ret[0] = toComma.trim();
             }
+        }
+
+        for (int x = 1; x < strings.size(); x++) {
+            String next = strings.get(x);
+            if (ret[0] == null) ret[0] = next.trim();
+            else ret[0] += " " + next.trim();
         }
 
         return ret;

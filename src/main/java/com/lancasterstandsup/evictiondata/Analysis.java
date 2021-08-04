@@ -1,6 +1,7 @@
 package com.lancasterstandsup.evictiondata;
 
 import org.apache.commons.math3.util.Precision;
+import sun.jvmstat.perfdata.monitor.protocol.local.PerfDataFile;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class Analysis {
     private static LocalDate covidStart = LocalDate.parse("03/15/2020", dateFormatter);
     //private static LocalDate covidStart = LocalDate.parse("04/1/2020", dateFormatter);
     private static LocalDate wolfMoratoriumEnds = LocalDate.parse("08/31/2020", dateFormatter);
+    private static LocalDate cdcMoratoriumEnds = LocalDate.parse("07/31/2021", dateFormatter);
 
     private static String[] mdjs = {
             "2101",
@@ -80,11 +82,25 @@ public class Analysis {
 
         //mostFiled(filterPostWolfMoratoriumEnds(list), true, false);
         //monthly(filterMDJ(list, "2202"));
-        monthly(list);
+        //monthly(list);
 
         //weekly(list);
-        weekly(filterOutNonPandemic(list));  //30 as of 8/2/21
-        weekly(filterOutPandemic(list));
+
+
+//        for (String mdj: mdjs) {
+//            System.out.println("MDJ " + mdj);
+//            List<PdfData> filtered = filterMDJ(list, mdj);
+//            //weekly(filterOutPandemic(filtered), true);
+//            weekly(filterOutNonPandemic(filtered), true);
+//        }
+
+
+//        weekly(filterOutNonPandemic(list));  //30 as of 8/2/21
+//        weekly(filterOutPandemic(list));
+
+        //averageClaim(filterOutPandemic(list)); //$1809
+        averageClaim(filterOutPostCDCMoratoriumEnds(list));  //$2127
+        //averageClaim(filterOutPreCDCMoratoriumEnds(list));  //$3749
 
         //daily(list);
         //mostFiled(list, false, true);
@@ -247,6 +263,28 @@ public class Analysis {
         return ret;
     }
 
+    public static List<PdfData> filterOutPreCDCMoratoriumEnds(List<PdfData> list) {
+        List<PdfData> ret = new ArrayList<>();
+        for (PdfData pdf: list) {
+            if (pdf.getFileDate().compareTo(cdcMoratoriumEnds) > 0) {
+                ret.add(pdf);
+            }
+        }
+
+        return ret;
+    }
+
+    public static List<PdfData> filterOutPostCDCMoratoriumEnds(List<PdfData> list) {
+        List<PdfData> ret = new ArrayList<>();
+        for (PdfData pdf: list) {
+            if (pdf.getFileDate().compareTo(cdcMoratoriumEnds) < 1) {
+                ret.add(pdf);
+            }
+        }
+
+        return ret;
+    }
+
     /**PDFs must exist for as many days BEFORE pandemic as since pandemic
      *
      * @param county
@@ -390,7 +428,7 @@ public class Analysis {
         }
     }
 
-    public static void weekly(List<PdfData> data) {
+    public static void weekly(List<PdfData> data, boolean showEachWeek) {
         Map<LocalDate, Integer> map = new TreeMap<>();
         //TemporalField woy = WeekFields.of(Locale.US).weekOfWeekBasedYear();
         TemporalField hlep = WeekFields.of(Locale.US).dayOfWeek();
@@ -404,7 +442,7 @@ public class Analysis {
         int max = 0;
         int total = 0;
         for (LocalDate key: map.keySet()) {
-            //System.out.println(key + "\t" + map.get(key));
+            if(showEachWeek) System.out.println(key + "\t" + map.get(key));
             total += map.get(key);
             if (maxDate == null) {
                 maxDate = key;
@@ -419,8 +457,8 @@ public class Analysis {
             }
         }
         double average = ((double) total) / map.size();
-        System.out.println(maxDate + "\t" + max);
-        System.out.println("Average: " + average);
+        System.out.println("Max weekly: " + maxDate + "\t" + max);
+        System.out.println("Average weekly: " + average);
     }
 
     public static void daily(List<PdfData> data) {
@@ -843,6 +881,21 @@ public class Analysis {
         System.out.println(ret.size() + " without damages");
 
         return ret;
+    }
+
+    public static void averageClaim(List<PdfData> list) {
+        int divisor = 0;
+        double total = 0;
+        for (PdfData pdf: list) {
+            int claim = pdf.getClaim();
+            if (claim > 0) {
+                total += claim;
+                divisor++;
+            }
+        }
+
+        double average = total / divisor;
+        System.out.println("Average claim: $" + Math.round(100 * average)/100);
     }
 
     public static List<PdfData> orderForPossessionServed(List<PdfData> list) {

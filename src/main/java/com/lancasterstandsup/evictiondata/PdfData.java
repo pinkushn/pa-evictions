@@ -117,8 +117,6 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     public String[] getRow() {
         String[] ret = new String[Parser.colHeaders.length];
 
-        //obfuscate defendant names
-
         for (Integer i: row.keySet()) {
             ret[i] = row.get(i);
         }
@@ -239,6 +237,10 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     public void setClaim(String claim) {
         this.claim = claim;
         row.put(11, claim);
+    }
+
+    public int getClaim() {
+        return claim == null ? 0 : convertMoneyToDollars(claim);
     }
 
     public void setJudgment(String judgment) {
