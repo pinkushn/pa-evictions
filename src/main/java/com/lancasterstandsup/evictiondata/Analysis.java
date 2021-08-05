@@ -55,10 +55,10 @@ public class Analysis {
 
         //String[] years = {"2019"};
         //String[] years = {"2020"};
-        //String[] years = {"2021"};
+        String[] years = {"2021"};
         //String[] years = {"2019", "2020"};
         //String[] years = {"2020", "2021"};
-        String[] years = {"2019", "2020", "2021"};
+        //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
         //String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
@@ -99,10 +99,10 @@ public class Analysis {
 //        weekly(filterOutPandemic(list));
 
         //averageClaim(filterOutPandemic(list)); //$1809
-        averageClaim(filterOutPostCDCMoratoriumEnds(list));  //$2127
+        //averageClaim(filterOutPostCDCMoratoriumEnds(list));  //$2127
         //averageClaim(filterOutPreCDCMoratoriumEnds(list));  //$3749
 
-        //daily(list);
+        daily(list);
         //mostFiled(list, false, true);
         //mergeCheck(list);
 //        int defendantHasRep = countRepresentationForDefendants(list);
