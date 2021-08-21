@@ -7,7 +7,7 @@ public class Update {
 
     public static void main (String [] args) {
         for (String county: Website.counties) {
-            scrape(county);
+            //scrape(county);
             excel(county);
         }
 
@@ -19,13 +19,13 @@ public class Update {
             e.printStackTrace();
         }
 
-        try {
-            Sheet.main(null);
-        } catch (IOException | GeneralSecurityException e) {
-            System.err.println("Failed to update Google Sheet, abandoning update");
-            System.exit(1);
-            e.printStackTrace();
-        }
+//        try {
+//            Sheet.main(null);
+//        } catch (IOException | GeneralSecurityException e) {
+//            System.err.println("Failed to update Google Sheet, abandoning update");
+//            System.exit(1);
+//            e.printStackTrace();
+//        }
 
         System.out.println("Successfully updated. Now push to git.");
     }
