@@ -29,7 +29,7 @@ public class Scraper {
 //        scrape("Berks", "2021");
 //        scrape("Dauphin", "2021");
 
-        //scrape("Lancaster", "2020");
+        scrape("Lancaster", "2020");
         //scrape("Lancaster", "2021");
 
         //fully pulled 2015 4/4/21
