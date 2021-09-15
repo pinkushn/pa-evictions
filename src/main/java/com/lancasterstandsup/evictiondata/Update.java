@@ -6,11 +6,11 @@ import java.security.GeneralSecurityException;
 public class Update {
 
     public static void main (String [] args) {
-        for (String county: Website.counties) {
-            //scrape(county);
-            excel(county);
-        }
-        //excel("Lancaster");
+//        for (String county: Website.counties) {
+//            //scrape(county);
+//            excel(county);
+//        }
+        excel("Lancaster");
 
         try {
             Website.main(null);
