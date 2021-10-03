@@ -368,7 +368,7 @@ public class Scraper {
             String findMe = preCountyFlag + county + postCountyFlag;
             while (in.ready()) {
                 String next = in.readLine();
-                System.out.println(next);
+                //System.out.println(next);
                 boolean done = false;
                 while (!done) {
                     int i = next.indexOf(findMe);
