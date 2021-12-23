@@ -27,7 +27,7 @@ public class Scraper {
 //        scrape("Lancaster", "2021");
 //        scrape("York", "2021");
 //        scrape("Berks", "2021");
-//        scrape("Lebanon", "2021");
+        scrape("Lebanon", "2021");
         scrape("Dauphin", "2021");
 
         //scrape("Lancaster", "2020");
