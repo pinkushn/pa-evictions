@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class Pointer implements Serializable {
     private int year;
     private String county;
-    private String courthouse;
+    private String courtOffice;
     private int sequenceNumberUnformatted;
 
     public int getYear() {
@@ -27,12 +27,12 @@ public class Pointer implements Serializable {
         this.county = county;
     }
 
-    public String getCourthouse() {
-        return courthouse;
+    public String getCourtOffice() {
+        return courtOffice;
     }
 
-    public void setCourthouse(String courthouse) {
-        this.courthouse = courthouse;
+    public void setCourtOffice(String courtOffice) {
+        this.courtOffice = courtOffice;
     }
 
     public int getSequenceNumberUnformatted() {
@@ -44,6 +44,10 @@ public class Pointer implements Serializable {
     }
 
     public String toString() {
-        return county + ", " + courthouse + ", " + year + ", #" + sequenceNumberUnformatted;
+        return county + ", " + courtOffice + ", " + year + ", #" + sequenceNumberUnformatted;
+    }
+
+    public boolean hasCourtOffice() {
+        return courtOffice != null;
     }
 }

@@ -1,61 +1,53 @@
 package com.lancasterstandsup.evictiondata;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Update {
 
     public static void main (String [] args) {
+        List<String> countiesWithData = new LinkedList<>();
         for (String county: Website.counties) {
-            //scrape(county);
-            excel(county);
+            try {
+                if (Scraper2.getCountyStartAndEnd(county) != null) {
+                    countiesWithData.add(county);
+                }
+            } catch (IOException e) {
+                System.err.println("Failed to build update counties list, abandoning update");
+                e.printStackTrace();
+                return;
+            } catch (ClassNotFoundException e) {
+                System.err.println("Failed to build update counties list, abandoning update");
+                e.printStackTrace();
+                return;
+            }
         }
-        //excel("Lancaster");
+
+        System.out.println("Counties with data: " + countiesWithData);
+
+        for (String county: countiesWithData) {
+            try {
+                Worksheet.createExcel(county);
+            } catch (IOException e) {
+                System.err.println("Failed to create spreadsheet for " + county + ", abandoning update");
+                e.printStackTrace();
+                return;
+            } catch (ClassNotFoundException e) {
+                System.err.println("Failed to create spreadsheet for " + county + ", abandoning update");
+                e.printStackTrace();
+                return;
+            }
+        }
 
         try {
-            Website.main(null);
+            Website.buildWebsite(countiesWithData);
         } catch (IOException e) {
             System.err.println("Failed to create site, abandoning update");
-            System.exit(1);
             e.printStackTrace();
+            return;
         }
 
-//        try {
-//            Sheet.main(null);
-//        } catch (IOException | GeneralSecurityException e) {
-//            System.err.println("Failed to update Google Sheet, abandoning update");
-//            System.exit(1);
-//            e.printStackTrace();
-//        }
-
-        System.out.println("Successfully updated. Now push to git.");
-    }
-
-    private static void scrape(String county) {
-        try {
-            Scraper.scrape(county, "2021");
-        } catch (IOException e) {
-            System.err.println("Failed to scrape " + county + ", abandon update");
-            System.exit(1);
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            System.err.println("Failed to scrape " + county + ", abandon update");
-            System.exit(1);
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            System.err.println("Failed to scrape " + county + ", abandon update");
-            System.exit(1);
-            e.printStackTrace();
-        }
-    }
-
-    private static void excel(String county) {
-        try {
-            Worksheet.webRefresh(county);
-        } catch (IOException e) {
-            System.err.println("Failed to webRefresh " + county + ", abandon update");
-            System.exit(1);
-            e.printStackTrace();
-        }
+        System.out.println("\n*** Successfully updated. Now push to git.");
     }
 }

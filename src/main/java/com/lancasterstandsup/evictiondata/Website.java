@@ -13,21 +13,76 @@ import static j2html.TagCreator.*;
 
 public class Website {
 
+
     public final static String[] countiesRaw = {
-            "Lancaster",
-            "York",
-            "Berks",
+            "Bradford",
+            "Bucks",
+            "Butler",
+            "Cambria",
+            "Cameron",
+            "Carbon",
+            "Centre",
+            "Chester",
+            "Clarion",
+            "Clearfield",
+            "Clinton",
+            "Columbia",
+            "Crawford",
+            "Cumberland",
             "Dauphin",
-            "Lebanon"
+            "Delaware",
+            "Elk",
+            "Erie",
+            "Fayette",
+            "Forest",
+            "Franklin",
+            "Fulton",
+            "Greene",
+            "Huntingdon",
+            "Indiana",
+            "Jefferson",
+            "Juniata",
+            "Lackawanna",
+            "Lawrence",
+            "Lebanon",
+            "Lehigh",
+            "Luzerne",
+            "Lycoming",
+            "McKean",
+            "Mercer",
+            "Mifflin",
+            "Monroe",
+            "Montgomery",
+            "Montour",
+            "Northampton",
+            "Northumberland",
+            "Perry",
+            "Philadelphia",
+            "Pike",
+            "Potter",
+            "Schuylkill",
+            "Snyder",
+            "Somerset",
+            "Sullivan",
+            "Susquehanna",
+            "Tioga",
+            "Union",
+            "Venango",
+            "Warren",
+            "Washington",
+            "Wayne",
+            "Westmoreland",
+            "Wyoming",
+            "York",
     };
 
     public static List<String> counties;
 
-    static{
+    static {
         counties = Arrays.asList(countiesRaw);
     }
 
-    public static void main (String [] args) throws IOException {
+    public static void buildWebsite (List<String> counties) throws IOException {
         String html = html(
                 head(
                         link().withHref("https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css")
@@ -147,43 +202,4 @@ public class Website {
 
         );
     }
-
-//    public static void main (String [] args) {
-//        System.out.println(test());
-//
-//        body(
-//                ul(
-//                        li("first list item"),
-//                        li("second list item")
-//                )
-//        ).render();
-//
-//        System.out.println(body(
-//                h1("Hello, World!"),
-//                img().withSrc("/img/hello.png")
-//        ).renderFormatted());
-//    }
-//
-//    //create tab per county
-//    public static void countyTab(String county) {
-//
-//    }
-//
-//    public static String test() {
-//        return //document(
-//                html(
-//                        head(
-//                                title("This is the title")
-//                        ),
-//                        body(
-//                                ul(
-//                                        li("first list item"),
-//                                        li("second list item")
-//                                )
-//                        )
-//                ).renderFormatted();
-//        //);
-//    }
-
-
 }

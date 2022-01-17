@@ -719,10 +719,11 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     }
 
     public boolean isInactive() {
-//        if (docketNumber.equals("MJ-02204-LT-0000007-2020")) {
-//            System.out.println("ksjdf");
-//        }
         return "Inactive".equals(caseStatus);
+    }
+
+    public boolean isAlive() {
+        return !isClosed() && !isInactive();
     }
 
     public boolean isPlaintiffAttorney() {

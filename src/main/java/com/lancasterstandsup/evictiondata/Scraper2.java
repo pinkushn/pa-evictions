@@ -13,85 +13,62 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-/*
-
-Continuous scraping, all of PA?
-
-* Scrape till blocked vs. stop scrape partway, pre-block
-I like latter, as it stays within site's parameters
-would need to
-1) know parameters? Is it number of calls? And how long till it opens back up?
-2) code county pull as a partial thing
-
-a typewriter ribbon, endless loop
-Next county?
-  which year to start with?
-      Normal year rule: if we're in first 6 months, start with last year
-      Alternate year rule: start with forced year
-
-Every call, save all arguments for that call to file. It's a 'pointer' to
-the last place on the ribbon.
-Is it the last successful call or the last record of a call about to be made?
-Former is fragile, could succeed by crash before recording, maybe
-Latter is more reliable. Whenever we restart, we can pick up with that even though
-it may be one record extra to read.
-
-
-
- */
-
 public class Scraper2 {
-    private static int BETWEEN_CALL_PAUSE = 200;
+    private static int BETWEEN_SCRAPE_PAUSE = 200;
+    private static int BETWEEN_RESPONSE_PAUSE = 150;
 
-    //trying four hours
-    private final static int RESET_PERMISSIONS_TIME = 1000 * 60 * 60 * 4;
+    //wait after a failed call
+    private static final double HOURS_WAIT = 3.2;
+    private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
     private final static String PDF_CACHE_PATH = "./src/main/resources/pdfCache/";
     private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
     private final static String POINTER_PATH = "./src/main/resources/";
+    private final static String POINTER_FILE_NAME = "pointer";
     private static File pointerFile;
+    private final static String COMPLETION_FILE_NAME = "completion";
     private static int hits = 0;
+    private static int urlHits = 0;
+    private static long millisForAllURLHits = 0;
+    private static int urlLoops = 0;
+    //stop and wait for a few hours after this many url hits
+    private final static int URL_HITS_PERMITTED = 700;
 
-    private static HashMap<String, List<String>> countyCourtHouses = new HashMap<>();
+    private static HashMap<String, List<String>> countyCourtOffices = new HashMap<>();
 
-    public final static String[] countiesRaw = {
-            "Lancaster",
-            "York",
-            "Berks",
-            "Dauphin",
-            "Lebanon"
-    };
-
-    private static List<String> counties;
+//    public final static String[] countiesRaw = {
+//            "Lancaster",
+//            "York",
+//            "Berks",
+//            "Dauphin",
+//            "Lebanon"
+//    };
 
     static {
-        counties = Arrays.asList(countiesRaw);
-
-        pointerFile = new File(POINTER_PATH, "pointer");
+        pointerFile = new File(POINTER_PATH, POINTER_FILE_NAME);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-
 //        test to see if we move to York
 
-//        Pointer pointer = new Pointer();
-//        pointer.setYear(2022);
-//        pointer.setCourthouse("02309");
-//        pointer.setCounty("Lancaster");
-//        pointer.setSequenceNumberUnformatted(4);
-//        savePointer(pointer);
+        Pointer pointer = new Pointer();
+        pointer.setYear(2022);
+        pointer.setCourtOffice("42304");
+        pointer.setCounty("Bradford");
+        pointer.setSequenceNumberUnformatted(2);
+        savePointer(pointer);
 
-        if (!pointerFile.exists()) {
-            //see advancePointer for trick to init
-            Pointer pointer = new Pointer();
-            pointer.setYear(getCurrentYear());
-            pointer.setCounty(counties.get(counties.size() - 1));
-            advancePointer(pointer, true);
-        }
+//        if (!pointerFile.exists()) {
+//            //see advancePointer for trick to init
+//            Pointer pointer = new Pointer();
+//            pointer.setYear(getCurrentYear());
+//            pointer.setCounty(Website.counties.get(Website.counties.size() - 1));
+//            advancePointer(pointer, true);
+//        }
 
         commenceScraping(readPointer());
     }
@@ -110,14 +87,19 @@ public class Scraper2 {
         int misses = 0;
         int missesBeforeGivingUp = 3;
         while (forever) {
+            Exception exception = null;
             try {
                 boolean scraped = scrape(pointer);
                 if (!scraped) {
                     misses++;
                 }
                 else {
+                    misses = 0;
                     hits++;
-                    System.out.println("hits: " + hits);
+                    String hitWord = hits == 1 ? "hit" : "hits";
+                    System.out.println(hits + " " + hitWord + " (" + urlHits + " from url)" +
+                            "   average url hit millis: " + getAverageUrlHitTime() +
+                            "   last pointer: " + pointer);
                 }
                 boolean nextCourtOffice = misses >= missesBeforeGivingUp;
                 if (nextCourtOffice) {
@@ -126,12 +108,30 @@ public class Scraper2 {
                 advancePointer(pointer, nextCourtOffice);
             }
             catch (Exception e) {
-                System.err.println("scrape fail on at pointer: " + pointer + " at " + LocalDateTime.now());
-                System.err.println("will go to sleep for a long time before trying again");
-                e.printStackTrace();
+                exception = e;
+            }
+
+            if (exception != null || urlLoops >= URL_HITS_PERMITTED) {
+                urlLoops = 0;
+                LocalDateTime now = LocalDateTime.now();
+                if (exception != null) {
+                    System.err.println("Scrape fail on at pointer: " + pointer + " at " + now);
+                    System.err.println(exception);
+                }
+                else {
+                    System.err.println("Scrape hit max url hits permitted " +
+                            "(" + URL_HITS_PERMITTED + ") with pointer: " + pointer + " at " + now);
+                }
+                System.err.println("\nSleeping for " + HOURS_WAIT + " hours, restart at " +
+                        now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
                 Thread.sleep(RESET_PERMISSIONS_TIME);
             }
         }
+    }
+
+    private static String getAverageUrlHitTime() {
+        if (urlHits == 0) return "N/A";
+        return "" + (millisForAllURLHits/urlHits);
     }
 
     /**
@@ -146,43 +146,53 @@ public class Scraper2 {
      * @param nextCourtOffice
      * @return
      */
-    private static void advancePointer (Pointer pointer, boolean nextCourtOffice) throws IOException {
+    private static void advancePointer (Pointer pointer, boolean nextCourtOffice) throws IOException, ClassNotFoundException {
+        boolean commencingScrape = !pointer.hasCourtOffice();
+        boolean nextCounty = commencingScrape;
+
         if (nextCourtOffice) {
             pointer.setSequenceNumberUnformatted(1);
-
-            boolean nextCounty = pointer.getCourthouse() == null;
 
             int year = pointer.getYear();
             //may just increment year if not in current year
             if (year != getCurrentYear()) {
                 pointer.setYear(year + 1);
             }
-            else if (!nextCounty){
+            else if (!commencingScrape){
                 pointer.setYear(getStartYear());
                 List<String> courtOffices = getCourtOffices(pointer.getCounty());
-                int index = courtOffices.indexOf(pointer.getCourthouse());
+                int index = courtOffices.indexOf(pointer.getCourtOffice());
                 if (index == courtOffices.size() - 1) {
                     nextCounty = true;
                 }
                 else {
                     String advancedCourtOffice = courtOffices.get(index + 1);
-                    pointer.setCourthouse(advancedCourtOffice);
+                    String prior = pointer.getCourtOffice();
+                    pointer.setCourtOffice(advancedCourtOffice);
 
-                    System.out.println("bumped court office, now at " + pointer.getCourthouse());
+                    System.out.println("\n*** Bumped " + pointer.getCounty() + " court office from " +
+                            prior + " to " + advancedCourtOffice +
+                            " (" + (index + 2) + " of " + (courtOffices.size() + 1) + " ***\n");
                 }
             }
 
             if (nextCounty) {
+                //first, save 'done' range on old county
+                if (!commencingScrape) saveCountyDone(pointer.getCounty());
+
                 pointer.setYear(getStartYear());
-                int index = 1 + counties.indexOf(pointer.getCounty());
-                if (index == counties.size()) {
+                int index = 1 + Website.counties.indexOf(pointer.getCounty());
+                if (index == Website.counties.size()) {
                     index = 0;
                 }
-                pointer.setCounty(counties.get(index));
+                String prior = pointer.getCounty();
+                pointer.setCounty(Website.counties.get(index));
 
-                pointer.setCourthouse(getCourtOffices(pointer.getCounty()).get(0));
+                System.out.println("*** Bumping county from " + prior +
+                        " to " + pointer.getCounty() +
+                        " (" + (index + 1) + " of " + (Website.counties.size() + 1) + ")");
 
-                System.out.println("bumped counties, now at " + pointer.getCounty());
+                pointer.setCourtOffice(getCourtOffices(pointer.getCounty()).get(0));
             }
         }
         else {
@@ -192,12 +202,49 @@ public class Scraper2 {
         savePointer(pointer);
     }
 
-    private static List<String> getCourtOffices(String county) throws IOException {
-        //ensure we have all the courthouses for target county
-        if (!countyCourtHouses.containsKey(county)) {
-            countyCourtHouses.put(county, getCourtHouses(county));
+    /**
+     * two time stamps describing date range of local (scraped) pdfs
+     * 1) the time this county's pull was completed
+     * 2) start year of reliable data
+     *
+     * #2 is a pull'sstart year UNLESS
+     *     already exists and is earlier
+     */
+    private static void saveCountyDone(String county) throws IOException, ClassNotFoundException {
+        CountyCoveredRange ccr = new CountyCoveredRange();
+        ccr.setEnd(LocalDateTime.now());
+        LocalDateTime startFromThisRun = LocalDateTime.of(getStartYear(), 1, 1, 0, 0);
+
+        CountyCoveredRange prior = getCountyStartAndEnd(county);
+        LocalDateTime start = (prior != null && prior.getStart().compareTo(startFromThisRun) < 0) ?
+                prior.getStart() : startFromThisRun;
+
+        File file = new File(PDF_CACHE_PATH + county,COMPLETION_FILE_NAME);
+        try (FileOutputStream fileOut = new FileOutputStream(file);
+             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+
+            ccr.setStart(start);
+            objectOut.writeObject(ccr);
         }
-        return countyCourtHouses.get(county);
+    }
+
+    public static CountyCoveredRange getCountyStartAndEnd(String county) throws IOException, ClassNotFoundException {
+        File file = new File(PDF_CACHE_PATH + county,COMPLETION_FILE_NAME);
+        if (!file.exists()) {
+            return null;
+        }
+        try (FileInputStream fileIn = new FileInputStream(file);
+             ObjectInputStream objectOut = new ObjectInputStream(fileIn)) {
+            return (CountyCoveredRange) objectOut.readObject();
+        }
+    }
+
+    private static List<String> getCourtOffices(String county) throws IOException {
+        //ensure we have all the court offices for target county
+        if (!countyCourtOffices.containsKey(county)) {
+            countyCourtOffices.put(county, getCourtOfficesFromServer(county));
+        }
+        return countyCourtOffices.get(county);
     }
 
     private static void savePointer(Pointer pointer) throws IOException {
@@ -225,7 +272,7 @@ public class Scraper2 {
 //            return now.getYear() - 1;
 //        }
 //        else return now.getYear();
-        return 2022;
+        return 2019;
     }
 
     private static int getCurrentYear() {
@@ -233,14 +280,10 @@ public class Scraper2 {
     }
 
     public static boolean scrape(Pointer pointer) throws IOException, InterruptedException {
-        boolean rescrapeIfActive = true;
         String county = pointer.getCounty();
-
-        String courtOffice = pointer.getCourthouse();
-        //initialize
+        String courtOffice = pointer.getCourtOffice();
         String year = pointer.getYear() + "";
         String sequenceNumber = buildSequenceNumber(pointer.getSequenceNumberUnformatted());
-
 
         File dir = new File(PDF_CACHE_PATH + pointer.getCounty() + "/" + pointer.getYear());
         if (!dir.exists()) dir.mkdirs();
@@ -248,42 +291,45 @@ public class Scraper2 {
         String pathToFile = getPdfFilePath(pointer);
         File file = new File(pathToFile);
 
-        boolean foundOrRead;
+        boolean foundOrRead = false;
         try {
+            String docket = "MJ-" + courtOffice + "-LT-" + sequenceNumber + "-" + year;
+            boolean scrape = true;
+            boolean rescrape = false;
+
             if (file.exists()) {
                 foundOrRead = true;
-                if (rescrapeIfActive) {
-                    PdfData oldData = Parser.processFile(file);
-                    if (!oldData.isClosed() && !oldData.isInactive()) {
-                        String docket = "MJ-" + courtOffice + "-LT-" + sequenceNumber + "-" + year;
-                        System.out.println("Will attempt to re-scrape active case " + docket);
-                        getDocket(county, year, docket);
-                    }
+                scrape = false;
+                PdfData oldData = Parser.processFile(file);
+                if (oldData.isAlive()) {
+                    scrape = true;
+                    rescrape = true;
                 }
-            } else {
+            }
+
+            if (scrape) {
                 try {
-                    Thread.sleep(BETWEEN_CALL_PAUSE);
+                    Thread.sleep(BETWEEN_SCRAPE_PAUSE);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    throw e;
                 }
 
-                String docket = "MJ-" + courtOffice + "-LT-" + sequenceNumber + "-" + year;
-                foundOrRead = getDocket(county, year, docket);
+                foundOrRead = getDocket(county, year, docket, rescrape) || foundOrRead;
             }
         } catch (IllegalStateException ise) {
             throw ise;
         } catch (Exception e) {
-            String from = file.exists() ? "file" : "remote stream";
-            System.err.println("Cannot process " + courtOffice + "_" + sequenceNumber + "_" + year + " from " + from);
-            System.err.println("Premature termination of " + courtOffice + " loop");
+            System.err.println("Cannot scrape " + pointer);
             e.printStackTrace();
-            throw new IllegalStateException("plz start over");
+            throw e;
         }
 
         return foundOrRead;
     }
 
-    public static boolean getDocket(String county, String year, String docket) throws IOException {
+    public static boolean getDocket(String county, String year, String docket, boolean rescrape) throws IOException, InterruptedException {
+        long startMillis = System.currentTimeMillis();
+
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         HttpGet httpGet = new HttpGet(site);
@@ -292,10 +338,10 @@ public class Scraper2 {
 
         int status = response.getStatusLine().getStatusCode();
         if (status != 200) {
-            System.err.println("callDocket status: " + response.getStatusLine());
+            response.close();
             httpGet.releaseConnection();
             httpclient.close();
-            throw new IllegalStateException("plz start over");
+            throw new IllegalStateException("Failure in getDocket's first response, status = " + status);
         }
 
         Header[] headers = response.getAllHeaders();
@@ -324,7 +370,6 @@ public class Scraper2 {
         String[] cookiePrint = cookies.split(";");
         List<String> finalCookies = new ArrayList<>();
         for (String s : cookiePrint) {
-            //System.out.println("cookie: " + s);
             if (!badCookieChunks.contains(s)) {
                 finalCookies.add(s.trim());
             }
@@ -332,7 +377,6 @@ public class Scraper2 {
 
         cookies = "";
         for (String s : finalCookies) {
-            //System.out.println("finalCookie: " + s);
             if (!cookies.equals("")) {
                 cookies += "; ";
             }
@@ -341,6 +385,7 @@ public class Scraper2 {
 
 
         //***** Extract RequestVerificationToken ****
+
         String requestValidationToken = null;
 
         try {
@@ -370,9 +415,18 @@ public class Scraper2 {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
             response.close();
+            httpGet.releaseConnection();
+            httpclient.close();
+            throw e;
+        }
+
+
+        try {
+            Thread.sleep(BETWEEN_RESPONSE_PAUSE);
+        } catch (InterruptedException e) {
+            httpclient.close();
+            throw e;
         }
 
 
@@ -391,14 +445,13 @@ public class Scraper2 {
         httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
         CloseableHttpResponse response2 = httpclient.execute(httpPost);
-        int statusCode = response2.getStatusLine().getStatusCode();
-        String dnh = null;
+        String dnh;
 
         try {
-            HttpEntity entity4 = response2.getEntity();
+            HttpEntity entity2 = response2.getEntity();
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            InputStream inputStream = entity4.getContent();
+            InputStream inputStream = entity2.getContent();
             byte[] buffer = new byte[8192];
             int bytesRead;
             while((bytesRead = inputStream.read(buffer)) != -1){
@@ -422,37 +475,46 @@ public class Scraper2 {
             dnh = xml.substring(i);
             dnh = dnh.substring(0, dnh.indexOf('"'));
 
-            EntityUtils.consume(entity4);
+            EntityUtils.consume(entity2);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
-        } finally {
             response2.close();
             httpPost.releaseConnection();
+            httpclient.close();
+            throw e;
         }
+
+
+        try {
+            Thread.sleep(BETWEEN_RESPONSE_PAUSE);
+        } catch (InterruptedException e) {
+            httpclient.close();
+            throw e;
+        }
+
 
         String url = "https://ujsportal.pacourts.us/DocketSheets/MDJReport.ashx?" +
                 "docketNumber=" + docket + "&" +
                 "dnh=" + dnh;
 
-        System.out.println("pdf url: " + url);
+        String rescrapeString = rescrape ? "rescrape" : "new";
+        System.out.println(rescrapeString + " pdf url: " + url);
 
         httpGet = new HttpGet(url);
 
-        int attempts = 0;
-        boolean success = false;
-        CloseableHttpResponse response5 = null;
+        CloseableHttpResponse response3 = httpclient.execute(httpGet);
 
-        response5 = httpclient.execute(httpGet);
-        statusCode = response5.getStatusLine().getStatusCode();
-        if (statusCode != 200) {
-            System.err.println("Pdf call failed with call status: " + response5.getStatusLine());
-            return false;
+        if (response3.getStatusLine().getStatusCode() != 200) {
+            response3.close();
+            httpclient.close();
+            throw new IllegalStateException("Pdf call failed with call status: " + response3.getStatusLine());
         }
 
+        HttpEntity entity3;
+        InputStream inputStream = null;
         try {
-            HttpEntity entity5 = response5.getEntity();
-            InputStream inputStream = entity5.getContent();
+            entity3 = response3.getEntity();
+            inputStream = entity3.getContent();
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
@@ -469,16 +531,23 @@ public class Scraper2 {
             fos.write(bytes);
             fos.close();
 
-            EntityUtils.consume(entity5);
-            inputStream.close();
-            response5.close();
+            EntityUtils.consume(entity3);
+
+            long endMillis = System.currentTimeMillis();
+            long millis = endMillis - startMillis;
+            millisForAllURLHits += millis;
+            urlHits++;
+            urlLoops++;
             return true;
         } catch (Exception e) {
             System.err.println("Tripped up when writing pdf to file");
             e.printStackTrace();
-            return false;
+            throw e;
         } finally {
-            if (response5 != null) response5.close();
+            if (inputStream != null) inputStream.close();
+            if (response3 != null) response3.close();
+            httpGet.releaseConnection();
+            httpclient.close();
         }
     }
 
@@ -486,10 +555,10 @@ public class Scraper2 {
     static String postCountyFlag = ")\" data-aopc-JudicialDistrict=\"(";
     /**
      *
-     * @return List of courtHouses (judge codes)
+     * @return List of court offices (judge codes)
      * @throws IOException
      */
-    public static List<String> getCourtHouses(String county) throws IOException {
+    private static List<String> getCourtOfficesFromServer(String county) throws IOException {
         System.out.println("Scraping court offices for " + county);
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -499,7 +568,7 @@ public class Scraper2 {
         CloseableHttpResponse response = httpclient.execute(httpGet);
         int status = response.getStatusLine().getStatusCode();
         if (status != 200) {
-            System.err.println("getCourtHouses status: " + response.getStatusLine());
+            System.err.println("getCourtOffices status: " + response.getStatusLine());
             httpGet.releaseConnection();
             httpclient.close();
             throw new IllegalStateException("start over plz");
@@ -515,7 +584,6 @@ public class Scraper2 {
             String findMe = preCountyFlag + county + postCountyFlag;
             while (in.ready()) {
                 String next = in.readLine();
-                //System.out.println(next);
                 boolean done = false;
                 while (!done) {
                     int i = next.indexOf(findMe);
@@ -535,7 +603,6 @@ public class Scraper2 {
                             int qi = next.indexOf('"');
                             String snip = next.substring(0, qi);
                             ret.add(snip.replace("-", ""));
-                            //System.out.println(ret);
                         }
                     }
                 }
@@ -553,7 +620,7 @@ public class Scraper2 {
     private static String getPdfFilePath(Pointer pointer) {
        return getPdfFilePath(pointer.getCounty(),
                pointer.getYear() + "",
-               pointer.getCourthouse(),
+               pointer.getCourtOffice(),
                buildSequenceNumber(pointer.getSequenceNumberUnformatted()));
     }
 
