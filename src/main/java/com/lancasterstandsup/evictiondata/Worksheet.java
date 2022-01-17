@@ -98,8 +98,8 @@ public class Worksheet {
         }
     }
 
-    private static String[] lancoYears =  {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
-    private static String[] otherCountyYears = {"2019", "2020", "2021"};
+    private static String[] lancoYears =  {"2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022"};
+    private static String[] otherCountyYears = {"2019", "2020", "2021", "2022"};
     public static void webRefresh(String county) throws IOException {
         String[] years = county.equals("Lancaster") ? lancoYears : otherCountyYears;
 

@@ -47,10 +47,14 @@ it may be one record extra to read.
 public class Scraper2 {
     private static int BETWEEN_CALL_PAUSE = 200;
 
+    //trying four hours
+    private final static int RESET_PERMISSIONS_TIME = 1000 * 60 * 60 * 4;
+
     private final static String PDF_CACHE_PATH = "./src/main/resources/pdfCache/";
     private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
     private final static String POINTER_PATH = "./src/main/resources/";
     private static File pointerFile;
+    private static int hits = 0;
 
     private static HashMap<String, List<String>> countyCourtHouses = new HashMap<>();
 
@@ -96,33 +100,38 @@ public class Scraper2 {
      * Assumes inbound pointer is already saved to pointer file
      * @param pointer
      */
-    public static void commenceScraping(Pointer pointer) {
+    public static void commenceScraping(Pointer pointer) throws InterruptedException {
         System.out.println("**********************");
         System.out.println("Starting with " + pointer);
         System.out.println("**********************");
 
-        int x = 20;
+        boolean forever = true;
+
         int misses = 0;
-        int missesBeforeGivingUp = 2;
-        while (x > 0) {
+        int missesBeforeGivingUp = 3;
+        while (forever) {
             try {
                 boolean scraped = scrape(pointer);
                 if (!scraped) {
                     misses++;
                 }
-                advancePointer(pointer, misses > missesBeforeGivingUp);
-                if (misses > 0) misses = missesBeforeGivingUp;
-            } catch (Exception e) {
-                System.err.println("scrape fail at " + pointer);
-                System.err.println("scraping will stop");
-                e.printStackTrace();
-                return;
+                else {
+                    hits++;
+                    System.out.println("hits: " + hits);
+                }
+                boolean nextCourtOffice = misses >= missesBeforeGivingUp;
+                if (nextCourtOffice) {
+                    misses = 0;
+                }
+                advancePointer(pointer, nextCourtOffice);
             }
-
-            x--;
+            catch (Exception e) {
+                System.err.println("scrape fail on at pointer: " + pointer + " at " + LocalDateTime.now());
+                System.err.println("will go to sleep for a long time before trying again");
+                e.printStackTrace();
+                Thread.sleep(RESET_PERMISSIONS_TIME);
+            }
         }
-
-        System.out.println("Done scraping for now at " + pointer);
     }
 
     /**
