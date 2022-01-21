@@ -13,8 +13,22 @@ import static j2html.TagCreator.*;
 
 public class Website {
 
+//    public final static String[] countiesRaw = {
+//            "Lancaster",
+//    };
 
     public final static String[] countiesRaw = {
+            "Lancaster",
+            "York",
+            "Berks",
+            "Dauphin",
+            "Lebanon",
+            "Adams",
+            "Allegheny",
+            "Armstrong",
+            "Beaver",
+            "Bedford",
+            "Blair",
             "Bradford",
             "Bucks",
             "Butler",
@@ -29,7 +43,6 @@ public class Website {
             "Columbia",
             "Crawford",
             "Cumberland",
-            "Dauphin",
             "Delaware",
             "Elk",
             "Erie",
@@ -44,7 +57,6 @@ public class Website {
             "Juniata",
             "Lackawanna",
             "Lawrence",
-            "Lebanon",
             "Lehigh",
             "Luzerne",
             "Lycoming",
@@ -73,7 +85,6 @@ public class Website {
             "Wayne",
             "Westmoreland",
             "Wyoming",
-            "York",
     };
 
     public static List<String> counties;

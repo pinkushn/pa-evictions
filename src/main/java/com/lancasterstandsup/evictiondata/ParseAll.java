@@ -1,5 +1,7 @@
 package com.lancasterstandsup.evictiondata;
 
+import com.itextpdf.text.exceptions.InvalidPdfException;
+
 import java.io.*;
 import java.util.*;
 
@@ -132,7 +134,7 @@ public class ParseAll {
                         fin.close();
                     } else {
                         InputStream targetStream = new FileInputStream(pdf);
-                        data = Parser.process(targetStream, false);//, buildCities, cities);
+                        data = Parser.process(targetStream, false);
                         if (data.isClosed()) {
                             FileOutputStream fout = new FileOutputStream(preProcessedPath + "/" + stripPdf, false);
                             ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -146,6 +148,23 @@ public class ParseAll {
                 else {
                     System.out.println("Found a non-pdf file: " + pdf.getName());
                 }
+            }
+            /**
+             * This was an attempt to deal with malformed pdfs, which in the end
+             * just reloads malformed pdfs!
+             */
+            catch (InvalidPdfException ipe) {
+//                System.err.println("processAll snarled on pdf " + pdf.getName());
+//                System.err.println("Will attempt to delete and force reload");
+//                Pointer pointer = Scraper2.getPointerFromPdfFileName(county, pdf.getName());
+//                try {
+//                    Scraper2.deleteAndReloadPdf(pointer);
+//                } catch (InterruptedException e) {
+//                    System.err.println("fatal error in ParseAll, System will exit");
+//                    e.printStackTrace();
+//                    System.exit(1);
+//                }
+                System.err.println("malformed pdf cannot be processed: " + pdf.getName());
             } catch (Exception e) {
                 System.err.println("processAll cannot process " + pdf.getName());
                 e.printStackTrace();

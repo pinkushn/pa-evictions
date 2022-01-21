@@ -1,5 +1,6 @@
 package com.lancasterstandsup.evictiondata;
 
+import com.itextpdf.text.exceptions.InvalidPdfException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -15,14 +16,27 @@ import org.apache.http.util.EntityUtils;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
 import java.util.*;
+
+/**
+ * There are five Lancaster pdfs that are malformed:
+ *
+ 2303_0000057_2017.pdf
+ 2303_0000067_2017.pdf
+ 2303_0000006_2017.pdf
+
+ 2206_0000182_2017.pdf
+
+ 2303_0000028_2018.pdf
+ */
 
 public class Scraper2 {
     private static int BETWEEN_SCRAPE_PAUSE = 200;
     private static int BETWEEN_RESPONSE_PAUSE = 150;
 
     //wait after a failed call
-    private static final double HOURS_WAIT = 3.2;
+    private static final double HOURS_WAIT = 2;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
     private final static String PDF_CACHE_PATH = "./src/main/resources/pdfCache/";
@@ -36,7 +50,7 @@ public class Scraper2 {
     private static long millisForAllURLHits = 0;
     private static int urlLoops = 0;
     //stop and wait for a few hours after this many url hits
-    private final static int URL_HITS_PERMITTED = 700;
+    private final static int URL_HITS_PERMITTED = 500;
 
     private static HashMap<String, List<String>> countyCourtOffices = new HashMap<>();
 
@@ -53,22 +67,29 @@ public class Scraper2 {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-//        test to see if we move to York
+        commenceScrapingFromSavedPointer();
+        //commenceScrapingFromArtificalPointer();
+    }
 
+    private static void commenceScrapingFromArtificalPointer() throws IOException, InterruptedException, ClassNotFoundException {
+
+        //force the county AFTER the one shown
         Pointer pointer = new Pointer();
-        pointer.setYear(2022);
-        pointer.setCourtOffice("42304");
-        pointer.setCounty("Bradford");
-        pointer.setSequenceNumberUnformatted(2);
-        savePointer(pointer);
+        pointer.setYear(getCurrentYear());
+        pointer.setCounty("Lancaster");
+        advancePointer(pointer, true);
 
-//        if (!pointerFile.exists()) {
-//            //see advancePointer for trick to init
-//            Pointer pointer = new Pointer();
-//            pointer.setYear(getCurrentYear());
-//            pointer.setCounty(Website.counties.get(Website.counties.size() - 1));
-//            advancePointer(pointer, true);
-//        }
+        commenceScraping(pointer);
+    }
+
+    private static void commenceScrapingFromSavedPointer() throws IOException, ClassNotFoundException, InterruptedException {
+        //we use this pointer to trigger starting from the beginning if there is no pointer file
+        if (!pointerFile.exists()) {
+            Pointer pointer = new Pointer();
+            pointer.setYear(getCurrentYear());
+            pointer.setCounty(Website.counties.get(Website.counties.size() - 1));
+            advancePointer(pointer, true);
+        }
 
         commenceScraping(readPointer());
     }
@@ -86,10 +107,13 @@ public class Scraper2 {
 
         int misses = 0;
         int missesBeforeGivingUp = 3;
+        long lastTime = 0;
+
         while (forever) {
             Exception exception = null;
             try {
                 boolean scraped = scrape(pointer);
+                LocalDateTime time = LocalDateTime.now();
                 if (!scraped) {
                     misses++;
                 }
@@ -99,12 +123,29 @@ public class Scraper2 {
                     String hitWord = hits == 1 ? "hit" : "hits";
                     System.out.println(hits + " " + hitWord + " (" + urlHits + " from url)" +
                             "   average url hit millis: " + getAverageUrlHitTime() +
-                            "   last pointer: " + pointer);
+                            "   last pointer: " + pointer +
+                            "   urlLoop: " + urlLoops +
+                            "   time: " + time);
+                }
+
+                //if we're getting slowed down, introduce a delay
+                if (lastTime != 0) {
+                    //millis tween scrapes
+                    long diff = (System.currentTimeMillis() - lastTime);
+                    System.out.println("diff: " + diff);
+                    if (diff > 15000) {
+                        int pauseSeconds = 60;
+                        System.err.println("Abnormally long scrape of " + diff + " millis. Pause for " +
+                                pauseSeconds + " seconds.");
+                        Thread.sleep(pauseSeconds * 1000);
+                        millisForAllURLHits -= pauseSeconds * 1000;
+                    }
                 }
                 boolean nextCourtOffice = misses >= missesBeforeGivingUp;
                 if (nextCourtOffice) {
                     misses = 0;
                 }
+                lastTime = System.currentTimeMillis();
                 advancePointer(pointer, nextCourtOffice);
             }
             catch (Exception e) {
@@ -124,7 +165,11 @@ public class Scraper2 {
                 }
                 System.err.println("\nSleeping for " + HOURS_WAIT + " hours, restart at " +
                         now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
+
                 Thread.sleep(RESET_PERMISSIONS_TIME);
+                millisForAllURLHits -= RESET_PERMISSIONS_TIME;
+
+                System.err.println("RESTARTING at " + LocalDateTime.now());
             }
         }
     }
@@ -172,7 +217,7 @@ public class Scraper2 {
 
                     System.out.println("\n*** Bumped " + pointer.getCounty() + " court office from " +
                             prior + " to " + advancedCourtOffice +
-                            " (" + (index + 2) + " of " + (courtOffices.size() + 1) + " ***\n");
+                            " (" + (index + 2) + " of " + (courtOffices.size() + 1) + ") ***\n");
                 }
             }
 
@@ -184,13 +229,18 @@ public class Scraper2 {
                 int index = 1 + Website.counties.indexOf(pointer.getCounty());
                 if (index == Website.counties.size()) {
                     index = 0;
+                    if (!commencingScrape) {
+                        System.out.println("FINISHED ALL COUNTIES at " + LocalDateTime.now() +
+                                ". Requires manual restart.");
+                        System.exit(0);
+                    }
                 }
                 String prior = pointer.getCounty();
                 pointer.setCounty(Website.counties.get(index));
 
                 System.out.println("*** Bumping county from " + prior +
                         " to " + pointer.getCounty() +
-                        " (" + (index + 1) + " of " + (Website.counties.size() + 1) + ")");
+                        " (" + (index + 1) + " of " + (Website.counties.size()) + ")");
 
                 pointer.setCourtOffice(getCourtOffices(pointer.getCounty()).get(0));
             }
@@ -318,6 +368,11 @@ public class Scraper2 {
             }
         } catch (IllegalStateException ise) {
             throw ise;
+        } catch (InvalidPdfException ipe) {
+            System.err.println("Cannot process saved pdf for scraping: " + pointer);
+            System.err.println("Next step: delete ^ locally and re-call " + pointer);
+            deleteLocalPdf(pointer);
+            return scrape(pointer);
         } catch (Exception e) {
             System.err.println("Cannot scrape " + pointer);
             e.printStackTrace();
@@ -325,6 +380,20 @@ public class Scraper2 {
         }
 
         return foundOrRead;
+    }
+
+    private static void deleteLocalPdf(Pointer pointer) {
+        String pathToFile = getPdfFilePath(pointer);
+        File file = new File(pathToFile);
+        file.delete();
+    }
+
+    /**
+     * Some potential for infinite loop, since scrape triggers process triggers ParseAll triggers this
+     */
+    public static void deleteAndReloadPdf(Pointer pointer) throws IOException, InterruptedException {
+        deleteLocalPdf(pointer);
+        scrape(pointer);
     }
 
     public static boolean getDocket(String county, String year, String docket, boolean rescrape) throws IOException, InterruptedException {
@@ -493,7 +562,7 @@ public class Scraper2 {
         }
 
 
-        String url = "https://ujsportal.pacourts.us/DocketSheets/MDJReport.ashx?" +
+        String url = "https://ujsportal.pacourts.us/Report/MdjDocketSheet?" +
                 "docketNumber=" + docket + "&" +
                 "dnh=" + dnh;
 
@@ -654,5 +723,27 @@ public class Scraper2 {
             sb.insert(0, 0);
         }
         return sb.toString();
+    }
+
+    public static Pointer getPointerFromPdfFileName(String county, String pdfFileName) {
+        Pointer ret = new Pointer();
+        ret.setCounty(county);
+        int i = pdfFileName.indexOf('_');
+
+        String courtOffice = pdfFileName.substring(0, i);
+        while (courtOffice.length() < 5) {
+            courtOffice = "0" + courtOffice;
+        }
+        ret.setCourtOffice(courtOffice);
+        pdfFileName = pdfFileName.substring(i + 1);
+
+        i = pdfFileName.indexOf('_');
+        ret.setSequenceNumberUnformatted(Integer.parseInt(pdfFileName.substring(0, i)));
+        pdfFileName = pdfFileName.substring(i + 1);
+
+        i = pdfFileName.indexOf('.');
+        ret.setYear(Integer.parseInt(pdfFileName.substring(0, i)));
+
+        return ret;
     }
 }
