@@ -154,6 +154,7 @@ public class Scraper2 {
 
             if (exception != null || urlLoops >= URL_HITS_PERMITTED) {
                 urlLoops = 0;
+                lastTime = 0;
                 LocalDateTime now = LocalDateTime.now();
                 if (exception != null) {
                     System.err.println("Scrape fail on at pointer: " + pointer + " at " + now);
