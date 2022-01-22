@@ -126,15 +126,32 @@ public class Worksheet {
         }
     }
 
+    public static void main (String [] args) {
+        clearAllPreProcessed();
+    }
+
+    public static void clearAllPreProcessed() {
+        for (String county: Website.counties) {
+            clearPreProcessed(county);
+        }
+    }
+
     public static void clearPreProcessed(String county) {
         File dir = new File("./src/main/resources/pdfCache/" + county);
         if (!dir.exists()) {
-            throw new IllegalStateException("No pdf cache at " + dir.getName());
+            //throw new IllegalStateException("No pdf cache at " + dir.getName());
+            return;
         }
 
         for (File yearFile: dir.listFiles()) {
             if (yearFile.getName().indexOf("preProcessed") > -1) {
-                yearFile.delete();
+                File[] files = yearFile.listFiles();
+                for (File file: files) {
+                    file.delete();
+                }
+                if (!yearFile.delete()) {
+                    System.err.println("Failed to delete " + yearFile);
+                }
             }
         }
     }

@@ -290,7 +290,7 @@ public class Test {
     public void test2201_0000089() {
         String fileName = "2201_0000089_2020.pdf";
         PdfData data = Parser.processFile(TEST_PATH + fileName);
-        String[] targetData = {"MDJ 02-2-01", "Jodie E. Richardson", "MJ-02201-LT-0000089-2020", "11/23/2020", "Closed", "New Redbud Investments LLC", "17557", "S., K. &. S., D.", "17602", "12/03/2020", "11:00 am", "$1,336.43", "$1,761.70", "$1,501.45", null, "$155.25", null, "$105.00", null, null, null, "$1,501.45", null, null, "No", "Yes", null, null, "TRUE", null, null, null, null, null, null, null};
+        String[] targetData = {"MDJ 02-2-01", "Jodie E. Richardson", "MJ-02201-LT-0000089-2020", "11/23/2020", "Closed", "Redbud Investments LLC", "17557", "S., K. &. S., D.", "17602", "12/03/2020", "11:00 am", "$1,336.43", "$1,761.70", "$1,501.45", null, "$155.25", null, "$105.00", null, null, null, "$1,501.45", null, null, "No", "Yes", null, null, "TRUE", null, null, null, null, null, null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
 
@@ -326,7 +326,7 @@ public class Test {
     public void test2304_0000056() {
         String fileName = "2304_0000056_2020.pdf";
         PdfData data = Parser.processFile(TEST_PATH + fileName);
-        String[] targetData = {"MDJ 02-3-04", "Stuart J. Mylin", "MJ-02304-LT-0000056-2020", "09/02/2020", "Closed", "PCS CHADAGA C/O PROPERTY MANAGEMENT, INC.", "17043", "N. R., R.", "17560", "09/15/2020", "10:30 am", "$3,378.11", "$3,997.61", "$3,810.11", "$140.75", "$5.00", "$41.75", null, null, null, null, "$432.00", null, null, "Yes", "No", null, null, "TRUE", null, null, null, null, null, null, "Home and Property Abandoned"};
+        String[] targetData = {"MDJ 02-3-04", "Stuart J. Mylin", "MJ-02304-LT-0000056-2020", "09/02/2020", "Closed", "PCS CHADAGA C/O PROPERTY MANAGEMENT, INC.", "17043", "R., R.", "17560", "09/15/2020", "10:30 am", "$3,378.11", "$3,997.61", "$3,810.11", "$140.75", "$5.00", "$41.75", null, null, null, null, "$432.00", null, null, "Yes", "No", null, null, "TRUE", null, null, null, null, null, null, "Home and Property Abandoned"};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
 

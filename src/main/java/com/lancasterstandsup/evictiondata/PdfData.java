@@ -62,6 +62,68 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         }
     }
 
+    public static void main (String [] args) throws IOException {
+        buildPlaces();
+    }
+
+    private static void buildMunicipalities() throws IOException {
+        File source = new File("./src/main/resources/municipalities_source.txt");
+        File dest = new File("./src/main/resources/municipalities.txt");
+        BufferedReader in = new BufferedReader(new FileReader(source));
+        PrintWriter out = new PrintWriter(new FileWriter(dest));
+        String next = null;
+        while ((next = in.readLine()) != null) {
+            if (next.length() == 0) break;
+            String muni = in.readLine();
+            String stripped = muni.replace(" Township", "");
+            stripped = stripped.replace(" Borough", "");
+            out.println(muni);
+            if (!muni.equals(stripped)) {
+                out.println(stripped);
+            }
+        }
+    }
+
+    private static void buildPlaces() throws IOException {
+        File source = new File("./src/main/resources/census_designated_places_source.txt");
+        File dest = new File("./src/main/resources/pa_places.txt");
+        BufferedReader in = new BufferedReader(new FileReader(source));
+        PrintWriter out = new PrintWriter(new FileWriter(dest));
+        String line = null;
+        String targetDash = null;
+        while ((line = in.readLine()) != null) {
+            if (line.length() > 0 && line.indexOf("[edit]") < 0 &&
+                    line.replace("\t", "").trim().length() > 0) {
+                String [] chunks = line.split("\t");
+                for (String chunk: chunks) {
+                    int x = chunk.indexOf(" - ");
+                    String place = chunk.substring(0, x);
+                    //System.out.println(place + " from " + chunk);
+                    out.println(place.replace('-', ' '));
+                }
+            }
+        }
+
+        in.close();
+
+        source = new File("./src/main/resources/municipalities_source.txt");
+        in = new BufferedReader(new FileReader(source));
+        String next = null;
+        while ((next = in.readLine()) != null) {
+            if (next.length() == 0) break;
+            String muni = in.readLine();
+            String stripped = muni.replace(" Township", "");
+            stripped = stripped.replace(" Borough", "");
+            out.println(muni);
+            if (!muni.equals(stripped)) {
+                out.println(stripped);
+            }
+        }
+
+        in.close();
+        out.close();
+    }
+
     private String courtOffice;
     private String docketNumber;
     private String judgeName;
@@ -166,6 +228,11 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     }
 
     public void setPlaintiffs(String plaintiffNames) {
+        this.plaintiffNames = getNormalizedPlaintiff(plaintiffNames);
+        row.put(5, plaintiffNames);
+    }
+
+    private String getNormalizedPlaintiff(String plaintiff) {
         if (nameNormalizations == null) {
             try {
                 initNameNormalizations();
@@ -174,17 +241,12 @@ public class PdfData implements Comparable<PdfData>, Serializable {
                 System.exit(1);
             }
         }
+
         if (nameNormalizations.containsKey(plaintiffNames)) {
-            plaintiffNames = nameNormalizations.get(plaintiffNames);
+            plaintiff = nameNormalizations.get(plaintiffNames);
         }
-        else if (plaintiffNames.indexOf("Slatehouse Group") > -1) {
-            plaintiffNames = "SlateHouse Group Property Management";
-        }
-        else if (plaintiffNames.indexOf("Wennerstrom") > -1) {
-            plaintiffNames = "Rick Wennerstrom";
-        }
-        this.plaintiffNames = plaintiffNames;
-        row.put(5, plaintiffNames);
+
+        return plaintiff;
     }
 
     public void setPlaintiffZips(String plaintiffZips) {
@@ -207,7 +269,7 @@ public class PdfData implements Comparable<PdfData>, Serializable {
                 ret += " ";
             }
         }
-        return ret.trim();
+        return ret.replace("&.", "&").trim();
     }
 
     public void setDefendantZips(String defendantZips) {
@@ -435,12 +497,12 @@ public class PdfData implements Comparable<PdfData>, Serializable {
     }
 
     public void addAttorney(String name, String representing) {
-        if (containsMatchingEntity(representing, defendantNames)) {
+        if (containsMatchingEntity(representing, defendantNames, false)) {
             if (defendantAttorney == null) defendantAttorney = name;
             else defendantAttorney += ", " + name;
             row.put(34, defendantAttorney);
         }
-        else if (containsMatchingEntity(representing, plaintiffNames)) {
+        else if (containsMatchingEntity(representing, plaintiffNames, true)) {
             if (plaintiffAttorney == null) plaintiffAttorney = name;
             else plaintiffAttorney += ", " + name;
             row.put(33, plaintiffAttorney);
@@ -459,6 +521,10 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         }
         else notes = note;
         row.put(35, notes);
+    }
+
+    public boolean sentToCommonPleas() {
+        return notes.indexOf(Parser.sentToCommonPleas) > -1;
     }
 
     public String getJudgeName() {
@@ -612,10 +678,12 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         }
         //If not 'active', should be withdrawn, settled, tenantWin (judgment or dismissed),
         //or Yes or Yes
+        //or sent to Common Pleas
         if (!this.caseStatus.equals(ACTIVE_STATUS)) {
             if (!isWithdrawn() && !isSettled() && !isTenantWin() && !isTransferred() && !hasJudgment() &&
                 !isGrantPossession() && !isGrantPossessionIf() && !isOrderForPossessionServed() &&
-                    !stayed && !judgmentForPlaintiff && !bankruptcy) {
+                    !stayed && !judgmentForPlaintiff && !bankruptcy &&
+                    !sentToCommonPleas()) {
                 if (debugOutput && !ignoreInvalidByActive.contains(getDocketNumber())) {
                     invalidMessage("inactive case isn't withdrawn, settled, dismissed, or granted");
                 }
@@ -666,16 +734,21 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         System.err.println(docketNumber + " INVALID: " + msg);
     }
 
-    private boolean containsMatchingEntity(String represented, String parties) {
+    private boolean containsMatchingEntity(String represented, String parties, boolean plaintiff) {
+        //if (plaintiff) represented = getNormalizedPlaintiff(represented);
         represented = represented.replace(" ", "");
         String[] split = parties.split("&");
         for (String party: split) {
             party = party.replace(" ", "");
-            int maxLength = Math.min(party.length(), represented.length());
+            //forcing match when one long string used 'Apts.' at end and other uses 'Apartments'
+            int maxLength = Math.min(12, Math.min(party.length(), represented.length()));
             party = party.substring(0, maxLength);
             String rep = represented.substring(0, maxLength);
             if (party.equals(rep)) return true;
         }
+
+        //found one where represented was first last (instead of last first as listed normally)
+
         return false;
     }
 

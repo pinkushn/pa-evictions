@@ -36,7 +36,7 @@ public class Scraper2 {
     private static int BETWEEN_RESPONSE_PAUSE = 150;
 
     //wait after a failed call
-    private static final double HOURS_WAIT = 2;
+    private static final double HOURS_WAIT = 1.5;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
     private final static String PDF_CACHE_PATH = "./src/main/resources/pdfCache/";

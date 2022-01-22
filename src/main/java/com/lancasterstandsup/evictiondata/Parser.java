@@ -84,10 +84,15 @@ import java.io.*;
 import java.util.*;
 
 public class Parser {
-    public static final String TARGET_YEAR_FOR_MAIN = "2020";
+    //MJ-02302-LT-0000044-2021
+    public static final String TARGET_YEAR_FOR_MAIN = "2021";
     public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
-    public static final String TARGET_COURT_FOR_MAIN = "2304";
-    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000047";
+    public static final String TARGET_COURT_FOR_MAIN = "2302";
+    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000044";
+//    public static final String TARGET_YEAR_FOR_MAIN = "2021";
+//    public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
+//    public static final String TARGET_COURT_FOR_MAIN = "2201";
+//    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000090";
 
     static String judgmentForDefendant = "Judgment for Defendant";
     static String judgmentForPlaintiff = "Judgment for Plaintiff";
@@ -172,6 +177,8 @@ public class Parser {
 
     private static final String[] nonPAStates = {"AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY"};
     private static Set<String> states = new HashSet<>();
+
+    private static HashSet<String> placeNames = new HashSet<>();
 
     static {
         for (SectionType sectionType: SectionType.values()) {
@@ -360,6 +367,7 @@ public class Parser {
     private static String served = "Landlord/Tenant Complaint Successfully";
     private static String execution = "Order of Execution Issued";
     private static String commonPleas = "Certified Judgment to Common Pleas";
+    public final static String sentToCommonPleas = "Sent to Common Pleas";
     //String handDelivery = "Hand Delivery";
     private static String transferred = "Case Transferred";
     private static String tenantWinByDismissal = "Dismissed";
@@ -370,7 +378,7 @@ public class Parser {
     private static String monetaryAppeal = "Landlord/Tenant Monetary Appeal Filed";
     private static String abandonment = "Home and Property Abandoned";
 
-    private static void parseSection(Section section, PdfData data) {
+    private static void parseSection(Section section, PdfData data) throws IOException {
         String[] strings = section.getStrings();
         SectionType sectionType = section.getSectionType();
         if (sectionType == SectionType.DOCKET) {
@@ -666,7 +674,8 @@ public class Parser {
             for (int x = firstChunkLine; x < strings.length; x++) {
                 String line = strings[x];
                 //hit a double space in a plaintiff name once
-                line = line.replace("  ", " ");
+                while (line.indexOf("  ") > -1) line = line.replace("  ", " ");
+                while (line.indexOf(",,") > -1) line = line.replace(",,", ",");
                 //if no space, it's a trailing line that's part of name
                 int firstSpaceI = line.indexOf(' ');
                 boolean addedToCurrent = false;
@@ -981,6 +990,9 @@ public class Parser {
                 else if (s.indexOf(commonPleas) > -1) {
                     data.addNote(commonPleas);
                 }
+                else if (s.indexOf(sentToCommonPleas) > -1) {
+                    data.addNote(sentToCommonPleas);
+                }
                 else if (s.indexOf(served) > -1) {
                     data.setServed(true);
                 }
@@ -1037,7 +1049,7 @@ public class Parser {
     }
 
     //out: 0 is & delimited names, 1 is & delimited zips
-    private static String[] processParticipantChunks(List<List<String>> plaintiffGroups) {
+    private static String[] processParticipantChunks(List<List<String>> plaintiffGroups) throws IOException {
         List<String> names = new LinkedList<>();
         List<String> zips = new LinkedList<>();
 
@@ -1107,11 +1119,21 @@ public class Parser {
      * @param strings
      * @return index 0 has name, index 1 has zip code
      */
-    private static String[] processParticipantChunk(List<String> strings) {
+    private static String[] processParticipantChunk(List<String> strings) throws IOException {
         List<String> noDoubleSpaces = new ArrayList<>(strings.size());
         for (String s: strings) {
-            noDoubleSpaces.add(s.replace("  ", " "));
+            //noDoubleSpaces.add(s.replace("  ", " "));
+            if (s.indexOf(", PA") != s.lastIndexOf(", PA")) {
+                int i = s.indexOf(", PA");
+                s = s.substring(0, i) + s.substring(i + 4);
+            }
+
+            noDoubleSpaces.add(s);
         }
+
+        //some weird typos we've seen
+
+
         strings = noDoubleSpaces;
 
         String[] ret = new String[2];
@@ -1151,25 +1173,38 @@ public class Parser {
         }
 
         //if there are two strings (or more) it's
-        //place zip
+        //place, state zip
         //name
         //OR
-        //name place zip
+        //name, place, state zip
         //more name
         long commaCount = firstString.chars().filter(ch -> ch == ',').count();
         int comma = firstString.indexOf(',');
         String toComma = firstString.substring(0, comma + 1);
+
+        //ugh, what about this aberration: 2201_0000090_2021
+        /*
+        Rick Wennerstrom's Property Lancaster, PA 17603
+        Management
+         */
         if (commaCount > 1) {
             String postComma = firstString.substring(comma + 1).trim();
             postComma = postComma.substring(0, postComma.indexOf(' '));
             ret[0] = toComma + " " + postComma;
         }
+        //maybe if 'pre-comma is more than two words, lets guess all but one of them are name surplus
         else {
-            int lastSpace = toComma.lastIndexOf(' ');
-            if (lastSpace > -1) {
-                toComma = toComma.substring(0, lastSpace);
-                ret[0] = toComma.trim();
+            if (!isPlaceName(toComma.substring(0, comma))) {
+                int wordCount = (int) (1 + toComma.chars().filter(ch -> ch == ' ').count());
+                if (wordCount > 2) {
+                    toComma = toComma.substring(0, toComma.lastIndexOf(' '));
+                    ret[0] = toComma.substring(0, toComma.lastIndexOf(' '));
+                }
             }
+//            if (lastSpace > -1) {
+//                toComma = toComma.substring(0, lastSpace);
+//                ret[0] = toComma.trim();
+//            }
         }
 
         for (int x = 1; x < strings.size(); x++) {
@@ -1212,6 +1247,23 @@ public class Parser {
 
         public String getJudgeHeader() {
             return judgeHeader;
+        }
+    }
+
+    private static boolean isPlaceName(String maybePlace) throws IOException {
+        if (placeNames.isEmpty()) {
+            initPlaceNames();
+        }
+        return placeNames.contains(maybePlace.toLowerCase().replace(" ", ""));
+    }
+
+    private static void initPlaceNames() throws IOException {
+        File source = new File("./src/main/resources/pa_places.txt");
+        BufferedReader in = new BufferedReader(new FileReader(source));
+        String next = null;
+        while ((next = in.readLine()) != null) {
+            if (next.length() == 0) break;
+            placeNames.add(in.readLine());
         }
     }
 }
