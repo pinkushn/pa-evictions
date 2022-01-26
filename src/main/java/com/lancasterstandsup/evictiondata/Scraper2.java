@@ -14,13 +14,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalField;
 import java.util.*;
 
 /**
- * There are five Lancaster pdfs that are malformed:
+ * There are five Lancaster pdfs that are malformed (something wrong with file header for pdf)
  *
  2303_0000057_2017.pdf
  2303_0000067_2017.pdf
@@ -36,7 +37,10 @@ public class Scraper2 {
     private static int BETWEEN_RESPONSE_PAUSE = 150;
 
     //wait after a failed call
-    private static final double HOURS_WAIT = 1.5;
+    //note to self: got this to manually work after 1.1 hours 1/22/22
+    //about
+    //had it work at about .56 on manual test 1/23/22
+    private static final double HOURS_WAIT = .6;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
     private final static String PDF_CACHE_PATH = "./src/main/resources/pdfCache/";
@@ -50,7 +54,9 @@ public class Scraper2 {
     private static long millisForAllURLHits = 0;
     private static int urlLoops = 0;
     //stop and wait for a few hours after this many url hits
-    private final static int URL_HITS_PERMITTED = 500;
+    private final static int URL_HITS_PERMITTED = 400;
+
+    private static LocalDateTime lastCheck = null;
 
     private static HashMap<String, List<String>> countyCourtOffices = new HashMap<>();
 
@@ -112,7 +118,7 @@ public class Scraper2 {
         while (forever) {
             Exception exception = null;
             try {
-                boolean scraped = scrape(pointer);
+                boolean scraped = scrape(pointer, lastCheck);
                 LocalDateTime time = LocalDateTime.now();
                 if (!scraped) {
                     misses++;
@@ -244,6 +250,10 @@ public class Scraper2 {
                         " (" + (index + 1) + " of " + (Website.counties.size()) + ")");
 
                 pointer.setCourtOffice(getCourtOffices(pointer.getCounty()).get(0));
+
+                CountyCoveredRange ccr = getCountyStartAndEnd(pointer.getCounty());
+
+                lastCheck = ccr == null ? null : ccr.getEnd();
             }
         }
         else {
@@ -326,11 +336,11 @@ public class Scraper2 {
         return 2019;
     }
 
-    private static int getCurrentYear() {
+    static int getCurrentYear() {
         return LocalDateTime.now().getYear();
     }
 
-    public static boolean scrape(Pointer pointer) throws IOException, InterruptedException {
+    public static boolean scrape(Pointer pointer, LocalDateTime lastCheck) throws IOException, InterruptedException {
         String county = pointer.getCounty();
         String courtOffice = pointer.getCourtOffice();
         String year = pointer.getYear() + "";
@@ -352,7 +362,7 @@ public class Scraper2 {
                 foundOrRead = true;
                 scrape = false;
                 PdfData oldData = Parser.processFile(file);
-                if (oldData.isAlive()) {
+                if (oldData.rescrape(lastCheck)) {
                     scrape = true;
                     rescrape = true;
                 }
@@ -373,7 +383,7 @@ public class Scraper2 {
             System.err.println("Cannot process saved pdf for scraping: " + pointer);
             System.err.println("Next step: delete ^ locally and re-call " + pointer);
             deleteLocalPdf(pointer);
-            return scrape(pointer);
+            return scrape(pointer, lastCheck);
         } catch (Exception e) {
             System.err.println("Cannot scrape " + pointer);
             e.printStackTrace();
@@ -394,7 +404,7 @@ public class Scraper2 {
      */
     public static void deleteAndReloadPdf(Pointer pointer) throws IOException, InterruptedException {
         deleteLocalPdf(pointer);
-        scrape(pointer);
+        scrape(pointer, null);
     }
 
     public static boolean getDocket(String county, String year, String docket, boolean rescrape) throws IOException, InterruptedException {

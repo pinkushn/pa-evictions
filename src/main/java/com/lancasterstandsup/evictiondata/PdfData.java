@@ -4,7 +4,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class PdfData implements Comparable<PdfData>, Serializable {
@@ -799,6 +801,61 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         return !isClosed() && !isInactive();
     }
 
+    public boolean rescrape(LocalDateTime lastCheck) {
+        //don't rescrape 2019
+        if (getFileDate().getYear() < 2020) return false;
+
+        if (isDismissed()) return false;
+
+        if (isWithdrawn()) return false;
+
+        if (isSettled()) return false;
+
+        if (!isAlive() && isOrderForPossessionServed()) {
+            return false;
+        }
+
+        if (isAlive()) {
+            System.err.println("Rescrape " + getDocketNumber() + " because it is alive.");
+            return true;
+        }
+        //'closed' might still have been updated with order for possession
+        //there's a judgment and we don't have grant poss if or grant poss and the
+        //date of judgment is less than X (60?) days from last scrape
+        LocalDate disposition = getDispositionDate();
+        if (disposition == null) {
+            System.err.println("Rescrape " + getDocketNumber() + " because it has no disposition date.");
+            return true;
+        }
+
+        if (!hasJudgment()) {
+            System.err.println("Rescrape " + getDocketNumber()  + " because it has no judgment.");
+            return true;
+        }
+
+        //Otis analysis shows almost all orders within 100 days of disposition
+        int window = 100;
+        LocalDateTime now = LocalDateTime.now();
+        if (disposition.until(now, ChronoUnit.DAYS) < window) {
+            System.err.println("Rescrape " + getDocketNumber()  + " because it is within " + window +
+                    " days of disposition without order for possession");
+            return true;
+        }
+
+        if (lastCheck == null) {
+            System.err.println("Rescrape " + getDocketNumber()  + " because lastCheck is null.");
+            return true;
+        }
+
+        //we've checked at least once since window expired
+        if (getDispositionDate().until(lastCheck, ChronoUnit.DAYS) >= window) {
+            return false;
+        }
+
+        System.err.println("Rescrape " + getDocketNumber() + " because, err, defaulting after many checks.");
+        return true;
+    }
+
     public boolean isPlaintiffAttorney() {
         return plaintiffAttorney != null;
     }
@@ -827,6 +884,10 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         return isJudgmentForPlaintiff() || isGrantPossessionOrOrderForEvictionServed();
     }
 
+    /**
+     * DANGER: turns out 'closed' gets marked BEFORE orders for possession
+     */
+    @Deprecated
     public boolean isResolved() {
         return isClosed() || isInactive() || isJudgmentForDefendant() ||
                 isJudgmentForPlaintiff() || isDismissed() ||

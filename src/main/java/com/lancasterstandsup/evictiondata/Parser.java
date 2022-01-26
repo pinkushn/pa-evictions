@@ -89,10 +89,6 @@ public class Parser {
     public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
     public static final String TARGET_COURT_FOR_MAIN = "2302";
     public static final String TARGET_SEQUENCE_FOR_MAIN = "0000044";
-//    public static final String TARGET_YEAR_FOR_MAIN = "2021";
-//    public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
-//    public static final String TARGET_COURT_FOR_MAIN = "2201";
-//    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000090";
 
     static String judgmentForDefendant = "Judgment for Defendant";
     static String judgmentForPlaintiff = "Judgment for Plaintiff";
