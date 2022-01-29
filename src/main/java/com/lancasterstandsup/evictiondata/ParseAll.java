@@ -33,7 +33,7 @@ public class ParseAll {
     }
 
     public static Map<String, List<PdfData>> get(String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
-        List<PdfData> all = parseAll(county, year);
+        List<PdfData> all = parseAll(county, year, false);
 
         Map<String, List<PdfData>> byJudge = sortByJudge(all);
 
@@ -56,7 +56,7 @@ public class ParseAll {
         ret[1] = years[years.length - 1];
 
         for (String year: years) {
-            list.addAll(parseAll(county, year));
+            list.addAll(parseAll(county, year, false));
         }
 
         ret[2] = sortByDate(list, reverseChronological);
@@ -95,11 +95,11 @@ public class ParseAll {
         return ret;
     }
 
-    public static List<PdfData> parseAll(String county, String year) throws IOException, ClassNotFoundException {
-        return parseAllHelper(county, year);
-    }
+    public static List<PdfData> parseAll(String county, String year, boolean countExpunged) throws IOException, ClassNotFoundException {
+        if (countExpunged) {
+            Worksheet.clearPreProcessed(county);
+        }
 
-    private static List<PdfData> parseAllHelper(String county, String year) throws IOException, ClassNotFoundException {
         String dirPath = PDF_CACHE_PATH + county + "/" + year;
         String preProcessedPath = PDF_CACHE_PATH + county + "/" + year + "_preProcessed";
 
@@ -120,6 +120,16 @@ public class ParseAll {
         System.out.println("Parsing " + pdfs.length + " pdfs for " + county + ", " + year);
 
         List<PdfData> ret = new ArrayList<>(pdfs.length);
+        int expunged = 0;
+        int malformed = 0;
+        PdfData previous = null;
+        if (countExpunged) {
+            TreeMap<String, File> ordered = new TreeMap<>();
+            for (File f: pdfs) {
+                ordered.put(f.getName(), f);
+            }
+            ordered.values().toArray(pdfs);
+        }
         for (File pdf: pdfs) {
             try {
                 PdfData data;
@@ -144,6 +154,22 @@ public class ParseAll {
                         targetStream.close();
                     }
                     ret.add(data);
+
+                    if (countExpunged) {
+                        if (previous != null) {
+                            if (previous.getCourtOffice().equals(data.getCourtOffice())) {
+                                int docketDiff = data.getDocketNumberAsInt() - previous.getDocketNumberAsInt();
+                                expunged += (docketDiff - 1);
+                            }
+                        }
+                        //if it's the first pdf for a court office, and it is numbered 2 or more
+                        //then there's at least one expunged file
+                        else {
+                            expunged += (data.getDocketNumberAsInt() - 1);
+                        }
+                    }
+
+                    previous = data;
                 }
                 else {
                     System.out.println("Found a non-pdf file: " + pdf.getName());
@@ -165,6 +191,7 @@ public class ParseAll {
 //                    System.exit(1);
 //                }
                 System.err.println("malformed pdf cannot be processed: " + pdf.getName());
+                malformed++;
             } catch (Exception e) {
                 System.err.println("processAll cannot process " + pdf.getName());
                 e.printStackTrace();
@@ -173,6 +200,9 @@ public class ParseAll {
         }
 
         System.out.println("parseAll successfully completed");
+        if (countExpunged) {
+            System.out.println(county + " " + year + "  Expunged: " + expunged + "  Malformed: " + malformed);
+        }
 
         return ret;
     }

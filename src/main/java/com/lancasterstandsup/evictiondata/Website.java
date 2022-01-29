@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static j2html.TagCreator.*;
@@ -25,6 +26,7 @@ public class Website {
             "Lebanon",
             "Adams",
             "Allegheny",
+            "Philadelphia",
             "Armstrong",
             "Beaver",
             "Bedford",
@@ -69,7 +71,6 @@ public class Website {
             "Northampton",
             "Northumberland",
             "Perry",
-            "Philadelphia",
             "Pike",
             "Potter",
             "Schuylkill",
@@ -93,7 +94,7 @@ public class Website {
         counties = Arrays.asList(countiesRaw);
     }
 
-    public static void buildWebsite (List<String> counties) throws IOException {
+    public static void buildWebsite (Collection<String> counties) throws IOException {
         String html = html(
                 head(
                         link().withHref("https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css")

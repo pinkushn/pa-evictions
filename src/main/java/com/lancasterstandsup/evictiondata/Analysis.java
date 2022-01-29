@@ -55,16 +55,28 @@ public class Analysis {
 
         //String[] years = {"2019"};
         //String[] years = {"2020"};
-        String[] years = {"2021"};
+        //String[] years = {"2021"};
+        String[] years = {"2020", "2021"};
         //String[] years = {"2019", "2020"};
-        //String[] years = {"2020", "2021"};
+        //String[] years = {"2020", "2021", "2022"};
         //String[] years = {"2019", "2020", "2021"};
         //String[] years = {"2017", "2018", "2019", "2020"};
         //String[] years = {"2017", "2018", "2019", "2020", "2021"};
         //String[] years = {"2015", "2016", "2017", "2018", "2019", "2020", "2021"};
         //String[] years = {"2015", "2016", "2017", "2018", "2019"};
 
+
+        //expunged("Lancaster", years);
+
+
+
         List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+
+        monthly(list);
+
+
+
+
         //evictionRateByJudge(filterOutNonPandemic(list));
 
         //nowHappening(filterMDJ(list, "2309"));
@@ -102,7 +114,7 @@ public class Analysis {
         //averageClaim(filterOutPostCDCMoratoriumEnds(list));  //$2127
         //averageClaim(filterOutPreCDCMoratoriumEnds(list));  //$3749
 
-        daily(list);
+        //daily(list);
         //mostFiled(list, false, true);
         //mergeCheck(list);
 //        int defendantHasRep = countRepresentationForDefendants(list);
@@ -118,6 +130,9 @@ public class Analysis {
         //plaintiffWin(filterOutUnresolved(list));
         //grantWithoutJudgment(list);
         //covidEvictions(list);
+
+        //System.out.println("Lancaster covid filings: " + filterCovid(list).size());
+
 
         //there are two cases in Lancaster 2020 that had order for possession served
         //in November, 2020, but are still marked as active
@@ -172,6 +187,12 @@ public class Analysis {
     public static String allName = rootName + "_1_1_2015_to_" + presentName + ".xlsx";
     public static String postName = rootName + "_" + pivotName + "_to_" + presentName + ".xlsx";
     public static String preName = rootName + "_" + preStartName + "_to_" + preEndName + ".xlsx";
+
+    public static void expunged (String county, String[] years) throws IOException, ClassNotFoundException {
+        for (String year: years) {
+            ParseAll.parseAll(county, year, true);
+        }
+    }
 
     /**
      *
@@ -940,8 +961,8 @@ public class Analysis {
         String year = "" + y;
         String lastYear = "" + (y - 1);
 
-        List<PdfData> ret = ParseAll.parseAll(county, year);
-        ret.addAll(ParseAll.parseAll(county, lastYear));
+        List<PdfData> ret = ParseAll.parseAll(county, year, false);
+        ret.addAll(ParseAll.parseAll(county, lastYear, false));
         ret = filterByClosedOrInactive(ret);
 
         return ret;
@@ -1026,7 +1047,7 @@ public class Analysis {
 
 //(2019 cases)*(years of moratoriums, calculated 3/15/20 to present) - (cases filed, 3/15/20 to present)
     private static void projectedBacklog(String county) throws IOException, ClassNotFoundException {
-        int oneYear = ParseAll.parseAll(county, "2019").size();
+        int oneYear = ParseAll.parseAll(county, "2019", false).size();
         double covid = percentYearSinceCovid();
         int filedSince = covidCases(county).size();
         int backlog = (int) (oneYear * covid - filedSince);

@@ -1,6 +1,5 @@
 package com.lancasterstandsup.evictiondata;
 
-import com.github.jferard.fastods.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -14,7 +13,7 @@ import java.util.List;
 public class Worksheet {
 
     public static void createExcel(String county) throws IOException, ClassNotFoundException {
-        CountyCoveredRange ccr = Scraper2.getCountyStartAndEnd(county);
+        CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county);
         int startYear = ccr.getStart().getYear();
         int endYear = ccr.getEnd().getYear();
         int distinctYears = endYear - startYear + 1;

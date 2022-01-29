@@ -815,6 +815,7 @@ public class PdfData implements Comparable<PdfData>, Serializable {
             return false;
         }
 
+        //isAlive is true if file's status is not 'closed' or 'inactive'
         if (isAlive()) {
             System.err.println("Rescrape " + getDocketNumber() + " because it is alive.");
             return true;
@@ -928,5 +929,18 @@ public class PdfData implements Comparable<PdfData>, Serializable {
 
     public boolean defendantZip(String target) {
         return defendantZips.indexOf(target) > -1;
+    }
+
+    public int getDocketDiff(PdfData previous) {
+        return getDocketNumberAsInt() - previous.getDocketNumberAsInt();
+    }
+
+    public int getDocketNumberAsInt() {
+        String s = getDocketNumber();
+        int i = s.lastIndexOf('-');
+        s = s.substring(0, i);
+        i = s.lastIndexOf('-');
+        s = s.substring(i + 1);
+        return Integer.parseInt(s);
     }
 }

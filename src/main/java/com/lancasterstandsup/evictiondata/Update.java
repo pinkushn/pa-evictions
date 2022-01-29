@@ -1,16 +1,15 @@
 package com.lancasterstandsup.evictiondata;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.TreeSet;
 
 public class Update {
 
     public static void main (String [] args) {
-        List<String> countiesWithData = new LinkedList<>();
+        TreeSet<String> countiesWithData = new TreeSet<>();
         for (String county: Website.counties) {
             try {
-                if (Scraper2.getCountyStartAndEnd(county) != null) {
+                if (Scraper.getCountyStartAndEnd(county) != null) {
                     countiesWithData.add(county);
                 }
             } catch (IOException e) {

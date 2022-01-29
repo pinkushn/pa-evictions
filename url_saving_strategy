@@ -1,0 +1,31 @@
+/*
+Hurray, the urls for the pdfs work later!
+
+store'em
+
+time to rescrape? check for store
+
+store has
+
+try!
+
+doesn't work?
+
+update store (delete this one)
+
+revert to usual strategy
+
+
+When to store
+
+rewrite file with every successful scrape that used a newly acquired url
+  yeah, doesn't sound performant, but test before over-designing
+
+
+How to store
+
+text file per county/year
+
+flat file, urls
+
+*/
