@@ -25,9 +25,11 @@ public class Update {
 
         System.out.println("Counties with data: " + countiesWithData);
 
+        int totalPdfs = 0;
+
         for (String county: countiesWithData) {
             try {
-                Worksheet.createExcel(county);
+                totalPdfs += Worksheet.createExcel(county);
             } catch (IOException e) {
                 System.err.println("Failed to create spreadsheet for " + county + ", abandoning update");
                 e.printStackTrace();
@@ -47,6 +49,6 @@ public class Update {
             return;
         }
 
-        System.out.println("\n*** Successfully updated. Now push to git.");
+        System.out.println("\n*** Successfully updated " + totalPdfs + " pdfs. Now push to git.");
     }
 }

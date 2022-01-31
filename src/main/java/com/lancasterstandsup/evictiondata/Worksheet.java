@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Worksheet {
 
-    public static void createExcel(String county) throws IOException, ClassNotFoundException {
+    public static int createExcel(String county) throws IOException, ClassNotFoundException {
         CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county);
         int startYear = ccr.getStart().getYear();
         int endYear = ccr.getEnd().getYear();
@@ -56,6 +56,8 @@ public class Worksheet {
 
         //new website
         writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
+
+        return list.size();
     }
 
     /**
