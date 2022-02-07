@@ -84,11 +84,11 @@ import java.io.*;
 import java.util.*;
 
 public class Parser {
-    //MJ-02302-LT-0000044-2021
-    public static final String TARGET_YEAR_FOR_MAIN = "2021";
-    public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
-    public static final String TARGET_COURT_FOR_MAIN = "2302";
-    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000044";
+    //15301_0000001_2019
+    public static final String TARGET_YEAR_FOR_MAIN = "2019";
+    public static final String TARGET_COUNTY_FOR_MAIN = "Chester";
+    public static final String TARGET_COURT_FOR_MAIN = "15301";
+    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000001";
 
     static String judgmentForDefendant = "Judgment for Defendant";
     static String judgmentForPlaintiff = "Judgment for Plaintiff";
@@ -335,6 +335,11 @@ public class Parser {
             npe.printStackTrace();
             throw npe;
         }
+        catch (Exception eee) {
+            System.err.println(eee);
+            eee.printStackTrace();
+            throw eee;
+        }
     }
 
     private static TreeMap<Integer, SectionType> buildSections(String[] strings) {
@@ -426,14 +431,22 @@ public class Parser {
             int index = 0;
             String[] split = strings[0].split(" ");
             if (split.length == 1) {
-                data.setFileDate(strings[0]);
-                next = strings[1];
-                judgeName = next.substring(presidingJudgeStart.length(), next.indexOf(" File Date:"));
-                index = 2;
-                next = strings[index];
-                if (next.indexOf('$') != 0) {
-                    judgeName += " " + next;
-                    index++;
+                //adding this try block 2/6/22 to account for a Cambria file
+                //in which judge was left blank
+                try {
+                    data.setFileDate(strings[0]);
+                    next = strings[1];
+                    judgeName = next.substring(presidingJudgeStart.length(), next.indexOf(" File Date:"));
+                    index = 2;
+                    next = strings[index];
+                    if (next.indexOf('$') != 0) {
+                        judgeName += " " + next;
+                        index++;
+                    }
+                }
+                catch (StringIndexOutOfBoundsException si) {
+                    index = 2;
+                    judgeName = "<blank>";
                 }
             }
             else {
@@ -802,10 +815,17 @@ public class Parser {
 
             String previous = null;
             for (String s: strings) {
-                if (s.indexOf(dispositionDate) > -1) {
-                    String other = s;
-                    other = other.substring(dispositionDate.length()).trim();
-                    data.setDispositionDate(other.substring(0, other.indexOf(' ')));
+                //give up on Chester: 15301_0000001_2019.pdf
+                //multi defendant, multi disposition
+                try {
+                    if (s.indexOf(dispositionDate) > -1) {
+                        String other = s;
+                        other = other.substring(dispositionDate.length()).trim();
+                        data.setDispositionDate(other.substring(0, other.indexOf(' ')));
+                    }
+                }
+                catch (StringIndexOutOfBoundsException e) {
+                    throw e;
                 }
                 if (s.indexOf(judgmentForDefendant) > -1) {
                     data.judgmentForDefendant(true);

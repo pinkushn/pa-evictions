@@ -145,15 +145,18 @@ public class ParseAll {
                     } else {
                         InputStream targetStream = new FileInputStream(pdf);
                         data = Parser.process(targetStream, false);
-                        if (data.isClosed()) {
+                        if (data != null && data.isClosed()) {
                             FileOutputStream fout = new FileOutputStream(preProcessedPath + "/" + stripPdf, false);
                             ObjectOutputStream oos = new ObjectOutputStream(fout);
                             oos.writeObject(data);
                             oos.close();
                         }
+                        else if (data == null) {
+                            System.err.println("****** Unable to parse " + pdf.getName() + " ******");
+                        }
                         targetStream.close();
                     }
-                    ret.add(data);
+                    if (data != null) ret.add(data);
 
                     if (countExpunged) {
                         if (previous != null) {
@@ -169,7 +172,7 @@ public class ParseAll {
                         }
                     }
 
-                    previous = data;
+                    if (data != null) previous = data;
                 }
                 else {
                     System.out.println("Found a non-pdf file: " + pdf.getName());
@@ -195,7 +198,8 @@ public class ParseAll {
             } catch (Exception e) {
                 System.err.println("processAll cannot process " + pdf.getName());
                 e.printStackTrace();
-                throw e;
+                malformed++;
+                //throw e;
             }
         }
 
