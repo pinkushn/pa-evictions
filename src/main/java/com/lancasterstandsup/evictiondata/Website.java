@@ -179,7 +179,12 @@ public class Website {
                             span("Data pulled from public "),
                             a("PA court records")
                                     .withHref("https://ujsportal.pacourts.us/CaseSearch")
-                        ).withStyle("text-align:center")
+                        ).withStyle("text-align:center; margin-bottom: 10px"),
+                        div (span("Records near the end cut-off dates may be incomplete."),
+                                br(),
+                                span("Not all courts upload cases or changes same-day.")
+
+                        ).withStyle("text-align:center; margin-bottom: 10px")
                 )
         ).renderFormatted();
 
