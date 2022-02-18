@@ -104,6 +104,9 @@ public class Website {
 
         String html = html(
                 head(
+                        meta().attr("charset","UTF-8"),
+                        meta().attr("name","viewport")
+                        .attr("content", "width=device-width, initial-scale=1, shrink-to-fit=no"),
                         link().withHref("https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css")
                             .withRel("stylesheet")
                             .attr("integrity", "sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC")
