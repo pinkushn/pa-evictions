@@ -1,1038 +1,348 @@
 <html>
     <head>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous">
         </script>
     </head>
     <body>
-        <ul class="nav nav-tabs" role="tablist" id="myTab">
-                    <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Adams_tab" data-bs-toggle="tab" data-bs-target="#Adams" type="button" role="tab" aria-controls="Adams" aria-selected="false">
-                    Adams
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Allegheny_tab" data-bs-toggle="tab" data-bs-target="#Allegheny" type="button" role="tab" aria-controls="Allegheny" aria-selected="false">
-                    Allegheny
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Armstrong_tab" data-bs-toggle="tab" data-bs-target="#Armstrong" type="button" role="tab" aria-controls="Armstrong" aria-selected="false">
-                    Armstrong
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Beaver_tab" data-bs-toggle="tab" data-bs-target="#Beaver" type="button" role="tab" aria-controls="Beaver" aria-selected="false">
-                    Beaver
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Bedford_tab" data-bs-toggle="tab" data-bs-target="#Bedford" type="button" role="tab" aria-controls="Bedford" aria-selected="false">
-                    Bedford
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Berks_tab" data-bs-toggle="tab" data-bs-target="#Berks" type="button" role="tab" aria-controls="Berks" aria-selected="false">
-                    Berks
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Blair_tab" data-bs-toggle="tab" data-bs-target="#Blair" type="button" role="tab" aria-controls="Blair" aria-selected="false">
-                    Blair
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Bradford_tab" data-bs-toggle="tab" data-bs-target="#Bradford" type="button" role="tab" aria-controls="Bradford" aria-selected="false">
-                    Bradford
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Bucks_tab" data-bs-toggle="tab" data-bs-target="#Bucks" type="button" role="tab" aria-controls="Bucks" aria-selected="false">
-                    Bucks
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Butler_tab" data-bs-toggle="tab" data-bs-target="#Butler" type="button" role="tab" aria-controls="Butler" aria-selected="false">
-                    Butler
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Cambria_tab" data-bs-toggle="tab" data-bs-target="#Cambria" type="button" role="tab" aria-controls="Cambria" aria-selected="false">
-                    Cambria
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Cameron_tab" data-bs-toggle="tab" data-bs-target="#Cameron" type="button" role="tab" aria-controls="Cameron" aria-selected="false">
-                    Cameron
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Carbon_tab" data-bs-toggle="tab" data-bs-target="#Carbon" type="button" role="tab" aria-controls="Carbon" aria-selected="false">
-                    Carbon
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Centre_tab" data-bs-toggle="tab" data-bs-target="#Centre" type="button" role="tab" aria-controls="Centre" aria-selected="false">
-                    Centre
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Chester_tab" data-bs-toggle="tab" data-bs-target="#Chester" type="button" role="tab" aria-controls="Chester" aria-selected="false">
-                    Chester
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Clarion_tab" data-bs-toggle="tab" data-bs-target="#Clarion" type="button" role="tab" aria-controls="Clarion" aria-selected="false">
-                    Clarion
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Clearfield_tab" data-bs-toggle="tab" data-bs-target="#Clearfield" type="button" role="tab" aria-controls="Clearfield" aria-selected="false">
-                    Clearfield
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Clinton_tab" data-bs-toggle="tab" data-bs-target="#Clinton" type="button" role="tab" aria-controls="Clinton" aria-selected="false">
-                    Clinton
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Columbia_tab" data-bs-toggle="tab" data-bs-target="#Columbia" type="button" role="tab" aria-controls="Columbia" aria-selected="false">
-                    Columbia
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Crawford_tab" data-bs-toggle="tab" data-bs-target="#Crawford" type="button" role="tab" aria-controls="Crawford" aria-selected="false">
-                    Crawford
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Cumberland_tab" data-bs-toggle="tab" data-bs-target="#Cumberland" type="button" role="tab" aria-controls="Cumberland" aria-selected="false">
-                    Cumberland
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Dauphin_tab" data-bs-toggle="tab" data-bs-target="#Dauphin" type="button" role="tab" aria-controls="Dauphin" aria-selected="false">
-                    Dauphin
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Delaware_tab" data-bs-toggle="tab" data-bs-target="#Delaware" type="button" role="tab" aria-controls="Delaware" aria-selected="false">
-                    Delaware
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Elk_tab" data-bs-toggle="tab" data-bs-target="#Elk" type="button" role="tab" aria-controls="Elk" aria-selected="false">
-                    Elk
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Erie_tab" data-bs-toggle="tab" data-bs-target="#Erie" type="button" role="tab" aria-controls="Erie" aria-selected="false">
-                    Erie
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Fayette_tab" data-bs-toggle="tab" data-bs-target="#Fayette" type="button" role="tab" aria-controls="Fayette" aria-selected="false">
-                    Fayette
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Forest_tab" data-bs-toggle="tab" data-bs-target="#Forest" type="button" role="tab" aria-controls="Forest" aria-selected="false">
-                    Forest
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Franklin_tab" data-bs-toggle="tab" data-bs-target="#Franklin" type="button" role="tab" aria-controls="Franklin" aria-selected="false">
-                    Franklin
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Fulton_tab" data-bs-toggle="tab" data-bs-target="#Fulton" type="button" role="tab" aria-controls="Fulton" aria-selected="false">
-                    Fulton
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Greene_tab" data-bs-toggle="tab" data-bs-target="#Greene" type="button" role="tab" aria-controls="Greene" aria-selected="false">
-                    Greene
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Huntingdon_tab" data-bs-toggle="tab" data-bs-target="#Huntingdon" type="button" role="tab" aria-controls="Huntingdon" aria-selected="false">
-                    Huntingdon
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Indiana_tab" data-bs-toggle="tab" data-bs-target="#Indiana" type="button" role="tab" aria-controls="Indiana" aria-selected="false">
-                    Indiana
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Jefferson_tab" data-bs-toggle="tab" data-bs-target="#Jefferson" type="button" role="tab" aria-controls="Jefferson" aria-selected="false">
-                    Jefferson
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Juniata_tab" data-bs-toggle="tab" data-bs-target="#Juniata" type="button" role="tab" aria-controls="Juniata" aria-selected="false">
-                    Juniata
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Lackawanna_tab" data-bs-toggle="tab" data-bs-target="#Lackawanna" type="button" role="tab" aria-controls="Lackawanna" aria-selected="false">
-                    Lackawanna
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="Lancaster_tab" data-bs-toggle="tab" data-bs-target="#Lancaster" type="button" role="tab" aria-controls="Lancaster" aria-selected="true">
-                    Lancaster
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Lawrence_tab" data-bs-toggle="tab" data-bs-target="#Lawrence" type="button" role="tab" aria-controls="Lawrence" aria-selected="false">
-                    Lawrence
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Lebanon_tab" data-bs-toggle="tab" data-bs-target="#Lebanon" type="button" role="tab" aria-controls="Lebanon" aria-selected="false">
-                    Lebanon
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Lehigh_tab" data-bs-toggle="tab" data-bs-target="#Lehigh" type="button" role="tab" aria-controls="Lehigh" aria-selected="false">
-                    Lehigh
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="Philadelphia_tab" data-bs-toggle="tab" data-bs-target="#Philadelphia" type="button" role="tab" aria-controls="Philadelphia" aria-selected="false">
-                    Philadelphia
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="York_tab" data-bs-toggle="tab" data-bs-target="#York" type="button" role="tab" aria-controls="York" aria-selected="false">
-                    York
-                </button>
-            </li>
-                </ul>
-        <div class="tab-content">
-                    <div class="tab-pane fade" id="Adams" role="tabpanel" aria-labelledby="Adams_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Adams/Adams_eviction_cases_1_1_2019_to_1_26_2022.xlsx">
-                        Adams eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/26/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+        <div style="text-align:center">
+            <h3 style="font-weight:bold">
+                PA eviction data 2019 to near-present 
+            </h3>
+        </div>
+        <div style="text-align:center; font-size:small; margin-bottom: 5px">
+            (all counties except Philadelphia)
+        </div>
+        <div style="text-align:center; margin-bottom: 10px">
+            Choose a county to download an eviction data spreadsheet.
+        </div>
+        <div class="dropdown show" style="text-align:center">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size: large">
+                Choose County
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <div>
+                    <a href="webdata/Adams/Adams_eviction_cases_1_1_2019_to_1_26_2022.xlsx" class="dropdown-item">
+                        Adams to 1/26/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Allegheny" role="tabpanel" aria-labelledby="Allegheny_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Allegheny/Allegheny_eviction_cases_1_1_2019_to_1_29_2022.xlsx">
-                        Allegheny eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/29/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Allegheny/Allegheny_eviction_cases_1_1_2019_to_1_29_2022.xlsx" class="dropdown-item">
+                        Allegheny to 1/29/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Armstrong" role="tabpanel" aria-labelledby="Armstrong_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Armstrong/Armstrong_eviction_cases_1_1_2019_to_1_29_2022.xlsx">
-                        Armstrong eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/29/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Armstrong/Armstrong_eviction_cases_1_1_2019_to_1_29_2022.xlsx" class="dropdown-item">
+                        Armstrong to 1/29/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Beaver" role="tabpanel" aria-labelledby="Beaver_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Beaver/Beaver_eviction_cases_1_1_2019_to_1_29_2022.xlsx">
-                        Beaver eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/29/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Beaver/Beaver_eviction_cases_1_1_2019_to_1_29_2022.xlsx" class="dropdown-item">
+                        Beaver to 1/29/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Bedford" role="tabpanel" aria-labelledby="Bedford_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Bedford/Bedford_eviction_cases_1_1_2019_to_1_29_2022.xlsx">
-                        Bedford eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/29/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Bedford/Bedford_eviction_cases_1_1_2019_to_1_29_2022.xlsx" class="dropdown-item">
+                        Bedford to 1/29/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Berks" role="tabpanel" aria-labelledby="Berks_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Berks/Berks_eviction_cases_1_1_2019_to_1_25_2022.xlsx">
-                        Berks eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/25/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Berks/Berks_eviction_cases_1_1_2019_to_1_25_2022.xlsx" class="dropdown-item">
+                        Berks to 1/25/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Blair" role="tabpanel" aria-labelledby="Blair_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Blair/Blair_eviction_cases_1_1_2019_to_1_30_2022.xlsx">
-                        Blair eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/30/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Blair/Blair_eviction_cases_1_1_2019_to_1_30_2022.xlsx" class="dropdown-item">
+                        Blair to 1/30/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Bradford" role="tabpanel" aria-labelledby="Bradford_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Bradford/Bradford_eviction_cases_1_1_2019_to_1_30_2022.xlsx">
-                        Bradford eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/30/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Bradford/Bradford_eviction_cases_1_1_2019_to_1_30_2022.xlsx" class="dropdown-item">
+                        Bradford to 1/30/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Bucks" role="tabpanel" aria-labelledby="Bucks_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Bucks/Bucks_eviction_cases_1_1_2019_to_1_31_2022.xlsx">
-                        Bucks eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/31/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Bucks/Bucks_eviction_cases_1_1_2019_to_1_31_2022.xlsx" class="dropdown-item">
+                        Bucks to 1/31/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Butler" role="tabpanel" aria-labelledby="Butler_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Butler/Butler_eviction_cases_1_1_2019_to_1_31_2022.xlsx">
-                        Butler eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/31/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Butler/Butler_eviction_cases_1_1_2019_to_1_31_2022.xlsx" class="dropdown-item">
+                        Butler to 1/31/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Cambria" role="tabpanel" aria-labelledby="Cambria_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Cambria/Cambria_eviction_cases_1_1_2019_to_2_1_2022.xlsx">
-                        Cambria eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/1/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Cambria/Cambria_eviction_cases_1_1_2019_to_2_1_2022.xlsx" class="dropdown-item">
+                        Cambria to 2/1/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Cameron" role="tabpanel" aria-labelledby="Cameron_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Cameron/Cameron_eviction_cases_1_1_2019_to_2_1_2022.xlsx">
-                        Cameron eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/1/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Cameron/Cameron_eviction_cases_1_1_2019_to_2_1_2022.xlsx" class="dropdown-item">
+                        Cameron to 2/1/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Carbon" role="tabpanel" aria-labelledby="Carbon_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Carbon/Carbon_eviction_cases_1_1_2019_to_2_1_2022.xlsx">
-                        Carbon eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/1/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Carbon/Carbon_eviction_cases_1_1_2019_to_2_1_2022.xlsx" class="dropdown-item">
+                        Carbon to 2/1/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Centre" role="tabpanel" aria-labelledby="Centre_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Centre/Centre_eviction_cases_1_1_2019_to_2_1_2022.xlsx">
-                        Centre eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/1/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Centre/Centre_eviction_cases_1_1_2019_to_2_1_2022.xlsx" class="dropdown-item">
+                        Centre to 2/1/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Chester" role="tabpanel" aria-labelledby="Chester_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Chester/Chester_eviction_cases_1_1_2019_to_2_2_2022.xlsx">
-                        Chester eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/2/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Chester/Chester_eviction_cases_1_1_2019_to_2_2_2022.xlsx" class="dropdown-item">
+                        Chester to 2/2/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Clarion" role="tabpanel" aria-labelledby="Clarion_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Clarion/Clarion_eviction_cases_1_1_2019_to_2_2_2022.xlsx">
-                        Clarion eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/2/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Clarion/Clarion_eviction_cases_1_1_2019_to_2_2_2022.xlsx" class="dropdown-item">
+                        Clarion to 2/2/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Clearfield" role="tabpanel" aria-labelledby="Clearfield_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Clearfield/Clearfield_eviction_cases_1_1_2019_to_2_2_2022.xlsx">
-                        Clearfield eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/2/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Clearfield/Clearfield_eviction_cases_1_1_2019_to_2_2_2022.xlsx" class="dropdown-item">
+                        Clearfield to 2/2/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Clinton" role="tabpanel" aria-labelledby="Clinton_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Clinton/Clinton_eviction_cases_1_1_2019_to_2_2_2022.xlsx">
-                        Clinton eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/2/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Clinton/Clinton_eviction_cases_1_1_2019_to_2_2_2022.xlsx" class="dropdown-item">
+                        Clinton to 2/2/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Columbia" role="tabpanel" aria-labelledby="Columbia_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Columbia/Columbia_eviction_cases_1_1_2019_to_2_2_2022.xlsx">
-                        Columbia eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/2/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Columbia/Columbia_eviction_cases_1_1_2019_to_2_2_2022.xlsx" class="dropdown-item">
+                        Columbia to 2/2/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Crawford" role="tabpanel" aria-labelledby="Crawford_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Crawford/Crawford_eviction_cases_1_1_2019_to_2_2_2022.xlsx">
-                        Crawford eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/2/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Crawford/Crawford_eviction_cases_1_1_2019_to_2_2_2022.xlsx" class="dropdown-item">
+                        Crawford to 2/2/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Cumberland" role="tabpanel" aria-labelledby="Cumberland_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Cumberland/Cumberland_eviction_cases_1_1_2019_to_2_3_2022.xlsx">
-                        Cumberland eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/3/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Cumberland/Cumberland_eviction_cases_1_1_2019_to_2_3_2022.xlsx" class="dropdown-item">
+                        Cumberland to 2/3/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Dauphin" role="tabpanel" aria-labelledby="Dauphin_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Dauphin/Dauphin_eviction_cases_1_1_2019_to_1_26_2022.xlsx">
-                        Dauphin eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/26/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Dauphin/Dauphin_eviction_cases_1_1_2019_to_1_26_2022.xlsx" class="dropdown-item">
+                        Dauphin to 1/26/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Delaware" role="tabpanel" aria-labelledby="Delaware_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Delaware/Delaware_eviction_cases_1_1_2019_to_2_4_2022.xlsx">
-                        Delaware eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/4/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Delaware/Delaware_eviction_cases_1_1_2019_to_2_4_2022.xlsx" class="dropdown-item">
+                        Delaware to 2/4/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Elk" role="tabpanel" aria-labelledby="Elk_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Elk/Elk_eviction_cases_1_1_2019_to_2_4_2022.xlsx">
-                        Elk eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/4/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Elk/Elk_eviction_cases_1_1_2019_to_2_4_2022.xlsx" class="dropdown-item">
+                        Elk to 2/4/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Erie" role="tabpanel" aria-labelledby="Erie_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Erie/Erie_eviction_cases_1_1_2019_to_2_5_2022.xlsx">
-                        Erie eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/5/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Erie/Erie_eviction_cases_1_1_2019_to_2_5_2022.xlsx" class="dropdown-item">
+                        Erie to 2/5/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Fayette" role="tabpanel" aria-labelledby="Fayette_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Fayette/Fayette_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Fayette eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Fayette/Fayette_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Fayette to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Forest" role="tabpanel" aria-labelledby="Forest_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Forest/Forest_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Forest eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Forest/Forest_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Forest to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Franklin" role="tabpanel" aria-labelledby="Franklin_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Franklin/Franklin_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Franklin eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Franklin/Franklin_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Franklin to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Fulton" role="tabpanel" aria-labelledby="Fulton_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Fulton/Fulton_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Fulton eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Fulton/Fulton_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Fulton to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Greene" role="tabpanel" aria-labelledby="Greene_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Greene/Greene_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Greene eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Greene/Greene_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Greene to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Huntingdon" role="tabpanel" aria-labelledby="Huntingdon_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Huntingdon/Huntingdon_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Huntingdon eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Huntingdon/Huntingdon_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Huntingdon to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Indiana" role="tabpanel" aria-labelledby="Indiana_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Indiana/Indiana_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Indiana eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Indiana/Indiana_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Indiana to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Jefferson" role="tabpanel" aria-labelledby="Jefferson_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Jefferson/Jefferson_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Jefferson eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Jefferson/Jefferson_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Jefferson to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Juniata" role="tabpanel" aria-labelledby="Juniata_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Juniata/Juniata_eviction_cases_1_1_2019_to_2_6_2022.xlsx">
-                        Juniata eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/6/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Juniata/Juniata_eviction_cases_1_1_2019_to_2_6_2022.xlsx" class="dropdown-item">
+                        Juniata to 2/6/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Lackawanna" role="tabpanel" aria-labelledby="Lackawanna_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Lackawanna/Lackawanna_eviction_cases_1_1_2019_to_2_7_2022.xlsx">
-                        Lackawanna eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/7/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Lackawanna/Lackawanna_eviction_cases_1_1_2019_to_2_7_2022.xlsx" class="dropdown-item">
+                        Lackawanna to 2/7/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade show active" id="Lancaster" role="tabpanel" aria-labelledby="Lancaster_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Lancaster/Lancaster_eviction_cases_1_1_2019_to_2_13_2022.xlsx">
-                        Lancaster eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/13/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Lancaster/Lancaster_eviction_cases_1_1_2019_to_2_13_2022.xlsx" class="dropdown-item">
+                        Lancaster to 2/13/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Lawrence" role="tabpanel" aria-labelledby="Lawrence_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Lawrence/Lawrence_eviction_cases_1_1_2019_to_2_7_2022.xlsx">
-                        Lawrence eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/7/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Lawrence/Lawrence_eviction_cases_1_1_2019_to_2_7_2022.xlsx" class="dropdown-item">
+                        Lawrence to 2/7/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Lebanon" role="tabpanel" aria-labelledby="Lebanon_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Lebanon/Lebanon_eviction_cases_1_1_2019_to_1_26_2022.xlsx">
-                        Lebanon eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/26/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Lebanon/Lebanon_eviction_cases_1_1_2019_to_1_26_2022.xlsx" class="dropdown-item">
+                        Lebanon to 1/26/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Lehigh" role="tabpanel" aria-labelledby="Lehigh_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Lehigh/Lehigh_eviction_cases_1_1_2019_to_2_12_2022.xlsx">
-                        Lehigh eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 2/12/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Lehigh/Lehigh_eviction_cases_1_1_2019_to_2_12_2022.xlsx" class="dropdown-item">
+                        Lehigh to 2/12/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="Philadelphia" role="tabpanel" aria-labelledby="Philadelphia_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/Philadelphia/Philadelphia_eviction_cases_1_1_2019_to_1_29_2022.xlsx">
-                        Philadelphia eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/29/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Luzerne/Luzerne_eviction_cases_1_1_2019_to_2_13_2022.xlsx" class="dropdown-item">
+                        Luzerne to 2/13/2022
                     </a>
                 </div>
                 <div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="York" role="tabpanel" aria-labelledby="York_tab">
-                <div style="margin: 10px">
-                    <a href="webdata/York/York_eviction_cases_1_1_2019_to_1_24_2022.xlsx">
-                        York eviction cases
-                    </a>
-                    <span>
-                        1/1/2019 to 1/24/2022
-                    </span>
-                    <br>
-                    <br>
-                    <span>
-                        Data pulled from public 
-                    </span>
-                    <a href="https://ujsportal.pacourts.us/CaseSearch">
-                        PA court records
+                    <a href="webdata/Lycoming/Lycoming_eviction_cases_1_1_2019_to_2_13_2022.xlsx" class="dropdown-item">
+                        Lycoming to 2/13/2022
                     </a>
                 </div>
                 <div>
+                    <a href="webdata/McKean/McKean_eviction_cases_1_1_2019_to_2_13_2022.xlsx" class="dropdown-item">
+                        McKean to 2/13/2022
+                    </a>
                 </div>
-            </div>
+                <div>
+                    <a href="webdata/Mercer/Mercer_eviction_cases_1_1_2019_to_2_14_2022.xlsx" class="dropdown-item">
+                        Mercer to 2/14/2022
+                    </a>
                 </div>
+                <div>
+                    <a href="webdata/Mifflin/Mifflin_eviction_cases_1_1_2019_to_2_14_2022.xlsx" class="dropdown-item">
+                        Mifflin to 2/14/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Monroe/Monroe_eviction_cases_1_1_2019_to_2_14_2022.xlsx" class="dropdown-item">
+                        Monroe to 2/14/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Montgomery/Montgomery_eviction_cases_1_1_2019_to_2_16_2022.xlsx" class="dropdown-item">
+                        Montgomery to 2/16/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Montour/Montour_eviction_cases_1_1_2019_to_2_16_2022.xlsx" class="dropdown-item">
+                        Montour to 2/16/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Northampton/Northampton_eviction_cases_1_1_2019_to_2_17_2022.xlsx" class="dropdown-item">
+                        Northampton to 2/17/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Northumberland/Northumberland_eviction_cases_1_1_2019_to_2_17_2022.xlsx" class="dropdown-item">
+                        Northumberland to 2/17/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Perry/Perry_eviction_cases_1_1_2019_to_2_17_2022.xlsx" class="dropdown-item">
+                        Perry to 2/17/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Pike/Pike_eviction_cases_1_1_2019_to_2_17_2022.xlsx" class="dropdown-item">
+                        Pike to 2/17/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Potter/Potter_eviction_cases_1_1_2019_to_2_17_2022.xlsx" class="dropdown-item">
+                        Potter to 2/17/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Schuylkill/Schuylkill_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Schuylkill to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Snyder/Snyder_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Snyder to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Somerset/Somerset_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Somerset to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Sullivan/Sullivan_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Sullivan to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Susquehanna/Susquehanna_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Susquehanna to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Tioga/Tioga_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Tioga to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Union/Union_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Union to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Venango/Venango_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Venango to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/Warren/Warren_eviction_cases_1_1_2019_to_2_18_2022.xlsx" class="dropdown-item">
+                        Warren to 2/18/2022
+                    </a>
+                </div>
+                <div>
+                    <a href="webdata/York/York_eviction_cases_1_1_2019_to_1_24_2022.xlsx" class="dropdown-item">
+                        York to 1/24/2022
+                    </a>
+                </div>
+                        </div>
+        </div>
+        <br>
+        <div style="text-align:center">
+            <span>
+                Data pulled from public 
+            </span>
+            <a href="https://ujsportal.pacourts.us/CaseSearch">
+                PA court records
+            </a>
+        </div>
     </body>
 </html>

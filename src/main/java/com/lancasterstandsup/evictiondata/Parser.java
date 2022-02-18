@@ -189,7 +189,7 @@ public class Parser {
 
     public static void main (String[] args) {
         try {
-            String pathToFile = "./src/main/resources/pdfCache/" +
+            String pathToFile = Scraper.PDF_CACHE_PATH +
                     TARGET_COUNTY_FOR_MAIN + "/" + TARGET_YEAR_FOR_MAIN +
                     "/" + TARGET_COURT_FOR_MAIN + "_" +
                     TARGET_SEQUENCE_FOR_MAIN + "_" +

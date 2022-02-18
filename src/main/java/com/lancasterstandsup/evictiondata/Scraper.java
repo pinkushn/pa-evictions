@@ -43,7 +43,7 @@ public class Scraper {
     private static final double HOURS_WAIT = .6;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
-    private final static String PDF_CACHE_PATH = "./src/main/resources/pdfCache/";
+    public final static String PDF_CACHE_PATH = "./pdfCache/";
     private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
     private final static String POINTER_PATH = "./src/main/resources/";
     private final static String POINTER_FILE_NAME = "pointer";
@@ -240,9 +240,11 @@ public class Scraper {
                 if (index == Website.counties.size()) {
                     index = 0;
                     if (!commencingScrape) {
+                        System.out.println("\n\n****************************\n");
                         System.out.println("FINISHED ALL COUNTIES at " + LocalDateTime.now() +
-                                ". Requires manual restart.");
-                        System.exit(0);
+                                ". Restarting at the beginning.");
+                        System.out.println("\n\n****************************\n");
+                        //System.exit(0);
                     }
                 }
                 String prior = pointer.getCounty();

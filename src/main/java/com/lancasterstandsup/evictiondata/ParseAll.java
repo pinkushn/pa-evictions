@@ -7,7 +7,7 @@ import java.util.*;
 
 public class ParseAll {
 
-    private final static String PDF_CACHE_PATH = "./src/main/resources/pdfCache/";
+    private final static String PDF_CACHE_PATH = Scraper.PDF_CACHE_PATH;
 
     //county --> cities in county
     private static Map<String, Set<String>> cities = new HashMap<>();

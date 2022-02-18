@@ -22,6 +22,47 @@ public class Worksheet {
             years[x] = "" + (startYear + x);
         }
 
+        LocalDateTime end = ccr.getEnd();
+        int month = end.getMonthValue();
+        int day = end.getDayOfMonth();
+        int year = end.getYear();
+
+        String excelFileName = county + "_eviction_cases_" +
+                "1_1_" + years[0] + "_" +
+                "to_" +
+                month + "_" + day + "_" + year +
+                ".xlsx";
+
+        String countyPath = Analysis.dataPathWithDot + county;
+        File countyDir = new File(countyPath);
+
+//        if (!countyDir.exists() || countyDir.listFiles().length == 0) {
+//            return div(
+//                    a(county + " (no data)")
+//                            .withHref("#")
+//                            .withClass("dropdown-item")
+//            );
+//        }
+
+        if (countyDir.exists() && countyDir.listFiles().length > 0) {
+            String worksheetIndicator = county + "_eviction_cases_";
+            File worksheet = null;
+            String worksheetFileName = null;
+
+            for (File file : countyDir.listFiles()) {
+                worksheetFileName = file.getName();
+                if (worksheetFileName.indexOf(worksheetIndicator) > -1) {
+                    worksheet = file;
+                    break;
+                }
+            }
+
+            if (worksheet != null && worksheet.getName().equals(excelFileName)) {
+                System.out.println(excelFileName + " already exists");
+                return 0;
+            }
+        }
+
         Object[] data = null;
 
         try {
@@ -43,16 +84,7 @@ public class Worksheet {
             }
         }
 
-        LocalDateTime end = ccr.getEnd();
-        int month = end.getMonthValue();
-        int day = end.getDayOfMonth();
-        int year = end.getYear();
 
-        String excelFileName = county + "_eviction_cases_" +
-                "1_1_" + years[0] + "_" +
-                "to_" +
-                month + "_" + day + "_" + year +
-                ".xlsx";
 
         //new website
         writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
