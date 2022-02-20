@@ -107,10 +107,15 @@ public class Scraper {
      * Assumes inbound pointer is already saved to pointer file
      * @param pointer
      */
-    public static void commenceScraping(Pointer pointer) throws InterruptedException {
+    public static void commenceScraping(Pointer pointer) throws InterruptedException, IOException {
         System.out.println("**********************");
         System.out.println("Starting with " + pointer);
         System.out.println("**********************");
+
+
+        List<String> courtOffices = getCourtOffices(pointer.getCounty());
+        int index = courtOffices.indexOf(pointer.getCourtOffice());
+        System.out.println("court office is " + (index + 1) + " of " + courtOffices.size());
 
         boolean forever = true;
 
@@ -259,6 +264,9 @@ public class Scraper {
                 CountyCoveredRange ccr = getCountyStartAndEnd(pointer.getCounty());
 
                 lastCheck = ccr == null ? null : ccr.getEnd();
+
+                System.out.println("\n*** " + pointer.getCounty() + " has " +
+                        getCourtOffices(pointer.getCounty()).size() + " court offices");
             }
         }
         else {
