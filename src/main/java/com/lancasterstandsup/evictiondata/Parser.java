@@ -84,11 +84,11 @@ import java.io.*;
 import java.util.*;
 
 public class Parser {
-    //15301_0000001_2019
+    //15301_0000023_2019
     public static final String TARGET_YEAR_FOR_MAIN = "2019";
     public static final String TARGET_COUNTY_FOR_MAIN = "Chester";
     public static final String TARGET_COURT_FOR_MAIN = "15301";
-    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000001";
+    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000023";
 
     static String judgmentForDefendant = "Judgment for Defendant";
     static String judgmentForPlaintiff = "Judgment for Plaintiff";
@@ -821,7 +821,10 @@ public class Parser {
                     if (s.indexOf(dispositionDate) > -1) {
                         String other = s;
                         other = other.substring(dispositionDate.length()).trim();
-                        data.setDispositionDate(other.substring(0, other.indexOf(' ')));
+                        int i = other.indexOf(' ');
+                        //15301_0000001_2019 didn't have ' ' at end, just had date string
+                        if (i > -1) data.setDispositionDate(other.substring(0, i));
+                        else data.setDispositionDate(other);
                     }
                 }
                 catch (StringIndexOutOfBoundsException e) {
