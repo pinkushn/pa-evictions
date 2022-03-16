@@ -55,7 +55,6 @@ public class Website {
             "Indiana",
             "Jefferson",
             "Juniata",
-            "Lancaster",
             "Lackawanna",
             "Lawrence",
             "Lehigh",

@@ -77,7 +77,7 @@ public class Scraper {
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         commenceScrapingFromSavedPointer();
-        //commenceScrapingFromArtificalPointer();
+        // commenceScrapingFromArtificalPointer();
     }
 
     private static void commenceScrapingFromArtificalPointer() throws IOException, InterruptedException, ClassNotFoundException {
@@ -85,7 +85,8 @@ public class Scraper {
         //force the county AFTER the one shown
         Pointer pointer = new Pointer();
         pointer.setYear(getCurrentYear());
-        pointer.setCounty("Lancaster");
+        //pointer.setCounty("Lackawanna");
+        pointer.setCounty("Lawrence ");
         advancePointer(pointer, true);
 
         commenceScraping(pointer);
