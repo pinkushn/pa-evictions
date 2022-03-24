@@ -347,7 +347,7 @@ public class Scraper {
 //            return now.getYear() - 1;
 //        }
 //        else return now.getYear();
-        return 2019;
+        return 2021;
     }
 
     static int getCurrentYear() {
