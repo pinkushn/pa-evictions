@@ -176,7 +176,7 @@ public class Scraper {
                     System.err.println(exception);
                 }
                 else {
-                    System.err.println("Scrape hit max url hits permitted " +
+                    System.out.println("Scrape hit max url hits permitted " +
                             "(" + URL_HITS_PERMITTED + ") with pointer: " + pointer + " at " + now);
                 }
                 System.err.println("\nSleeping for " + HOURS_WAIT + " hours, restart at " +

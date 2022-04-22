@@ -817,7 +817,7 @@ public class PdfData implements Comparable<PdfData>, Serializable {
 
         //isAlive is true if file's status is not 'closed' or 'inactive'
         if (isAlive()) {
-            System.err.println("Rescrape " + getDocketNumber() + " because it is alive.");
+            System.out.println("Rescrape " + getDocketNumber() + " because it is alive.");
             return true;
         }
         //'closed' might still have been updated with order for possession
@@ -825,12 +825,12 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         //date of judgment is less than X (60?) days from last scrape
         LocalDate disposition = getDispositionDate();
         if (disposition == null) {
-            System.err.println("Rescrape " + getDocketNumber() + " because it has no disposition date.");
+            System.out.println("Rescrape " + getDocketNumber() + " because it has no disposition date.");
             return true;
         }
 
         if (!hasJudgment()) {
-            System.err.println("Rescrape " + getDocketNumber()  + " because it has no judgment.");
+            System.out.println("Rescrape " + getDocketNumber()  + " because it has no judgment.");
             return true;
         }
 
@@ -838,13 +838,13 @@ public class PdfData implements Comparable<PdfData>, Serializable {
         int window = 100;
         LocalDateTime now = LocalDateTime.now();
         if (disposition.until(now, ChronoUnit.DAYS) < window) {
-            System.err.println("Rescrape " + getDocketNumber()  + " because it is within " + window +
+            System.out.println("Rescrape " + getDocketNumber()  + " because it is within " + window +
                     " days of disposition without order for possession");
             return true;
         }
 
         if (lastCheck == null) {
-            System.err.println("Rescrape " + getDocketNumber()  + " because lastCheck is null.");
+            System.out.println("Rescrape " + getDocketNumber()  + " because lastCheck is null.");
             return true;
         }
 
@@ -853,7 +853,7 @@ public class PdfData implements Comparable<PdfData>, Serializable {
             return false;
         }
 
-        System.err.println("Rescrape " + getDocketNumber() + " because, err, defaulting after many checks.");
+        System.out.println("Rescrape " + getDocketNumber() + " because, err, defaulting after many checks.");
         return true;
     }
 
