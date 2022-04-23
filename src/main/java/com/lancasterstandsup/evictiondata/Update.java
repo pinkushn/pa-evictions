@@ -48,6 +48,9 @@ public class Update {
             e.printStackTrace();
             return;
         }
+        
+        boolean isWindows = System.getProperty("os.name")
+                .toLowerCase().startsWith("windows");
 
         System.out.println("\n*** Successfully updated " + totalPdfs + " pdfs. Now push to git.");
     }
