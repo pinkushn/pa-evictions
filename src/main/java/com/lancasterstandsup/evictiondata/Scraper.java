@@ -268,6 +268,21 @@ public class Scraper {
 
                 System.out.println("\n*** " + pointer.getCounty() + " has " +
                         getCourtOffices(pointer.getCounty()).size() + " court offices");
+
+                if (!commencingScrape) {
+                    //update github data with each new county
+                    Thread t1 = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Update.main(null);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    t1.start();
+                }
             }
         }
         else {

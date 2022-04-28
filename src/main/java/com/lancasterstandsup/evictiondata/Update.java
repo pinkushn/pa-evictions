@@ -5,7 +5,7 @@ import java.util.TreeSet;
 
 public class Update {
 
-    public static void main (String [] args) {
+    public static void main (String [] args) throws IOException {
         TreeSet<String> countiesWithData = new TreeSet<>();
         for (String county: Website.counties) {
             try {
@@ -48,9 +48,14 @@ public class Update {
             e.printStackTrace();
             return;
         }
-        
+
         boolean isWindows = System.getProperty("os.name")
                 .toLowerCase().startsWith("windows");
+
+        String commands = "cd ~/git/pa-evictions; git add *; git commit -m \"update\"; git push";
+        if (isWindows) commands = "cmd.exe " + commands;
+
+        Runtime.getRuntime().exec(commands);
 
         System.out.println("\n*** Successfully updated " + totalPdfs + " pdfs. Now push to git.");
     }
