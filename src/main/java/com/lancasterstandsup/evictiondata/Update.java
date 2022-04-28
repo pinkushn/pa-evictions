@@ -49,13 +49,13 @@ public class Update {
             return;
         }
 
-        boolean isWindows = System.getProperty("os.name")
-                .toLowerCase().startsWith("windows");
-
-        String commands = "cd ~/git/pa-evictions; git add *; git commit -m \"update\"; git push";
-        if (isWindows) commands = "cmd.exe " + commands;
-
-        Runtime.getRuntime().exec(commands);
+//        boolean isWindows = System.getProperty("os.name")
+//                .toLowerCase().startsWith("windows");
+//
+//        String commands = "cd ~/git/pa-evictions; git add *; git commit -m \"update\"; git push";
+//        if (isWindows) commands = "cmd.exe " + commands;
+//
+//        Runtime.getRuntime().exec(commands);
 
         System.out.println("\n*** Successfully updated " + totalPdfs + " pdfs. Now push to git.");
     }
