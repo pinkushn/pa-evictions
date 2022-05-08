@@ -85,10 +85,10 @@ import java.util.*;
 
 public class Parser {
     //15301_0000023_2019
-    public static final String TARGET_YEAR_FOR_MAIN = "2019";
-    public static final String TARGET_COUNTY_FOR_MAIN = "Chester";
-    public static final String TARGET_COURT_FOR_MAIN = "15301";
-    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000023";
+    public static final String TARGET_YEAR_FOR_MAIN = "2022";
+    public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
+    public static final String TARGET_COURT_FOR_MAIN = "2000";
+    public static final String TARGET_SEQUENCE_FOR_MAIN = "0000001";
 
     static String judgmentForDefendant = "Judgment for Defendant";
     static String judgmentForPlaintiff = "Judgment for Plaintiff";
@@ -151,7 +151,16 @@ public class Parser {
         DISPOSITION_SUMMARY("DISPOSITION SUMMARY", false),
         CIVIL_DISPOSITION_JUDGMENT_DETAILS("CIVIL DISPOSITION / JUDGMENT DETAILS", false),
         ATTORNEY_INFORMATION("ATTORNEY INFORMATION", false),
-        DOCKET_ENTRY_INFORMATION("DOCKET ENTRY INFORMATION", true);
+        DOCKET_ENTRY_INFORMATION("DOCKET ENTRY INFORMATION", true),
+
+        //CR additional sections
+        STATUS_INFORMATION("STATUS INFORMATION", false),
+        CONFINEMENT("CONFINEMENT", false),
+        DEFENDANT_INFORMATION("DEFENDANT INFORMATION", false),
+        CHARGES("CHARGES", false),
+        DISPOSITION_SENTENCING_DETAILS("DISPOSITION / SENTENCING DETAILS", false),
+        CASE_FINANCIAL_INFORMATION("CASE FINANCIAL INFORMATION", false),
+        BAIL("BAIL", false);
 
         String name;
         boolean required;
@@ -317,7 +326,16 @@ public class Parser {
             PdfData data = new PdfData();
             for (Section s: sections) {
                 parseSection(s, data);
+//                SectionType sectionType = s.getSectionType();
+//
+//                if (sectionType == SectionType.BAIL || sectionType == SectionType.CONFINEMENT) {
+//                    String[] stringzes = s.getStrings();
+//                    for (String st : stringzes) {
+//                        System.out.println(st);
+//                    }
+//                }
             }
+           // return null;
 
             //System.out.println("\n****** Processed Data *****" + data);
             if (!data.isValid()) {
@@ -382,6 +400,7 @@ public class Parser {
     private static void parseSection(Section section, PdfData data) throws IOException {
         String[] strings = section.getStrings();
         SectionType sectionType = section.getSectionType();
+
         if (sectionType == SectionType.DOCKET) {
             String judgeHeader = section.getJudgeHeader();
             data.setCourtOffice("MDJ " + judgeHeader.substring(judgeHeaderStart.length()));

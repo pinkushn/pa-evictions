@@ -12,24 +12,11 @@ public class ParseAll {
     //county --> cities in county
     private static Map<String, Set<String>> cities = new HashMap<>();
 
-    public static void main(String[] args) {
-//        try {
-//            String county = "Lancaster";
-//            String year = "2020";
-//            List<PdfData> all = parseAll(county, year);
-//            Map<String, List<PdfData>> map = sortByJudge(all);
-//            for (String j: map.keySet()) {
-//                int size = map.get(j).size();
-//                if (size < 100) {
-//                    System.err.println("Judge " + j + " has only " + size + " cases for " + county + " " + year);
-//                }
-//            }
-//        } catch (IOException | ClassNotFoundException e) {
-//            System.out.println("parseAll failed to complete");
-//            return;
-//        }
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        String county = "Lancaster";
+        String year = "2022";
 
-        //buildCitiesIfNeeded("Lancaster");
+        get(county, year, false);
     }
 
     public static Map<String, List<PdfData>> get(String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
@@ -143,6 +130,7 @@ public class ParseAll {
                         ois.close();
                         fin.close();
                     } else {
+                        //System.out.println("Processing " + pdf);
                         InputStream targetStream = new FileInputStream(pdf);
                         data = Parser.process(targetStream, false);
                         if (data != null && data.isClosed()) {

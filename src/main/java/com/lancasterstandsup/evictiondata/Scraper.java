@@ -36,6 +36,27 @@ public class Scraper {
     private static int BETWEEN_SCRAPE_PAUSE = 200;
     private static int BETWEEN_RESPONSE_PAUSE = 150;
 
+    public static enum MODE {
+        LT ("LT"),
+        CR ("CR");
+
+        public String caseType;
+
+        MODE (String s) {
+            caseType = s;
+        }
+
+        public String getCaseType() {
+            return caseType;
+        }
+    }
+
+    private static MODE mode = MODE.LT;
+
+    public static MODE getMode() {
+        return mode;
+    }
+
     //wait after a failed call
     //note to self: got this to manually work after 1.1 hours 1/22/22
     //about
@@ -43,7 +64,7 @@ public class Scraper {
     private static final double HOURS_WAIT = .6;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
-    public final static String PDF_CACHE_PATH = "./pdfCache/";
+    public final static String PDF_CACHE_PATH = "./pdfCache/" + mode.getCaseType() + "/";
     private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
     private final static String POINTER_PATH = "./src/main/resources/";
     private final static String POINTER_FILE_NAME = "pointer";
@@ -59,14 +80,6 @@ public class Scraper {
     private static LocalDateTime lastCheck = null;
 
     private static HashMap<String, List<String>> countyCourtOffices = new HashMap<>();
-
-//    public final static String[] countiesRaw = {
-//            "Lancaster",
-//            "York",
-//            "Berks",
-//            "Dauphin",
-//            "Lebanon"
-//    };
 
     private static HashMap<String, HashMap<String, Map<String, String>>> storedURLs =
             new HashMap<>();
@@ -362,6 +375,7 @@ public class Scraper {
 //            return now.getYear() - 1;
 //        }
 //        else return now.getYear();
+        if (mode == MODE.CR) return 2022;
         return 2021;
     }
 
@@ -376,6 +390,7 @@ public class Scraper {
         String sequenceNumber = buildSequenceNumber(pointer.getSequenceNumberUnformatted());
 
         File dir = new File(PDF_CACHE_PATH + pointer.getCounty() + "/" + pointer.getYear());
+
         if (!dir.exists()) dir.mkdirs();
 
         String pathToFile = getPdfFilePath(pointer);
@@ -383,7 +398,8 @@ public class Scraper {
 
         boolean foundOrRead = false;
         try {
-            String docket = "MJ-" + courtOffice + "-LT-" + sequenceNumber + "-" + year;
+
+            String docket = "MJ-" + courtOffice + "-" + mode.getCaseType() + "-" + sequenceNumber + "-" + year;
             boolean scrape = true;
             boolean rescrape = false;
 
@@ -759,7 +775,7 @@ public class Scraper {
     }
 
     static String mdj = "MJ-";
-    static String lt = "LT-";
+    static String lt = mode.getCaseType() + "-";
     private static String getPdfFilePath(String county, String year, String docket) {
         docket = excise(excise(docket, mdj), lt);
         while (docket.startsWith("0")) {

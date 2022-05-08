@@ -36,14 +36,6 @@ public class Worksheet {
         String countyPath = Analysis.dataPathWithDot + county;
         File countyDir = new File(countyPath);
 
-//        if (!countyDir.exists() || countyDir.listFiles().length == 0) {
-//            return div(
-//                    a(county + " (no data)")
-//                            .withHref("#")
-//                            .withClass("dropdown-item")
-//            );
-//        }
-
         if (countyDir.exists() && countyDir.listFiles().length > 0) {
             String worksheetIndicator = county + "_eviction_cases_";
             File worksheet = null;
@@ -83,8 +75,6 @@ public class Worksheet {
                 if (file.getName().indexOf(".xlsx") > -1) file.delete();
             }
         }
-
-
 
         //new website
         writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
@@ -154,8 +144,9 @@ public class Worksheet {
         }
     }
 
-    public static void main (String [] args) {
-        clearAllPreProcessed();
+    public static void main (String [] args) throws IOException, ClassNotFoundException {
+        //clearAllPreProcessed();
+        csvAll();
     }
 
     public static void clearAllPreProcessed() {
@@ -167,7 +158,6 @@ public class Worksheet {
     public static void clearPreProcessed(String county) {
         File dir = new File("./src/main/resources/pdfCache/" + county);
         if (!dir.exists()) {
-            //throw new IllegalStateException("No pdf cache at " + dir.getName());
             return;
         }
 
@@ -182,5 +172,57 @@ public class Worksheet {
                 }
             }
         }
+    }
+
+    public static void csvAll() throws IOException, ClassNotFoundException {
+        File file = new File("./LT_All.csv");
+        FileOutputStream fos = new FileOutputStream(file);
+        PrintWriter pw = new PrintWriter(fos);
+
+        System.out.println("building csv of all LT pdfs");
+
+        pw.print("county\t");
+        for (String h: Parser.colHeaders) {
+            pw.print(h + "\t");
+        }
+        pw.println();
+
+        for (String county: Website.counties) {
+            System.out.println("Next county for csv: " + county);
+            CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county);
+            int startYear = ccr.getStart().getYear();
+            int endYear = ccr.getEnd().getYear();
+            int distinctYears = endYear - startYear + 1;
+            String [] years = new String[distinctYears];
+            for (int x = 0; x < distinctYears; x++) {
+                years[x] = "" + (startYear + x);
+            }
+
+            Object[] data = null;
+
+            try {
+                data = ParseAll.get(county, years, true);
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("parser failed, abandoning allYears");
+                e.printStackTrace();
+                System.exit(1);
+            }
+
+            List<PdfData> list = (List<PdfData>) data[2];
+
+            for (PdfData pdf: list) {
+                pw.print(county + "\t");
+                String[] rowData = pdf.getRow();
+                for (int c = 0; c < rowData.length; c++) {
+                    String cellValue = rowData[c];
+                    if (cellValue == null) cellValue = "";
+                    pw.print(cellValue + "\t");
+                }
+                pw.println();
+            }
+        }
+
+        pw.close();
+        fos.close();
     }
 }
