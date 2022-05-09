@@ -14,19 +14,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
-import com.google.api.services.sheets.v4.model.Spreadsheet;
-import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -100,20 +95,18 @@ public class Sheet {
         List<List<Object>> rows =  new ArrayList<>();
         ArrayList<Object> headers = new ArrayList<>();
         headers.add(0, "County");
-        for (String header: Parser.colHeaders) {
+        for (String header: LTParser.colHeaders) {
             headers.add(header);
         }
         rows.add(headers);
 
         try {
-            Object[] data = ParseAll.get("Lancaster", lancoYears, true);
-            List<PdfData> pdfs = (List<PdfData>) data[2];
+            List<LTPdfData> pdfs = ParseAll.get(Scraper.Mode.LT, "Lancaster", lancoYears);
             rows.addAll(build(pdfs, "Lancaster"));
 
             for (String county: Website.counties) {
                 if (!county.equals("Lancaster")) {
-                    data = ParseAll.get(county, otherCountyYears, true);
-                    rows.addAll(build((List<PdfData>) data[2], county));
+                    rows.addAll(build(ParseAll.get(Scraper.Mode.LT, county, otherCountyYears), county));
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -135,11 +128,11 @@ public class Sheet {
         System.out.println("Finished upload of spreadsheet.");
     }
 
-    public static List<List<Object>> build(List<PdfData> list, String county) {
+    public static List<List<Object>> build(List<LTPdfData> list, String county) {
         List<List<Object>> ret = new ArrayList<>();
 
         System.out.println("Starting build of Sheets ValueRange for " + county);
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             String[] rowData = pdf.getRow();
             List<Object> row = new ArrayList();
             row.add(county);

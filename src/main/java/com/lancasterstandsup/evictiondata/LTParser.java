@@ -83,7 +83,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.io.*;
 import java.util.*;
 
-public class Parser {
+public class LTParser {
     //15301_0000023_2019
     public static final String TARGET_YEAR_FOR_MAIN = "2022";
     public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
@@ -198,14 +198,14 @@ public class Parser {
 
     public static void main (String[] args) {
         try {
-            String pathToFile = Scraper.PDF_CACHE_PATH +
+            String pathToFile = Scraper.PDF_CACHE_PATH_WITHOUT_CASE_TYPE + "LT/" +
                     TARGET_COUNTY_FOR_MAIN + "/" + TARGET_YEAR_FOR_MAIN +
                     "/" + TARGET_COURT_FOR_MAIN + "_" +
                     TARGET_SEQUENCE_FOR_MAIN + "_" +
                     TARGET_YEAR_FOR_MAIN +
                     ".pdf";
 
-            PdfData data = processFile(pathToFile, true);
+            LTPdfData data = processFile(pathToFile, true);
             System.out.println(data);
         }
         catch (Exception e) {
@@ -213,7 +213,7 @@ public class Parser {
         }
     }
 
-    public static PdfData processFile(String fileName) {
+    public static LTPdfData processFile(String fileName) {
         try {
             return processFile(fileName, false);
         }
@@ -223,18 +223,18 @@ public class Parser {
         }
     }
 
-    public static PdfData processFile(String fileName, boolean printAll) throws Exception {
+    public static LTPdfData processFile(String fileName, boolean printAll) throws Exception {
         return processFile(new File(fileName), printAll);
     }
 
-    public static PdfData processFile(File file) throws IOException {
+    public static LTPdfData processFile(File file) throws IOException {
         return processFile(file, false);
     }
 
-    public static PdfData processFile(File file, boolean printAll) throws IOException {
+    public static LTPdfData processFile(File file, boolean printAll) throws IOException {
         try {
             InputStream targetStream = new FileInputStream(file);
-            PdfData data = process(targetStream, printAll);
+            LTPdfData data = process(targetStream, printAll);
             targetStream.close();
             return data;
         } catch (Exception e) {
@@ -243,7 +243,7 @@ public class Parser {
         }
     }
 
-    public static PdfData process (InputStream pdfStream, boolean printAll) throws IOException {
+    public static LTPdfData process (InputStream pdfStream, boolean printAll) throws IOException {
         try {
             PdfReader pdfReader = new PdfReader(pdfStream);
             PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
@@ -323,7 +323,7 @@ public class Parser {
             }
             sections.add(section);
 
-            PdfData data = new PdfData();
+            LTPdfData data = new LTPdfData();
             for (Section s: sections) {
                 parseSection(s, data);
 //                SectionType sectionType = s.getSectionType();
@@ -397,7 +397,7 @@ public class Parser {
     private static String monetaryAppeal = "Landlord/Tenant Monetary Appeal Filed";
     private static String abandonment = "Home and Property Abandoned";
 
-    private static void parseSection(Section section, PdfData data) throws IOException {
+    private static void parseSection(Section section, LTPdfData data) throws IOException {
         String[] strings = section.getStrings();
         SectionType sectionType = section.getSectionType();
 
@@ -513,10 +513,10 @@ public class Parser {
                 String single = twoItems[0];
                 if (single.indexOf('$') > -1) {
                     data.setClaim(single);
-                    data.setCaseStatus(PdfData.MISSING_CASE_STATUS);
+                    data.setCaseStatus(LTPdfData.MISSING_CASE_STATUS);
                 }
                 else {
-                    data.setClaim(PdfData.MISSING_CLAIM);
+                    data.setClaim(LTPdfData.MISSING_CLAIM);
                     data.setCaseStatus(single);
                 }
             }
@@ -1105,7 +1105,7 @@ public class Parser {
                 if (processed[1] != null) zips.add(processed[1]);
             }
         }
-        if (zips.isEmpty()) zips.add(PdfData.MISSING_ZIP);
+        if (zips.isEmpty()) zips.add(LTPdfData.MISSING_ZIP);
         String [] ret = {"", ""};
         for (String n: names) {
             if (ret[0].length() > 0) ret[0] += " & ";

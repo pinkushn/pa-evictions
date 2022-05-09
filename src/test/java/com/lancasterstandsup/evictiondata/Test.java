@@ -271,7 +271,7 @@ public class Test {
     @org.junit.Test
     public void test2201_0000002() {
         String fileName = "2201_0000002_2020.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-2-01", "Jodie E. Richardson", "MJ-02201-LT-0000002-2020", "01/06/2020", "Closed", "Hostetter, Jeffrey", "MISSING ZIP", "V., R.", "17602", "01/16/2020", "3:00 pm", "$1,850.00", "$1,992.75", "$100.00", "$142.75", null, null, null, null, null, null, "$875.00", null, null, "No", "Yes", null, null, "TRUE", null, null, null, null, null, null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
@@ -289,7 +289,7 @@ public class Test {
     @org.junit.Test
     public void test2201_0000089() {
         String fileName = "2201_0000089_2020.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-2-01", "Jodie E. Richardson", "MJ-02201-LT-0000089-2020", "11/23/2020", "Closed", "Redbud Investments LLC", "17557", "S., K. &. S., D.", "17602", "12/03/2020", "11:00 am", "$1,336.43", "$1,761.70", "$1,501.45", null, "$155.25", null, "$105.00", null, null, null, "$1,501.45", null, null, "No", "Yes", null, null, "TRUE", null, null, null, null, null, null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
@@ -298,7 +298,7 @@ public class Test {
     @org.junit.Test
     public void test2203_0000100() {
         String fileName = "2203_0000100_2020.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-2-03", "Mary Mongiovi Sponaugle", "MJ-02203-LT-0000100-2020", "10/07/2020", "Closed", "American Heritage Property Management", "17603", "C., P. &. L., O.", "17603", "10/19/2020", "10:30 am", "$1,983.21", "$1,703.79", "$1,581.54", null, "$122.25", null, null, null, null, null, "$1,300.00", null, null, "Yes", "No", null, null, "TRUE", null, null, null, null, null, null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
@@ -307,7 +307,7 @@ public class Test {
     @org.junit.Test
     public void test2204_0000100() {
         String fileName = "2204_0000100_2020.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-2-04", "Andrew T. LeFever", "MJ-02204-LT-0000100-2020", "10/16/2020", "Closed", "Rent Period Inc", "17402", "W., J.", "17602", "10/28/2020", "10:00 am", "$250.00", "$500.75", "$0.00", null, "$250.75", null, null, "$250.00", null, null, "$1,095.00", null, null, "Yes", "No", "01/12/2021", "01/12/2021", "TRUE", null, null, null, "TRUE", "Kurt A. Blake, Esq.", null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
@@ -316,7 +316,7 @@ public class Test {
     @org.junit.Test
     public void test2207_0000001() {
         String fileName = "2207_0000001_2020.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-2-07", "Tony S. Russell", "MJ-02207-LT-0000001-2020", "01/02/2020", "Closed", "Clover Property Management Inc. Agent for Owner, Lancaster", "17601", "V., E.", "17522", "01/09/2020", "10:30 am", "$1,763.00", "$1,920.13", "$1,763.00", "$122.25", "$5.00", "$29.88", null, null, null, null, "$695.00", null, null, "No", "Yes", null, null, "TRUE", null, null, null, null, null, null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
@@ -325,7 +325,7 @@ public class Test {
     @org.junit.Test
     public void test2304_0000056() {
         String fileName = "2304_0000056_2020.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-3-04", "Stuart J. Mylin", "MJ-02304-LT-0000056-2020", "09/02/2020", "Closed", "PCS CHADAGA C/O PROPERTY MANAGEMENT, INC.", "17043", "R., R.", "17560", "09/15/2020", "10:30 am", "$3,378.11", "$3,997.61", "$3,810.11", "$140.75", "$5.00", "$41.75", null, null, null, null, "$432.00", null, null, "Yes", "No", null, null, "TRUE", null, null, null, null, null, null, "Home and Property Abandoned"};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
@@ -334,7 +334,7 @@ public class Test {
     @org.junit.Test
     public void test2307_0000022() {
         String fileName = "2307_0000022_2020.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-3-07", "Nancy G. Hamill", "MJ-02307-LT-0000022-2020", "09/15/2020", "Closed", "American Heritage Property Management", "17603", "K., M.", "17517", "09/29/2020", "9:00 am", "$2,640.00", "$1,667.00", null, null, "$167.00", null, null, null, "$1,500.00", null, "$825.00", null, null, "Yes", "No", null, null, "TRUE", null, null, null, null, null, null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
@@ -343,15 +343,15 @@ public class Test {
     @org.junit.Test
     public void test2201_0000090_2021() {
         String fileName = "2201_0000090_2021.pdf";
-        PdfData data = Parser.processFile(TEST_PATH + fileName);
+        LTPdfData data = LTParser.processFile(TEST_PATH + fileName);
         String[] targetData = {"MDJ 02-2-01", "Jodie E. Richardson", "MJ-02201-LT-0000090-2021", "08/03/2021", "Active", "Rick Wennerstrom", "17603", "R., L.", "17602", null, null, "$0.00", null, null, null, null, null, null, null, null, null, null, null, null, "No", "No", null, null, null, null, null, null, null, null, null, null};
         Assert.assertArrayEquals(data.getRow(), targetData);
     }
 
     @org.junit.Test
     public void addMoney() {
-        Assert.assertEquals("$50", PdfData.addMoneyStrings("$25", "25"));
-        Assert.assertEquals("$50.01", PdfData.addMoneyStrings("$25.01", "25"));
-        Assert.assertEquals("$51.02", PdfData.addMoneyStrings("$25.51", "25.51"));
+        Assert.assertEquals("$50", LTPdfData.addMoneyStrings("$25", "25"));
+        Assert.assertEquals("$50.01", LTPdfData.addMoneyStrings("$25.01", "25"));
+        Assert.assertEquals("$51.02", LTPdfData.addMoneyStrings("$25.51", "25.51"));
     }
 }

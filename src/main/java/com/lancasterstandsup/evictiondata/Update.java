@@ -29,7 +29,7 @@ public class Update {
 
         for (String county: countiesWithData) {
             try {
-                totalPdfs += Worksheet.createExcel(county);
+                totalPdfs += Worksheet.createExcelLT(county);
             } catch (IOException e) {
                 System.err.println("Failed to create spreadsheet for " + county + ", abandoning update");
                 e.printStackTrace();

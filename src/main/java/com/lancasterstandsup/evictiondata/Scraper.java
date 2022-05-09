@@ -14,10 +14,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
 import java.util.*;
 
 /**
@@ -36,13 +34,13 @@ public class Scraper {
     private static int BETWEEN_SCRAPE_PAUSE = 200;
     private static int BETWEEN_RESPONSE_PAUSE = 150;
 
-    public static enum MODE {
+    public static enum Mode {
         LT ("LT"),
         CR ("CR");
 
         public String caseType;
 
-        MODE (String s) {
+        Mode(String s) {
             caseType = s;
         }
 
@@ -51,9 +49,9 @@ public class Scraper {
         }
     }
 
-    private static MODE mode = MODE.LT;
+    private static Mode mode = Mode.CR;
 
-    public static MODE getMode() {
+    public static Mode getMode() {
         return mode;
     }
 
@@ -64,10 +62,11 @@ public class Scraper {
     private static final double HOURS_WAIT = .6;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
-    public final static String PDF_CACHE_PATH = "./pdfCache/" + mode.getCaseType() + "/";
+    public final static String PDF_CACHE_PATH_WITHOUT_CASE_TYPE = "./pdfCache/";
+    private final static String PDF_CACHE_PATH = "./pdfCache/" + mode.getCaseType() + "/";
     private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
     private final static String POINTER_PATH = "./src/main/resources/";
-    private final static String POINTER_FILE_NAME = "pointer";
+    private final static String POINTER_FILE_NAME = mode.getCaseType() + "pointer";
     private static File pointerFile;
     private final static String COMPLETION_FILE_NAME = "completion";
     private static int hits = 0;
@@ -366,24 +365,16 @@ public class Scraper {
         }
     }
 
-    /**
-     * We'll start in prior year if we are presently in first six months of a year
-     */
     private static int getStartYear() {
-//        LocalDateTime now = LocalDateTime.now();
-//        if (now.getMonthValue() < 7) {
-//            return now.getYear() - 1;
-//        }
-//        else return now.getYear();
-        if (mode == MODE.CR) return 2022;
-        return 2021;
+        if (mode == Mode.CR) return 2022;
+        return LocalDateTime.now().getYear() - 1;
     }
 
     static int getCurrentYear() {
         return LocalDateTime.now().getYear();
     }
 
-    public static boolean scrape(Pointer pointer, LocalDateTime lastCheck) throws IOException, InterruptedException {
+    public static boolean scrape(Pointer pointer, LocalDateTime lastCheck) throws IOException, InterruptedException, NoSuchFieldException {
         String county = pointer.getCounty();
         String courtOffice = pointer.getCourtOffice();
         String year = pointer.getYear() + "";
@@ -398,7 +389,6 @@ public class Scraper {
 
         boolean foundOrRead = false;
         try {
-
             String docket = "MJ-" + courtOffice + "-" + mode.getCaseType() + "-" + sequenceNumber + "-" + year;
             boolean scrape = true;
             boolean rescrape = false;
@@ -406,7 +396,13 @@ public class Scraper {
             if (file.exists()) {
                 foundOrRead = true;
                 scrape = false;
-                PdfData oldData = Parser.processFile(file);
+                PdfData oldData = null;
+                if (mode == Mode.LT) {
+                    oldData = LTParser.processFile(file);
+                }
+                else {
+                    oldData = CRParser.processFile(file);
+                }
                 if (oldData.rescrape(lastCheck)) {
                     scrape = true;
                     rescrape = true;
@@ -444,13 +440,13 @@ public class Scraper {
         file.delete();
     }
 
-    /**
-     * Some potential for infinite loop, since scrape triggers process triggers ParseAll triggers this
-     */
-    public static void deleteAndReloadPdf(Pointer pointer) throws IOException, InterruptedException {
-        deleteLocalPdf(pointer);
-        scrape(pointer, null);
-    }
+//    /**
+//     * Some potential for infinite loop, since scrape triggers process triggers ParseAll triggers this
+//     */
+//    public static void deleteAndReloadPdf(Pointer pointer) throws IOException, InterruptedException {
+//        deleteLocalPdf(pointer);
+//        scrape(pointer, null);
+//    }
 
     public static boolean getDocket(String county, String year, String docket, boolean rescrape) throws IOException, InterruptedException {
         long startMillis = System.currentTimeMillis();
@@ -834,7 +830,7 @@ public class Scraper {
      * @return url used in past to get this pdf OR null if doesn't exist
      */
     //HashMap<String, HashMap<String, Map<String, String>>>
-    private static String getStoredURL(String county, String year, String fullDocket) throws IOException {
+    public static String getStoredURL(String county, String year, String fullDocket) throws IOException {
         String ret = getStoredURLS(county, year).get(fullDocket);
         if (ret == null) return null;
         return prepend + ret;

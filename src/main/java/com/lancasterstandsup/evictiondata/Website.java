@@ -196,7 +196,7 @@ public class Website {
     }
 
     public static ContainerTag countyA(String county) {
-        String countyPath = Analysis.dataPathWithDot + county;
+        String countyPath = LTAnalysis.dataPathWithDot + county;
         File countyDir = new File(countyPath);
 
         if (!countyDir.exists() || countyDir.listFiles().length == 0) {
@@ -270,7 +270,7 @@ public class Website {
     }
 
     public static ContainerTag countyReport(String county) {
-        String countyPath = Analysis.dataPathWithDot + county;
+        String countyPath = LTAnalysis.dataPathWithDot + county;
         File countyDir = new File(countyPath);
 
         if (!countyDir.exists()) {

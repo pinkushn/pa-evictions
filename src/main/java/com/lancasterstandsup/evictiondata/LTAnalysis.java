@@ -1,7 +1,6 @@
 package com.lancasterstandsup.evictiondata;
 
 import org.apache.commons.math3.util.Precision;
-import sun.jvmstat.perfdata.monitor.protocol.local.PerfDataFile;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,7 +15,7 @@ import java.util.*;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-public class Analysis {
+public class LTAnalysis {
 
     private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     private static DateTimeFormatter dateFormatterShortYearSlashes = DateTimeFormatter.ofPattern("MM/dd/yy");
@@ -70,7 +69,7 @@ public class Analysis {
 
 
 
-        List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+        List<LTPdfData> list = ParseAll.get(Scraper.Mode.LT, county, years);
 
         monthly(list);
 
@@ -190,7 +189,7 @@ public class Analysis {
 
     public static void expunged (String county, String[] years) throws IOException, ClassNotFoundException {
         for (String year: years) {
-            ParseAll.parseAll(county, year, true);
+            ParseAll.parseAll(Scraper.Mode.LT, county, year, true);
         }
     }
 
@@ -200,10 +199,10 @@ public class Analysis {
      *
      * @param list
      */
-    public static void nowHappening(List<PdfData> list) {
-        List<PdfData> ret = new ArrayList<>();
+    public static void nowHappening(List<LTPdfData> list) {
+        List<LTPdfData> ret = new ArrayList<>();
         int howMany = 0;
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             if (!pdf.isResolved()) ret.add(pdf);
             else {
                 LocalDate dispositionDate = pdf.getDispositionDate();
@@ -227,9 +226,9 @@ public class Analysis {
      * @param targetMDJ format for Lancaster MDJs is ####, ex: 2309
      * @return
      */
-    public static List<PdfData> filterMDJ(List<PdfData> list, String targetMDJ) {
-        List<PdfData> ret = new ArrayList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> filterMDJ(List<LTPdfData> list, String targetMDJ) {
+        List<LTPdfData> ret = new ArrayList<>();
+        for (LTPdfData pdf: list) {
             if (pdf.getCourtOfficeNumberOnly().equals(targetMDJ)) {
                 ret.add(pdf);
             }
@@ -243,9 +242,9 @@ public class Analysis {
      * @param mdjs format for Lancaster MDJs is ####, ex: 2309
      * @return
      */
-    public static List<PdfData> filterOutMDJs(List<PdfData> list, Set<String> mdjs) {
-        List<PdfData> ret = new ArrayList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> filterOutMDJs(List<LTPdfData> list, Set<String> mdjs) {
+        List<LTPdfData> ret = new ArrayList<>();
+        for (LTPdfData pdf: list) {
             if (!mdjs.contains(pdf.getCourtOfficeNumberOnly())) {
                 ret.add(pdf);
             }
@@ -253,7 +252,7 @@ public class Analysis {
         return ret;
     }
 
-    public static List<PdfData> filterOutLancasterCity(List<PdfData> list) {
+    public static List<LTPdfData> filterOutLancasterCity(List<LTPdfData> list) {
         Set<String> lanc = new HashSet<>();
         lanc.add("2101");
         lanc.add("2201");
@@ -262,9 +261,9 @@ public class Analysis {
         return filterOutMDJs(list, lanc);
     }
 
-    public static List<PdfData> filterOutNonPandemic(List<PdfData> list) {
-        List<PdfData> ret = new ArrayList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> filterOutNonPandemic(List<LTPdfData> list) {
+        List<LTPdfData> ret = new ArrayList<>();
+        for (LTPdfData pdf: list) {
             if (pdf.getFileDate().compareTo(march15_2020) > -1) {
                 ret.add(pdf);
             }
@@ -273,9 +272,9 @@ public class Analysis {
         return ret;
     }
 
-    public static List<PdfData> filterOutPandemic(List<PdfData> list) {
-        List<PdfData> ret = new ArrayList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> filterOutPandemic(List<LTPdfData> list) {
+        List<LTPdfData> ret = new ArrayList<>();
+        for (LTPdfData pdf: list) {
             if (pdf.getFileDate().compareTo(march15_2020) < 0) {
                 ret.add(pdf);
             }
@@ -284,9 +283,9 @@ public class Analysis {
         return ret;
     }
 
-    public static List<PdfData> filterOutPreCDCMoratoriumEnds(List<PdfData> list) {
-        List<PdfData> ret = new ArrayList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> filterOutPreCDCMoratoriumEnds(List<LTPdfData> list) {
+        List<LTPdfData> ret = new ArrayList<>();
+        for (LTPdfData pdf: list) {
             if (pdf.getFileDate().compareTo(cdcMoratoriumEnds) > 0) {
                 ret.add(pdf);
             }
@@ -295,9 +294,9 @@ public class Analysis {
         return ret;
     }
 
-    public static List<PdfData> filterOutPostCDCMoratoriumEnds(List<PdfData> list) {
-        List<PdfData> ret = new ArrayList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> filterOutPostCDCMoratoriumEnds(List<LTPdfData> list) {
+        List<LTPdfData> ret = new ArrayList<>();
+        for (LTPdfData pdf: list) {
             if (pdf.getFileDate().compareTo(cdcMoratoriumEnds) < 1) {
                 ret.add(pdf);
             }
@@ -328,14 +327,14 @@ public class Analysis {
             years[x] = (startYear + x) + "";
         }
 
-        List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+        List<LTPdfData> list = ParseAll.get(Scraper.Mode.LT, county, years);
 
         Map<String, Integer> pre = new TreeMap<>();
         Map<String, Integer> post = new TreeMap<>();
         Map<String, Integer> courtToRatio = new TreeMap<>();
         Map<String, String> judges = new TreeMap<>();
 
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             Map<String, Integer> useMe;
             useMe = pdf.getFileDate().compareTo(march15_2020) < 0 ? pre : post;
             String court = pdf.getCourtOfficeWithoutMDJ();
@@ -399,10 +398,10 @@ public class Analysis {
         out.close();
     }
 
-    public static List<PdfData> ephrata(List<PdfData> list) {
-        List<PdfData> eph = new LinkedList();
+    public static List<LTPdfData> ephrata(List<LTPdfData> list) {
+        List<LTPdfData> eph = new LinkedList();
         String target = "17522";
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             if (pdf.defendantZip(target)) {
                 eph.add(pdf);
             }
@@ -418,14 +417,14 @@ public class Analysis {
 //        }
 //    }
 
-    public static void orgassPercentages(List<PdfData> list) {
+    public static void orgassPercentages(List<LTPdfData> list) {
         plaintiffWin(list);
         evictions(list);
 
         impactOfRepresentation(list);
 
-        List<PdfData> james = new LinkedList<>();
-        for (PdfData pdf: list) {
+        List<LTPdfData> james = new LinkedList<>();
+        for (LTPdfData pdf: list) {
             String notes = pdf.getNotes();
             if (notes != null && notes.toLowerCase().indexOf("orgass") > -1) {
                 james.add(pdf);
@@ -436,9 +435,9 @@ public class Analysis {
         evictions(james);
     }
 
-    public static void monthly(List<PdfData> data) {
+    public static void monthly(List<LTPdfData> data) {
         Map<LocalDate, Integer> map = new TreeMap<>();
-        for (PdfData d: data) {
+        for (LTPdfData d: data) {
             LocalDate date = d.getFileDate();
             LocalDate month = LocalDate.of(date.getYear(), date.getMonth(), 1);
             if (!map.containsKey(month)) map.put(month, 0);
@@ -449,11 +448,11 @@ public class Analysis {
         }
     }
 
-    public static void weekly(List<PdfData> data, boolean showEachWeek) {
+    public static void weekly(List<LTPdfData> data, boolean showEachWeek) {
         Map<LocalDate, Integer> map = new TreeMap<>();
         //TemporalField woy = WeekFields.of(Locale.US).weekOfWeekBasedYear();
         TemporalField hlep = WeekFields.of(Locale.US).dayOfWeek();
-        for (PdfData d: data) {
+        for (LTPdfData d: data) {
             LocalDate date = d.getFileDate();
             LocalDate key = date.with(hlep, 1L);
             if (!map.containsKey(key)) map.put(key, 0);
@@ -482,9 +481,9 @@ public class Analysis {
         System.out.println("Average weekly: " + average);
     }
 
-    public static void daily(List<PdfData> data) {
+    public static void daily(List<LTPdfData> data) {
         Map<LocalDate, Integer> map = new TreeMap<>();
-        for (PdfData d: data) {
+        for (LTPdfData d: data) {
             LocalDate key = d.getFileDate();
             if (!map.containsKey(key)) map.put(key, 0);
             map.put(key, map.get(key) + 1);
@@ -494,8 +493,8 @@ public class Analysis {
         }
     }
 
-    public static void mostFiled(List<PdfData> data, boolean hidePercentageWins, boolean filterOutUnresolved) {
-        Map<String, List<PdfData>> grouped = groupByPlaintiff(data);
+    public static void mostFiled(List<LTPdfData> data, boolean hidePercentageWins, boolean filterOutUnresolved) {
+        Map<String, List<LTPdfData>> grouped = groupByPlaintiff(data);
 
 //        TreeMap<String, Integer> map = new TreeMap<>();
 //        for (PdfData pdf: data) {
@@ -505,7 +504,7 @@ public class Analysis {
 //
 
         if (filterOutUnresolved) {
-            Map<String, List<PdfData>> temp = new TreeMap<>();
+            Map<String, List<LTPdfData>> temp = new TreeMap<>();
             for (String groupId: grouped.keySet()) {
                 temp.put(groupId, filterOutUnresolved(grouped.get(groupId)));
             }
@@ -515,7 +514,7 @@ public class Analysis {
         Map<String, Double> winPercentage = new TreeMap<>();
         for (String c: grouped.keySet()) {
             double wins = 0;
-            for (PdfData pdf: grouped.get(c)) {
+            for (LTPdfData pdf: grouped.get(c)) {
                 wins += pdf.isPlaintiffWin() ? 1 : 0;
             }
             double per = 100 * ((double) wins) / grouped.get(c).size();
@@ -544,9 +543,9 @@ public class Analysis {
     }
 
     //plaintiff 'core' to Pdfs
-    private static Map<String, List<PdfData>> groupByPlaintiff(List<PdfData> list) {
-        Map<String, List<PdfData>> map = new TreeMap<>();
-        for (PdfData pdf: list) {
+    private static Map<String, List<LTPdfData>> groupByPlaintiff(List<LTPdfData> list) {
+        Map<String, List<LTPdfData>> map = new TreeMap<>();
+        for (LTPdfData pdf: list) {
             String core = plaintiffCore(pdf.getPlaintiff());
             if (!map.containsKey(core)) {
                 map.put(core, new ArrayList<>());
@@ -559,9 +558,9 @@ public class Analysis {
         return map;
     }
 
-    private static void mergeCheck(List<PdfData> list) {
+    private static void mergeCheck(List<LTPdfData> list) {
         Map<String, Set<String>> cores = new TreeMap<>();
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             String p = pdf.getPlaintiff();
             String core = plaintiffCore(p);
             if (!cores.containsKey(core)) {
@@ -590,23 +589,23 @@ public class Analysis {
         return full.substring(0, Math.min(10, full.length()));
     }
 
-    private static int countRepresentationForDefendants(List<PdfData> data) {
+    private static int countRepresentationForDefendants(List<LTPdfData> data) {
         int ret = 0;
-        for (PdfData pdf: data) {
+        for (LTPdfData pdf: data) {
             ret += pdf.isDefendantAttorney() ? 1 : 0;
         }
         return ret;
     }
 
-    private static int countRepresentationForPlaintiffs(List<PdfData> data) {
+    private static int countRepresentationForPlaintiffs(List<LTPdfData> data) {
         int ret = 0;
-        for (PdfData pdf: data) {
+        for (LTPdfData pdf: data) {
             ret += pdf.isPlaintiffAttorney() ? 1 : 0;
         }
         return ret;
     }
 
-    private static void impactOfRepresentation(List<PdfData> list) {
+    private static void impactOfRepresentation(List<LTPdfData> list) {
         int casesDefendantRep = 0;
         int pWinDefendantRep = 0;
         int casesPRepButNoDefendantRep = 0;
@@ -616,7 +615,7 @@ public class Analysis {
         String target = "grant/order";
         //String target = "eviction";
         int defendantRepped = 0;
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             boolean pWin = pdf.isGrantPossessionOrOrderForEvictionServed();
             //boolean pWin = pdf.isEviction();
             if (pdf.isDefendantAttorney()) {
@@ -671,9 +670,9 @@ public class Analysis {
     /**
      * returns all cases filed 3/15/20 or later
      */
-    private static List<PdfData> filterCovid(List<PdfData> list) {
-        List<PdfData> ret = new LinkedList<>();
-        for (PdfData pdf: list) {
+    private static List<LTPdfData> filterCovid(List<LTPdfData> list) {
+        List<LTPdfData> ret = new LinkedList<>();
+        for (LTPdfData pdf: list) {
             LocalDate ld = pdf.getFileDate();
             if (ld.compareTo(covidStart) > -1) {
                 ret.add(pdf);
@@ -685,9 +684,9 @@ public class Analysis {
     /**
      * returns all cases filed 9/1/20 or later
      */
-    private static List<PdfData> filterPostWolfMoratoriumEnds(List<PdfData> list) {
-        List<PdfData> ret = new LinkedList<>();
-        for (PdfData pdf: list) {
+    private static List<LTPdfData> filterPostWolfMoratoriumEnds(List<LTPdfData> list) {
+        List<LTPdfData> ret = new LinkedList<>();
+        for (LTPdfData pdf: list) {
             LocalDate ld = pdf.getFileDate();
             if (ld.compareTo(wolfMoratoriumEnds) > -1) {
                 ret.add(pdf);
@@ -696,15 +695,16 @@ public class Analysis {
         return ret;
     }
 
-    private static List<PdfData> covidCases(String county) throws IOException, ClassNotFoundException {
+    private static List<LTPdfData> covidCases(String county) throws IOException, ClassNotFoundException {
         String[] years = {"2020", "2021"};
-        List<PdfData> list = (List<PdfData>) ParseAll.get(county, years, false)[2];
+        Object listO = ParseAll.get(Scraper.Mode.LT, county, years);
+        List<LTPdfData> list = (List<LTPdfData>) listO;
         return filterCovid(list);
     }
 
-    private static String evictions(List<PdfData> list) {
+    private static String evictions(List<LTPdfData> list) {
         int ret = 0;
-        for(PdfData pdf: list) {
+        for(LTPdfData pdf: list) {
             if (pdf.isEviction()) {
                 ret++;
             }
@@ -715,9 +715,9 @@ public class Analysis {
         return retS;
     }
 
-    private static String plaintiffWins(List<PdfData> list) {
+    private static String plaintiffWins(List<LTPdfData> list) {
         int ret = 0;
-        for(PdfData pdf: list) {
+        for(LTPdfData pdf: list) {
             if (pdf.isPlaintiffWin()) {
                 ret++;
             }
@@ -729,9 +729,9 @@ public class Analysis {
         return getPer(ret, list.size(), true);
     }
 
-    public static Map<String, List<PdfData>> groupByJudge(List<PdfData> list) {
-        Map<String, List<PdfData>> ret = new TreeMap<>();
-        for (PdfData pdf: list) {
+    public static Map<String, List<LTPdfData>> groupByJudge(List<LTPdfData> list) {
+        Map<String, List<LTPdfData>> ret = new TreeMap<>();
+        for (LTPdfData pdf: list) {
             if (!ret.containsKey(pdf.getJudgeName())) {
                 ret.put(pdf.getJudgeName(), new LinkedList<>());
             }
@@ -740,9 +740,9 @@ public class Analysis {
         return ret;
     }
 
-    public static Map<String, List<PdfData>> groupByCourtOffice(List<PdfData> list) {
-        Map<String, List<PdfData>> ret = new TreeMap<>();
-        for (PdfData pdf: list) {
+    public static Map<String, List<LTPdfData>> groupByCourtOffice(List<LTPdfData> list) {
+        Map<String, List<LTPdfData>> ret = new TreeMap<>();
+        for (LTPdfData pdf: list) {
             if (!ret.containsKey(pdf.getCourtOfficeNumberOnly())) {
                 ret.put(pdf.getCourtOfficeNumberOnly(), new LinkedList<>());
             }
@@ -751,8 +751,8 @@ public class Analysis {
         return ret;
     }
 
-    private static void evictionRateByJudge(List<PdfData> list) {
-        Map<String, List<PdfData>> byJudge = groupByJudge(list);
+    private static void evictionRateByJudge(List<LTPdfData> list) {
+        Map<String, List<LTPdfData>> byJudge = groupByJudge(list);
 
         //judge name --> eviction percentage
         Map<String, String> results = new TreeMap<>();for (String j: byJudge.keySet()) {
@@ -777,8 +777,8 @@ public class Analysis {
         }
     }
 
-    private static void plaintiffWinsByJudge(List<PdfData> list) {
-        Map<String, List<PdfData>> byJudge = groupByJudge(list);
+    private static void plaintiffWinsByJudge(List<LTPdfData> list) {
+        Map<String, List<LTPdfData>> byJudge = groupByJudge(list);
 
         //judge name --> plaintiff win percentage
         Map<String, String> results = new TreeMap<>();
@@ -805,9 +805,9 @@ public class Analysis {
         }
     }
 
-    private static void everyJudge(List<PdfData> list) {
+    private static void everyJudge(List<LTPdfData> list) {
         Set<String> used = new HashSet<>();
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             if (!used.contains(pdf.getJudgeName())) {
                 System.out.println(pdf.getJudgeName());
                 used.add(pdf.getJudgeName());
@@ -819,10 +819,10 @@ public class Analysis {
      * ignores unresolved cases
      * @param list
      */
-    private static void plaintiffWin(List<PdfData> list) {
+    private static void plaintiffWin(List<LTPdfData> list) {
         list = filterOutUnresolved(list);
         int forP = 0;
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             forP += pdf.isPlaintiffWin() ? 1 : 0;
         }
 
@@ -830,10 +830,10 @@ public class Analysis {
                 getPer(forP, list.size(), true));
     }
 
-    private static void judgmentForPlaintiff(List<PdfData> list) {
+    private static void judgmentForPlaintiff(List<LTPdfData> list) {
         int forP = 0;
         int base = 0;
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             forP += pdf.isJudgmentForPlaintiff() ? 1 : 0;
 //            if (pdf.isJudgmentForPlaintiff()) {
 //                if (!pdf.isGrantPossession() && !pdf.isGrantPossessionIf()) {
@@ -849,17 +849,17 @@ public class Analysis {
                 getPer(forP, base, true));
     }
 
-    private static void grantWithoutJudgment(List<PdfData> list) {
-        for (PdfData pdf: list) {
+    private static void grantWithoutJudgment(List<LTPdfData> list) {
+        for (LTPdfData pdf: list) {
             if (!pdf.isJudgmentForPlaintiff() && pdf.isGrantPossessionOrOrderForEvictionServed()) {
                 System.out.println(pdf.getDocketNumber());
             }
         }
     }
 
-    public static List<PdfData> filterByClosedOrInactive(List<PdfData> list) {
-        List<PdfData> ret = new LinkedList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> filterByClosedOrInactive(List<LTPdfData> list) {
+        List<LTPdfData> ret = new LinkedList<>();
+        for (LTPdfData pdf: list) {
             if (!pdf.isClosed() && !pdf.isInactive()) {
                 ret.add(pdf);
             }
@@ -867,9 +867,9 @@ public class Analysis {
         return ret;
     }
 
-    private static List<PdfData> filterOutUnresolved(List<PdfData> list) {
-        List<PdfData> ret = new LinkedList<>();
-        for (PdfData pdf: list) {
+    private static List<LTPdfData> filterOutUnresolved(List<LTPdfData> list) {
+        List<LTPdfData> ret = new LinkedList<>();
+        for (LTPdfData pdf: list) {
             if (pdf.isResolved()) {
                 ret.add(pdf);
             }
@@ -877,10 +877,10 @@ public class Analysis {
         return ret;
     }
 
-    public static List<PdfData> rentInArrears(List<PdfData> list, int min) {
-        List<PdfData> ret = new LinkedList<>();
+    public static List<LTPdfData> rentInArrears(List<LTPdfData> list, int min) {
+        List<LTPdfData> ret = new LinkedList<>();
 
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             if (pdf.getRentInArrears() >= min) {
                 ret.add(pdf);
             }
@@ -890,10 +890,10 @@ public class Analysis {
         return ret;
     }
 
-    public static List<PdfData> noDamages(List<PdfData> list) {
-        List<PdfData> ret = new LinkedList<>();
+    public static List<LTPdfData> noDamages(List<LTPdfData> list) {
+        List<LTPdfData> ret = new LinkedList<>();
 
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             if (pdf.getDamages() == 0) {
                 ret.add(pdf);
             }
@@ -904,10 +904,10 @@ public class Analysis {
         return ret;
     }
 
-    public static void averageClaim(List<PdfData> list) {
+    public static void averageClaim(List<LTPdfData> list) {
         int divisor = 0;
         double total = 0;
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             int claim = pdf.getClaim();
             if (claim > 0) {
                 total += claim;
@@ -919,9 +919,9 @@ public class Analysis {
         System.out.println("Average claim: $" + Math.round(100 * average)/100);
     }
 
-    public static List<PdfData> orderForPossessionServed(List<PdfData> list) {
-        List<PdfData> ret = new LinkedList<>();
-        for (PdfData pdf: list) {
+    public static List<LTPdfData> orderForPossessionServed(List<LTPdfData> list) {
+        List<LTPdfData> ret = new LinkedList<>();
+        for (LTPdfData pdf: list) {
             if (pdf.isOrderForPossessionServed()) {
                 ret.add(pdf);
                 System.out.println("order for possession served: " + pdf.getDocketNumber());
@@ -933,44 +933,46 @@ public class Analysis {
         return ret;
     }
 
-    public static List<PdfData> orderByDocket(List<PdfData> thisYear) {
-        TreeSet<PdfData> set = new TreeSet<>(new DocketComparator());
+    public static List<LTPdfData> orderByDocket(List<LTPdfData> thisYear) {
+        TreeSet<LTPdfData> set = new TreeSet<>(new DocketComparator());
         set.addAll(thisYear);
-        List<PdfData> ret = new LinkedList<>();
+        List<LTPdfData> ret = new LinkedList<>();
         ret.addAll(set);
         return ret;
     }
 
-    private static class DocketComparator implements Comparator<PdfData> {
+    private static class DocketComparator implements Comparator<LTPdfData> {
 
         @Override
-        public int compare(PdfData a, PdfData b) {
+        public int compare(LTPdfData a, LTPdfData b) {
             return a.getDocketNumber().compareTo(b.getDocketNumber());
         }
     }
 
     private static void countNotClosedOrInactive(String county) throws IOException, ClassNotFoundException {
-        List<PdfData> active = getNotClosedOrInactive(county);
+        List<LTPdfData> active = getNotClosedOrInactive(county);
 
         System.out.println(active.size() + " not closed/inactive");
     }
 
-    private static List<PdfData> getNotClosedOrInactive(String county) throws IOException, ClassNotFoundException {
+    private static List<LTPdfData> getNotClosedOrInactive(String county) throws IOException, ClassNotFoundException {
         LocalDateTime now = LocalDateTime.now();
         int y = now.getYear();
         String year = "" + y;
         String lastYear = "" + (y - 1);
 
-        List<PdfData> ret = ParseAll.parseAll(county, year, false);
-        ret.addAll(ParseAll.parseAll(county, lastYear, false));
+        List<LTPdfData> ret = ParseAll.parseAll(Scraper.Mode.LT, county, year, false);
+
+        ret.addAll(ParseAll.parseAll(Scraper.Mode.LT, county, lastYear, false));
+
         ret = filterByClosedOrInactive(ret);
 
         return ret;
     }
 
     private static void doActiveCasesHaveDecisions(String county) throws IOException, ClassNotFoundException {
-        List<PdfData> list = getNotClosedOrInactive(county);
-        for (PdfData pdf: list) {
+        List<LTPdfData> list = getNotClosedOrInactive(county);
+        for (LTPdfData pdf: list) {
             if (pdf.isJudgmentForPlaintiff()) {
                 System.out.println("Found an 'active' status with 'Judgment for Plaintiff': " + pdf.getDocketNumber());
             }
@@ -978,24 +980,24 @@ public class Analysis {
     }
 
     private static void whichPlaintiffsHaveActiveCases(String county) throws IOException, ClassNotFoundException {
-        List<PdfData> list = getNotClosedOrInactive(county);
+        List<LTPdfData> list = getNotClosedOrInactive(county);
         mostFiled(list, true, false);
     }
 
-    private static void whichCourtsHaveCases(List<PdfData> list) {
-        Map<String, List<PdfData>> byCourt = groupByCourtOffice(list);
+    private static void whichCourtsHaveCases(List<LTPdfData> list) {
+        Map<String, List<LTPdfData>> byCourt = groupByCourtOffice(list);
         for (String s: byCourt.keySet()) {
-            List<PdfData> court = byCourt.get(s);
+            List<LTPdfData> court = byCourt.get(s);
             System.out.println(s + " most recent filing " + court.get(court.size() - 1).getFileDate() +
                     "  earliest: " + court.get(0).getFileDate());
         }
     }
 
-    private static void judgeCovidProtocol(List<PdfData> data) {
+    private static void judgeCovidProtocol(List<LTPdfData> data) {
         String total = ratioPostVersusPreCovid(data);
         System.out.println("Total: " + total);
 
-        Map<String, List<PdfData>> byJudge = groupByJudge(data);
+        Map<String, List<LTPdfData>> byJudge = groupByJudge(data);
         TreeMap<String, List<String>> ordered = new TreeMap<>();
         for (String j: byJudge.keySet()) {
             String per = ratioPostVersusPreCovid(byJudge.get(j));
@@ -1020,10 +1022,10 @@ public class Analysis {
     private static final LocalDate postStart = LocalDate.parse("09/01/2020", dateFormatter);
     private static final LocalDate postEnd = LocalDate.parse("12/31/2020", dateFormatter);
 
-    private static String ratioPostVersusPreCovid(List<PdfData> data) {
+    private static String ratioPostVersusPreCovid(List<LTPdfData> data) {
         int pre = 0;
         int post = 0;
-        for (PdfData pdf: data) {
+        for (LTPdfData pdf: data) {
             LocalDate ld = pdf.getFileDate();
             if (ld.compareTo(preStarter) > -1 && ld.compareTo(preEnd) < 1) {
                 pre++;
@@ -1047,7 +1049,7 @@ public class Analysis {
 
 //(2019 cases)*(years of moratoriums, calculated 3/15/20 to present) - (cases filed, 3/15/20 to present)
     private static void projectedBacklog(String county) throws IOException, ClassNotFoundException {
-        int oneYear = ParseAll.parseAll(county, "2019", false).size();
+        int oneYear = ParseAll.parseAll(Scraper.Mode.LT, county, "2019", false).size();
         double covid = percentYearSinceCovid();
         int filedSince = covidCases(county).size();
         int backlog = (int) (oneYear * covid - filedSince);
@@ -1061,10 +1063,10 @@ public class Analysis {
         return days/365;
     }
 
-    private static void judgeHearingDays(List<PdfData> list) {
-        Map<String, List<PdfData>> judges = groupByJudge(list);
+    private static void judgeHearingDays(List<LTPdfData> list) {
+        Map<String, List<LTPdfData>> judges = groupByJudge(list);
         for (String j: judges.keySet()) {
-            List<PdfData> jl = judges.get(j);
+            List<LTPdfData> jl = judges.get(j);
             Map<DayOfWeek, TreeMap<LocalDate, Integer>> days = whatDaysAreScheduledHearings(jl);
             System.out.println("**** " + j);
             for (DayOfWeek dow: days.keySet()) {
@@ -1078,9 +1080,9 @@ public class Analysis {
         }
     }
 
-    private static Map<DayOfWeek, TreeMap<LocalDate, Integer>> whatDaysAreScheduledHearings(List<PdfData> list) {
+    private static Map<DayOfWeek, TreeMap<LocalDate, Integer>> whatDaysAreScheduledHearings(List<LTPdfData> list) {
         Map<DayOfWeek, TreeMap<LocalDate, Integer>> ret = new TreeMap<>();
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             if (pdf.hasHearingDate()) {
                 LocalDate ld = pdf.getHearingDate();
                 DayOfWeek dayOfWeek = ld.getDayOfWeek();
@@ -1099,9 +1101,9 @@ public class Analysis {
     }
 
     //how many 'resolved' cases are neither judgment for p or d?
-    private static void resolvedButNotJudged(List<PdfData> data) {
+    private static void resolvedButNotJudged(List<LTPdfData> data) {
         int not = 0;
-        for (PdfData pdf: data) {
+        for (LTPdfData pdf: data) {
             if (pdf.isResolved()) {
                 if (!pdf.isPlaintiffWin()) {
                     if (!pdf.isJudgmentForDefendant()) {
@@ -1113,12 +1115,12 @@ public class Analysis {
         System.out.println(getPer(not, data.size(), true));
     }
 
-    private static void resolvedAndPlaintiffWinSplitAnalysis(List<PdfData> list) {
+    private static void resolvedAndPlaintiffWinSplitAnalysis(List<LTPdfData> list) {
         int grantAlone = 0;
         int judgeAlone = 0;
         int judgmentForD = 0;
         int win = 0;
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             if (pdf.isResolved()) {
                 boolean judgmentForP = pdf.isJudgmentForPlaintiff();
                 boolean grantEither = pdf.isEitherGrant();
@@ -1152,14 +1154,14 @@ public class Analysis {
     }
      **/
 
-    private static void antwi(List<PdfData> data) {
-        List<PdfData> list = new LinkedList<>();
-        for (PdfData pdf: data) {
+    private static void antwi(List<LTPdfData> data) {
+        List<LTPdfData> list = new LinkedList<>();
+        for (LTPdfData pdf: data) {
             if (pdf.getDefendant().indexOf("Dixon, Antwi") > -1) {
                 list.add(pdf);
             }
         }
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             System.out.println("Antwi: " + pdf.isPlaintiffWin());
         }
     }

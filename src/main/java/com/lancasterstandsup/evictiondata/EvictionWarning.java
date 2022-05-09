@@ -1,9 +1,9 @@
 package com.lancasterstandsup.evictiondata;
 
 public class EvictionWarning {
-    private PdfData pdfData;
+    private LTPdfData pdfData;
 
-    public EvictionWarning(PdfData pdf) {
+    public EvictionWarning(LTPdfData pdf) {
 
     }
 

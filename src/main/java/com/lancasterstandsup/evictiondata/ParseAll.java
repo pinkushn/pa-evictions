@@ -7,7 +7,7 @@ import java.util.*;
 
 public class ParseAll {
 
-    private final static String PDF_CACHE_PATH = Scraper.PDF_CACHE_PATH;
+    private final static String PDF_CACHE_PATH = Scraper.PDF_CACHE_PATH_WITHOUT_CASE_TYPE;
 
     //county --> cities in county
     private static Map<String, Set<String>> cities = new HashMap<>();
@@ -16,11 +16,11 @@ public class ParseAll {
         String county = "Lancaster";
         String year = "2022";
 
-        get(county, year, false);
+        get(Scraper.Mode.CR, county, year, false);
     }
 
-    public static Map<String, List<PdfData>> get(String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
-        List<PdfData> all = parseAll(county, year, false);
+    public static Map<String, List<PdfData>> get(Scraper.Mode mode, String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
+        List<PdfData> all = parseAll(mode, county, year, false);
 
         Map<String, List<PdfData>> byJudge = sortByJudge(all);
 
@@ -33,62 +33,55 @@ public class ParseAll {
      * every year in local files
      *
      * @param county
-     * @return [low year, high year, List<PdfData>]
      */
-    public static Object[] get(String county, String[] years, boolean reverseChronological) throws IOException, ClassNotFoundException {
-        Object[] ret = new Object[3];
-        List<PdfData> list = new LinkedList<>();
-
-        ret[0] = years[0];
-        ret[1] = years[years.length - 1];
+    public static <T extends PdfData> List<T> get(Scraper.Mode mode, String county, String[] years) throws IOException, ClassNotFoundException {
+        List<T> list = new LinkedList<>();
 
         for (String year: years) {
-            list.addAll(parseAll(county, year, false));
+            list.addAll(parseAll(mode, county, year, false));
         }
 
-        ret[2] = sortByDate(list, reverseChronological);
-
-        return ret;
+        return list;
     }
 
-    private static Map<String, List<PdfData>> sortByJudge(List<PdfData> pdfs) {
-        TreeMap<String, List<PdfData>> map = new TreeMap<>();
+    private static <T extends PdfData> Map<String, List<T>> sortByJudge(List<T> pdfs) {
+        TreeMap<String, List<T>> map = new TreeMap<>();
         for (PdfData pdf: pdfs) {
             String judgeName = pdf.getJudgeName();
             if (!map.containsKey(judgeName)) {
                 map.put(judgeName, new ArrayList<>());
             }
-            List<PdfData> list = map.get(judgeName);
-            list.add(pdf);
+            List<T> list = map.get(judgeName);
+            list.add((T) pdf);
         }
 
         return map;
     }
 
-    private static List<PdfData> sortByDate(List<PdfData> pdfs, boolean reverseChronology) {
-        TreeSet<PdfData> ss = new TreeSet<>();
+    private static <T extends PdfData> List<T> sortByDate(List<T> pdfs, boolean reverseChronology) {
+        TreeSet<T> ss = new TreeSet<>();
         ss.addAll(pdfs);
 
-        List<PdfData> ret = new ArrayList<>(ss.size());
+        List<T> ret = new ArrayList<>(ss.size());
 
         if (!reverseChronology) {
             ret.addAll(ss);
         }
         else {
-            Iterator<PdfData> i = ss.descendingIterator();
+            Iterator<T> i = ss.descendingIterator();
             while(i.hasNext()) ret.add(i.next());
         }
 
         return ret;
     }
 
-    public static List<PdfData> parseAll(String county, String year, boolean countExpunged) throws IOException, ClassNotFoundException {
+    public static <T extends PdfData> List<T> parseAll(Scraper.Mode mode, String county, String year, boolean countExpunged) throws IOException, ClassNotFoundException {
         if (countExpunged) {
             Worksheet.clearPreProcessed(county);
         }
 
-        String dirPath = PDF_CACHE_PATH + county + "/" + year;
-        String preProcessedPath = PDF_CACHE_PATH + county + "/" + year + "_preProcessed";
+        String dirPath = PDF_CACHE_PATH + mode.getCaseType() + "/" + county + "/" + year;
+        String preProcessedPath = PDF_CACHE_PATH + mode.getCaseType() + "/" + county + "/" + year + "_preProcessed";
 
         File dir = new File(dirPath);
         File[] pdfs = dir.listFiles();
@@ -106,7 +99,7 @@ public class ParseAll {
 
         System.out.println("Parsing " + pdfs.length + " pdfs for " + county + ", " + year);
 
-        List<PdfData> ret = new ArrayList<>(pdfs.length);
+        List<T> ret = new ArrayList<>(pdfs.length);
         int expunged = 0;
         int malformed = 0;
         PdfData previous = null;
@@ -132,7 +125,9 @@ public class ParseAll {
                     } else {
                         //System.out.println("Processing " + pdf);
                         InputStream targetStream = new FileInputStream(pdf);
-                        data = Parser.process(targetStream, false);
+                        data = mode == Scraper.Mode.LT ?
+                                LTParser.process(targetStream, false) :
+                                CRParser.process(targetStream, false);
                         if (data != null && data.isClosed()) {
                             FileOutputStream fout = new FileOutputStream(preProcessedPath + "/" + stripPdf, false);
                             ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -144,7 +139,7 @@ public class ParseAll {
                         }
                         targetStream.close();
                     }
-                    if (data != null) ret.add(data);
+                    if (data != null) ret.add((T) data);
 
                     if (countExpunged) {
                         if (previous != null) {

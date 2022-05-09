@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Worksheet {
 
-    public static int createExcel(String county) throws IOException, ClassNotFoundException {
+    public static int createExcelLT(String county) throws IOException, ClassNotFoundException {
         CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county);
         int startYear = ccr.getStart().getYear();
         int endYear = ccr.getEnd().getYear();
@@ -33,7 +33,7 @@ public class Worksheet {
                 month + "_" + day + "_" + year +
                 ".xlsx";
 
-        String countyPath = Analysis.dataPathWithDot + county;
+        String countyPath = LTAnalysis.dataPathWithDot + county;
         File countyDir = new File(countyPath);
 
         if (countyDir.exists() && countyDir.listFiles().length > 0) {
@@ -55,19 +55,17 @@ public class Worksheet {
             }
         }
 
-        Object[] data = null;
+        Object list = null;
 
         try {
-            data = ParseAll.get(county, years, true);
+            list = ParseAll.get(Scraper.Mode.LT, county, years);
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("parser failed, abandoning allYears");
             e.printStackTrace();
             System.exit(1);
         }
 
-        List<PdfData> list = (List<PdfData>) data[2];
-
-        File dir = new File(Analysis.dataPathWithDot + county);
+        File dir = new File(LTAnalysis.dataPathWithDot + county);
         if (!dir.exists()) dir.mkdir();
         else {
             File [] files = dir.listFiles();
@@ -76,10 +74,12 @@ public class Worksheet {
             }
         }
 
-        //new website
-        writeExcel(Analysis.dataPathWithDot + county + "/" + excelFileName, list, null, null);
+        List<LTPdfData> reallyAList = (List<LTPdfData>) list;
 
-        return list.size();
+        //new website
+        writeExcel(LTAnalysis.dataPathWithDot + county + "/" + excelFileName, reallyAList, null, null);
+
+        return reallyAList.size();
     }
 
     /**
@@ -90,7 +90,7 @@ public class Worksheet {
      * @param end inclusive
      * @throws IOException
      */
-    private static void writeExcel(String filePath, List<PdfData> list, LocalDate start, LocalDate end) throws IOException {
+    private static void writeExcel(String filePath, List<LTPdfData> list, LocalDate start, LocalDate end) throws IOException {
         System.out.println("building excel file " + filePath);
         XSSFWorkbook workbook = new XSSFWorkbook();
 
@@ -104,14 +104,14 @@ public class Worksheet {
         Row header = sheet.createRow(rowNum);
         rowNum++;
         int col = 0;
-        for (String h: Parser.colHeaders) {
+        for (String h: LTParser.colHeaders) {
             Cell headerCell = header.createCell(col);
             headerCell.setCellValue(h);
             col++;
         }
 
         int cols = 0;
-        for (PdfData pdf: list) {
+        for (LTPdfData pdf: list) {
             LocalDate date = pdf.getFileDate();
             boolean use = start == null || (date.compareTo(start) >= 0 && date.compareTo(end) < 1);
             if (use) {
@@ -146,7 +146,7 @@ public class Worksheet {
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
         //clearAllPreProcessed();
-        csvAll();
+        csvAllLT();
     }
 
     public static void clearAllPreProcessed() {
@@ -174,15 +174,15 @@ public class Worksheet {
         }
     }
 
-    public static void csvAll() throws IOException, ClassNotFoundException {
+    public static void csvAllLT() throws IOException, ClassNotFoundException {
         File file = new File("./LT_All.csv");
         FileOutputStream fos = new FileOutputStream(file);
         PrintWriter pw = new PrintWriter(fos);
 
         System.out.println("building csv of all LT pdfs");
 
-        pw.print("county\t");
-        for (String h: Parser.colHeaders) {
+        pw.print("County\t");
+        for (String h: LTParser.colHeaders) {
             pw.print(h + "\t");
         }
         pw.println();
@@ -198,19 +198,17 @@ public class Worksheet {
                 years[x] = "" + (startYear + x);
             }
 
-            Object[] data = null;
+            Object list = null;
 
             try {
-                data = ParseAll.get(county, years, true);
+                list = ParseAll.get(Scraper.Mode.LT, county, years);
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println("parser failed, abandoning allYears");
                 e.printStackTrace();
                 System.exit(1);
             }
 
-            List<PdfData> list = (List<PdfData>) data[2];
-
-            for (PdfData pdf: list) {
+            for (LTPdfData pdf: (List<LTPdfData>) list) {
                 pw.print(county + "\t");
                 String[] rowData = pdf.getRow();
                 for (int c = 0; c < rowData.length; c++) {
