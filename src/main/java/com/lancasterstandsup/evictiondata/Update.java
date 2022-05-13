@@ -5,11 +5,11 @@ import java.util.TreeSet;
 
 public class Update {
 
-    public static void main (String [] args) throws IOException {
+    public static void update (Scraper.Mode mode) throws IOException, ClassNotFoundException {
         TreeSet<String> countiesWithData = new TreeSet<>();
         for (String county: Website.counties) {
             try {
-                if (Scraper.getCountyStartAndEnd(county) != null) {
+                if (Scraper.getCountyStartAndEnd(county, mode) != null) {
                     countiesWithData.add(county);
                 }
             } catch (IOException e) {
@@ -56,6 +56,8 @@ public class Update {
 //        if (isWindows) commands = "cmd.exe " + commands;
 //
 //        Runtime.getRuntime().exec(commands);
+
+        Worksheet.csvAllLT();
 
         System.out.println("\n*** Successfully updated " + totalPdfs + " pdfs. Now push to git.");
     }

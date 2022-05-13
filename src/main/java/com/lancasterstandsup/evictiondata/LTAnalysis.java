@@ -69,7 +69,7 @@ public class LTAnalysis {
 
 
 
-        List<LTPdfData> list = ParseAll.get(Scraper.Mode.LT, county, years);
+        List<LTPdfData> list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
 
         monthly(list);
 
@@ -189,7 +189,7 @@ public class LTAnalysis {
 
     public static void expunged (String county, String[] years) throws IOException, ClassNotFoundException {
         for (String year: years) {
-            ParseAll.parseAll(Scraper.Mode.LT, county, year, true);
+            ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, year, true);
         }
     }
 
@@ -327,7 +327,7 @@ public class LTAnalysis {
             years[x] = (startYear + x) + "";
         }
 
-        List<LTPdfData> list = ParseAll.get(Scraper.Mode.LT, county, years);
+        List<LTPdfData> list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
 
         Map<String, Integer> pre = new TreeMap<>();
         Map<String, Integer> post = new TreeMap<>();
@@ -697,7 +697,7 @@ public class LTAnalysis {
 
     private static List<LTPdfData> covidCases(String county) throws IOException, ClassNotFoundException {
         String[] years = {"2020", "2021"};
-        Object listO = ParseAll.get(Scraper.Mode.LT, county, years);
+        Object listO = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
         List<LTPdfData> list = (List<LTPdfData>) listO;
         return filterCovid(list);
     }
@@ -961,9 +961,9 @@ public class LTAnalysis {
         String year = "" + y;
         String lastYear = "" + (y - 1);
 
-        List<LTPdfData> ret = ParseAll.parseAll(Scraper.Mode.LT, county, year, false);
+        List<LTPdfData> ret = ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, year, false);
 
-        ret.addAll(ParseAll.parseAll(Scraper.Mode.LT, county, lastYear, false));
+        ret.addAll(ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, lastYear, false));
 
         ret = filterByClosedOrInactive(ret);
 
@@ -1049,7 +1049,7 @@ public class LTAnalysis {
 
 //(2019 cases)*(years of moratoriums, calculated 3/15/20 to present) - (cases filed, 3/15/20 to present)
     private static void projectedBacklog(String county) throws IOException, ClassNotFoundException {
-        int oneYear = ParseAll.parseAll(Scraper.Mode.LT, county, "2019", false).size();
+        int oneYear = ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, "2019", false).size();
         double covid = percentYearSinceCovid();
         int filedSince = covidCases(county).size();
         int backlog = (int) (oneYear * covid - filedSince);

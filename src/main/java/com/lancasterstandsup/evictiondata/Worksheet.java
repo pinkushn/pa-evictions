@@ -13,7 +13,7 @@ import java.util.List;
 public class Worksheet {
 
     public static int createExcelLT(String county) throws IOException, ClassNotFoundException {
-        CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county);
+        CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.Mode.MDJ_LT);
         int startYear = ccr.getStart().getYear();
         int endYear = ccr.getEnd().getYear();
         int distinctYears = endYear - startYear + 1;
@@ -58,7 +58,7 @@ public class Worksheet {
         Object list = null;
 
         try {
-            list = ParseAll.get(Scraper.Mode.LT, county, years);
+            list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("parser failed, abandoning allYears");
             e.printStackTrace();
@@ -146,7 +146,15 @@ public class Worksheet {
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
         //clearAllPreProcessed();
-        csvAllLT();
+        //csvAllLT();
+
+//        boolean isWindows = System.getProperty("os.name")
+//                .toLowerCase().startsWith("windows");
+//
+////        String commands = "cd ~/git/pa-evictions; git add *; git commit -m \"update\"; git push";
+////        if (isWindows) commands = "cmd.exe " + commands;
+
+        Runtime.getRuntime().exec("networksetup -setairportnetwork en0 Hodad garbagio");
     }
 
     public static void clearAllPreProcessed() {
@@ -156,19 +164,21 @@ public class Worksheet {
     }
 
     public static void clearPreProcessed(String county) {
-        File dir = new File("./src/main/resources/pdfCache/" + county);
-        if (!dir.exists()) {
-            return;
-        }
+        for (Scraper.Mode caseType: Scraper.Mode.values()) {
+            File dir = new File(Scraper.PDF_CACHE_PATH_WITHOUT_CASE_TYPE + caseType.getCaseType() + "/" + county);
+            if (!dir.exists()) {
+                return;
+            }
 
-        for (File yearFile: dir.listFiles()) {
-            if (yearFile.getName().indexOf("preProcessed") > -1) {
-                File[] files = yearFile.listFiles();
-                for (File file: files) {
-                    file.delete();
-                }
-                if (!yearFile.delete()) {
-                    System.err.println("Failed to delete " + yearFile);
+            for (File yearFile : dir.listFiles()) {
+                if (yearFile.getName().indexOf("preProcessed") > -1) {
+                    File[] files = yearFile.listFiles();
+                    for (File file : files) {
+                        file.delete();
+                    }
+                    if (!yearFile.delete()) {
+                        System.err.println("Failed to delete " + yearFile);
+                    }
                 }
             }
         }
@@ -189,7 +199,7 @@ public class Worksheet {
 
         for (String county: Website.counties) {
             System.out.println("Next county for csv: " + county);
-            CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county);
+            CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.Mode.MDJ_LT);
             int startYear = ccr.getStart().getYear();
             int endYear = ccr.getEnd().getYear();
             int distinctYears = endYear - startYear + 1;
@@ -201,7 +211,7 @@ public class Worksheet {
             Object list = null;
 
             try {
-                list = ParseAll.get(Scraper.Mode.LT, county, years);
+                list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println("parser failed, abandoning allYears");
                 e.printStackTrace();

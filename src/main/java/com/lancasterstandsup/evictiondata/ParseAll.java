@@ -16,7 +16,7 @@ public class ParseAll {
         String county = "Lancaster";
         String year = "2022";
 
-        get(Scraper.Mode.CR, county, year, false);
+        get(Scraper.Mode.MDJ_CR, county, year, false);
     }
 
     public static Map<String, List<PdfData>> get(Scraper.Mode mode, String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
@@ -125,7 +125,7 @@ public class ParseAll {
                     } else {
                         //System.out.println("Processing " + pdf);
                         InputStream targetStream = new FileInputStream(pdf);
-                        data = mode == Scraper.Mode.LT ?
+                        data = mode == Scraper.Mode.MDJ_LT ?
                                 LTParser.process(targetStream, false) :
                                 CRParser.process(targetStream, false);
                         if (data != null && data.isClosed()) {

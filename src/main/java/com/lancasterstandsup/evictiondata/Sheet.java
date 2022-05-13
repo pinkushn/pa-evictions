@@ -101,12 +101,12 @@ public class Sheet {
         rows.add(headers);
 
         try {
-            List<LTPdfData> pdfs = ParseAll.get(Scraper.Mode.LT, "Lancaster", lancoYears);
+            List<LTPdfData> pdfs = ParseAll.get(Scraper.Mode.MDJ_LT, "Lancaster", lancoYears);
             rows.addAll(build(pdfs, "Lancaster"));
 
             for (String county: Website.counties) {
                 if (!county.equals("Lancaster")) {
-                    rows.addAll(build(ParseAll.get(Scraper.Mode.LT, county, otherCountyYears), county));
+                    rows.addAll(build(ParseAll.get(Scraper.Mode.MDJ_LT, county, otherCountyYears), county));
                 }
             }
         } catch (IOException | ClassNotFoundException e) {

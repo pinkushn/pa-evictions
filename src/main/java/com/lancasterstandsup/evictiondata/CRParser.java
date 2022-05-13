@@ -322,10 +322,6 @@ public class CRParser {
             a = "Case Status:";
 
             data.setCaseStatus(s.substring(a.length()).trim());
-
-//            if (data.getDisposition().equalsIgnoreCase("Held for Court")) {
-//                System.out.println("HELD FOR COURT");
-//            }
         }
 //        else if (sectionType == SectionType.STATUS_INFORMATION) {
 //            for (String s: strings) {
@@ -342,6 +338,14 @@ public class CRParser {
                     data.setBail(Integer.parseInt(bailWithoutCommas));
                 }
             }
+        }
+        else if (sectionType == SectionType.DEFENDANT_INFORMATION) {
+//            for (String s: strings) {
+//                System.out.println(s);
+//            }
+            String s = strings[0];
+            String name = s.substring("Name: ".length(), s.indexOf("Sex:"));
+            data.setDefendantName(name);
         }
         else if (sectionType == SectionType.CONFINEMENT) {
             String unable = "unable to post bail";

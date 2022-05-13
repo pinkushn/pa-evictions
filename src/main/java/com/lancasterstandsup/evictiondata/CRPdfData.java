@@ -34,7 +34,9 @@ public class CRPdfData extends PdfData {
     private boolean unableToPostBail;
     private LocalDate startConfinement;
     private LocalDate endConfinement;
-    private int bail;
+    private Integer bail;
+
+    private String defendantName;
 
     @Override
     public boolean rescrape(LocalDateTime lastCheck) {
@@ -203,6 +205,10 @@ public class CRPdfData extends PdfData {
         this.unableToPostBail = unableToPostBail;
     }
 
+    public boolean hasStartConfinement() {
+        return startConfinement != null;
+    }
+
     public LocalDate getStartConfinement() {
         return startConfinement;
     }
@@ -212,6 +218,10 @@ public class CRPdfData extends PdfData {
             this.startConfinement = LocalDate.parse(startConfinement, dateFormatter);
         }
         catch (Exception e) {}
+    }
+
+    public boolean hasEndConfinement() {
+        return endConfinement != null;
     }
 
     public LocalDate getEndConfinement() {
@@ -229,11 +239,23 @@ public class CRPdfData extends PdfData {
         this.bail = bail;
     }
 
-    public int getBail() {
+    public boolean hasBail() {
+        return bail != null;
+    }
+
+    public Integer getBail() {
         return bail;
     }
 
     public String getStoredURL() throws IOException {
-        return Scraper.getStoredURL(county, docketNumber.substring(1 + docketNumber.lastIndexOf('-')), docketNumber);
+        return Scraper.getStoredURL(Scraper.Mode.MDJ_CR, county, docketNumber.substring(1 + docketNumber.lastIndexOf('-')), docketNumber);
+    }
+
+    public String getDefendantName() {
+        return defendantName;
+    }
+
+    public void setDefendantName(String defendantName) {
+        this.defendantName = defendantName;
     }
 }
