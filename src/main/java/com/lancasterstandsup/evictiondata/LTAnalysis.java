@@ -69,7 +69,7 @@ public class LTAnalysis {
 
 
 
-        List<LTPdfData> list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
+        List<LTPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
 
         monthly(list);
 
@@ -189,7 +189,7 @@ public class LTAnalysis {
 
     public static void expunged (String county, String[] years) throws IOException, ClassNotFoundException {
         for (String year: years) {
-            ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, year, true);
+            ParseAll.parseAll(Scraper.CourtMode.MDJ_LT, county, year, true);
         }
     }
 
@@ -213,7 +213,7 @@ public class LTAnalysis {
                     ret.add(pdf);
                     howMany++;
                     //MJ-02208-LT-0000027-2021
-                    System.out.println("Eviction may be imminent for " + pdf.getDefendant() + " " + pdf.getDocketNumber());
+                    System.out.println("Eviction may be imminent for " + pdf.getDefendant() + " " + pdf.getDocket());
                 }
             }
         }
@@ -327,7 +327,7 @@ public class LTAnalysis {
             years[x] = (startYear + x) + "";
         }
 
-        List<LTPdfData> list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
+        List<LTPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
 
         Map<String, Integer> pre = new TreeMap<>();
         Map<String, Integer> post = new TreeMap<>();
@@ -697,7 +697,7 @@ public class LTAnalysis {
 
     private static List<LTPdfData> covidCases(String county) throws IOException, ClassNotFoundException {
         String[] years = {"2020", "2021"};
-        Object listO = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
+        Object listO = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
         List<LTPdfData> list = (List<LTPdfData>) listO;
         return filterCovid(list);
     }
@@ -710,7 +710,7 @@ public class LTAnalysis {
             }
         }
 
-        String retS = getPer(ret, list.size(), true);
+        String retS = getPercentage(ret, list.size(), true);
         System.out.println("Evictions: " + retS);
         return retS;
     }
@@ -726,7 +726,7 @@ public class LTAnalysis {
 //        double per = Math.round(100 * ((double) ret)/list.size());
 //        return per + "%";
 
-        return getPer(ret, list.size(), true);
+        return getPercentage(ret, list.size(), true);
     }
 
     public static Map<String, List<LTPdfData>> groupByJudge(List<LTPdfData> list) {
@@ -827,7 +827,7 @@ public class LTAnalysis {
         }
 
         System.out.println("plaintiff win: " +
-                getPer(forP, list.size(), true));
+                getPercentage(forP, list.size(), true));
     }
 
     private static void judgmentForPlaintiff(List<LTPdfData> list) {
@@ -846,13 +846,13 @@ public class LTAnalysis {
         }
 
         System.out.println("Judgment for Plaintiff: " +
-                getPer(forP, base, true));
+                getPercentage(forP, base, true));
     }
 
     private static void grantWithoutJudgment(List<LTPdfData> list) {
         for (LTPdfData pdf: list) {
             if (!pdf.isJudgmentForPlaintiff() && pdf.isGrantPossessionOrOrderForEvictionServed()) {
-                System.out.println(pdf.getDocketNumber());
+                System.out.println(pdf.getDocket());
             }
         }
     }
@@ -924,7 +924,7 @@ public class LTAnalysis {
         for (LTPdfData pdf: list) {
             if (pdf.isOrderForPossessionServed()) {
                 ret.add(pdf);
-                System.out.println("order for possession served: " + pdf.getDocketNumber());
+                System.out.println("order for possession served: " + pdf.getDocket());
             }
         }
 
@@ -945,7 +945,7 @@ public class LTAnalysis {
 
         @Override
         public int compare(LTPdfData a, LTPdfData b) {
-            return a.getDocketNumber().compareTo(b.getDocketNumber());
+            return a.getDocket().compareTo(b.getDocket());
         }
     }
 
@@ -961,9 +961,9 @@ public class LTAnalysis {
         String year = "" + y;
         String lastYear = "" + (y - 1);
 
-        List<LTPdfData> ret = ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, year, false);
+        List<LTPdfData> ret = ParseAll.parseAll(Scraper.CourtMode.MDJ_LT, county, year, false);
 
-        ret.addAll(ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, lastYear, false));
+        ret.addAll(ParseAll.parseAll(Scraper.CourtMode.MDJ_LT, county, lastYear, false));
 
         ret = filterByClosedOrInactive(ret);
 
@@ -974,7 +974,7 @@ public class LTAnalysis {
         List<LTPdfData> list = getNotClosedOrInactive(county);
         for (LTPdfData pdf: list) {
             if (pdf.isJudgmentForPlaintiff()) {
-                System.out.println("Found an 'active' status with 'Judgment for Plaintiff': " + pdf.getDocketNumber());
+                System.out.println("Found an 'active' status with 'Judgment for Plaintiff': " + pdf.getDocket());
             }
         }
     }
@@ -1034,10 +1034,10 @@ public class LTAnalysis {
                 post++;
             }
         }
-        return getPer(post, pre, false) + " (pre: " + pre + " v. during: " + post + ")";
+        return getPercentage(post, pre, false) + " (pre: " + pre + " v. during: " + post + ")";
     }
 
-    private static String getPer(int a, int b, boolean showRaw) {
+    public static String getPercentage(int a, int b, boolean showRaw) {
         double per = Math.round(100 * ((double) a/b));
         String ret = per + "";
         ret = ret.substring(0, ret.indexOf('.')) + "%";
@@ -1049,7 +1049,7 @@ public class LTAnalysis {
 
 //(2019 cases)*(years of moratoriums, calculated 3/15/20 to present) - (cases filed, 3/15/20 to present)
     private static void projectedBacklog(String county) throws IOException, ClassNotFoundException {
-        int oneYear = ParseAll.parseAll(Scraper.Mode.MDJ_LT, county, "2019", false).size();
+        int oneYear = ParseAll.parseAll(Scraper.CourtMode.MDJ_LT, county, "2019", false).size();
         double covid = percentYearSinceCovid();
         int filedSince = covidCases(county).size();
         int backlog = (int) (oneYear * covid - filedSince);
@@ -1112,7 +1112,7 @@ public class LTAnalysis {
                 }
             }
         }
-        System.out.println(getPer(not, data.size(), true));
+        System.out.println(getPercentage(not, data.size(), true));
     }
 
     private static void resolvedAndPlaintiffWinSplitAnalysis(List<LTPdfData> list) {
@@ -1130,7 +1130,7 @@ public class LTAnalysis {
                     if (judgmentForP && !(grantEither || eviction)) judgeAlone++;
                     if (grantEither && !(judgmentForP || eviction)) {
                         grantAlone++;
-                        System.out.println(pdf.getDocketNumber());
+                        System.out.println(pdf.getDocket());
                         judgmentForD += pdf.isJudgmentForDefendant() ? 1 : 0;
                     }
                 }

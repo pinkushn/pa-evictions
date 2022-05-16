@@ -5,7 +5,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -217,7 +216,7 @@ public class LTPdfData extends PdfData implements Serializable {
     public LocalDate getFileDate() {
         if (comparableDate != null) return comparableDate;
 
-        comparableDate = LocalDate.parse(fileDate, dateFormatter);
+        comparableDate = LocalDate.parse(fileDate, slashDateFormatter);
 
         return comparableDate;
     }
@@ -288,7 +287,7 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public LocalDate getHearingDate() {
         if (hearingDate == null) return null;
-        return LocalDate.parse(fileDate, dateFormatter);
+        return LocalDate.parse(fileDate, slashDateFormatter);
     }
 
     public void setScheduledHour(String ht) {
@@ -434,7 +433,7 @@ public class LTPdfData extends PdfData implements Serializable {
     public void setOrderForPossessionRequested(boolean b, String date) {
         this.orderForPossessionRequested = b ? "TRUE" : "FALSE";
 
-        orderForPossessionRequestedDate = LocalDate.parse(date, dateFormatter);
+        orderForPossessionRequestedDate = LocalDate.parse(date, slashDateFormatter);
 
         row.put(26, date);
 
@@ -443,7 +442,7 @@ public class LTPdfData extends PdfData implements Serializable {
     public void setOrderForPossessionServed(boolean b, String date) {
         this.orderForPossessionServed = b ? "TRUE" : "FALSE";
 
-        orderForPossessionServedDate = LocalDate.parse(date, dateFormatter);
+        orderForPossessionServedDate = LocalDate.parse(date, slashDateFormatter);
 
         row.put(27, date);
     }
@@ -507,7 +506,7 @@ public class LTPdfData extends PdfData implements Serializable {
             else plaintiffAttorney += ", " + name;
             row.put(33, plaintiffAttorney);
         }
-        else if (!ignoreAttorneyProvenance.contains(getDocketNumber())) {
+        else if (!ignoreAttorneyProvenance.contains(getDocket())) {
             System.err.println("Can't determine attorney provenance for " + docketNumber);
             addNote("Attorney " + name + " with indeterminant provenance");
         }
@@ -550,7 +549,7 @@ public class LTPdfData extends PdfData implements Serializable {
         return ret;
     }
 
-    public String getDocketNumber() {
+    public String getDocket() {
         return docketNumber;
     }
 
@@ -684,7 +683,7 @@ public class LTPdfData extends PdfData implements Serializable {
                 !isGrantPossession() && !isGrantPossessionIf() && !isOrderForPossessionServed() &&
                     !stayed && !judgmentForPlaintiff && !bankruptcy &&
                     !sentToCommonPleas()) {
-                if (debugOutput && !ignoreInvalidByActive.contains(getDocketNumber())) {
+                if (debugOutput && !ignoreInvalidByActive.contains(getDocket())) {
                     invalidMessage("inactive case isn't withdrawn, settled, dismissed, or granted");
                 }
                 return false;
@@ -757,7 +756,7 @@ public class LTPdfData extends PdfData implements Serializable {
 
         LTPdfData op = (LTPdfData) o;
 
-        return getDocketNumber().equals(op.getDocketNumber());
+        return getDocket().equals(op.getDocket());
     }
 
     public void setDispositionDate(String dispositionDate) {
@@ -765,7 +764,7 @@ public class LTPdfData extends PdfData implements Serializable {
     }
 
     public LocalDate getDispositionDate() {
-        return dispositionDate != null ? LocalDate.parse(dispositionDate, dateFormatter) : null;
+        return dispositionDate != null ? LocalDate.parse(dispositionDate, slashDateFormatter) : null;
     }
 
     public void bankruptcy(String bankruptcy_petition_filed) {
@@ -805,7 +804,7 @@ public class LTPdfData extends PdfData implements Serializable {
 
         //isAlive is true if file's status is not 'closed' or 'inactive'
         if (isAlive()) {
-            System.out.println("Rescrape " + getDocketNumber() + " because it is alive.");
+            System.out.println("Rescrape " + getDocket() + " because it is alive.");
             return true;
         }
         //'closed' might still have been updated with order for possession
@@ -813,12 +812,12 @@ public class LTPdfData extends PdfData implements Serializable {
         //date of judgment is less than X (60?) days from last scrape
         LocalDate disposition = getDispositionDate();
         if (disposition == null) {
-            System.out.println("Rescrape " + getDocketNumber() + " because it has no disposition date.");
+            System.out.println("Rescrape " + getDocket() + " because it has no disposition date.");
             return true;
         }
 
         if (!hasJudgment()) {
-            System.out.println("Rescrape " + getDocketNumber()  + " because it has no judgment.");
+            System.out.println("Rescrape " + getDocket()  + " because it has no judgment.");
             return true;
         }
 
@@ -826,13 +825,13 @@ public class LTPdfData extends PdfData implements Serializable {
         int window = 100;
         LocalDateTime now = LocalDateTime.now();
         if (disposition.until(now, ChronoUnit.DAYS) < window) {
-            System.out.println("Rescrape " + getDocketNumber()  + " because it is within " + window +
+            System.out.println("Rescrape " + getDocket()  + " because it is within " + window +
                     " days of disposition without order for possession");
             return true;
         }
 
         if (lastCheck == null) {
-            System.out.println("Rescrape " + getDocketNumber()  + " because lastCheck is null.");
+            System.out.println("Rescrape " + getDocket()  + " because lastCheck is null.");
             return true;
         }
 
@@ -841,7 +840,7 @@ public class LTPdfData extends PdfData implements Serializable {
             return false;
         }
 
-        System.out.println("Rescrape " + getDocketNumber() + " because, err, defaulting after many checks.");
+        System.out.println("Rescrape " + getDocket() + " because, err, defaulting after many checks.");
         return true;
     }
 

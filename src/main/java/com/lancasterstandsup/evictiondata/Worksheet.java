@@ -13,7 +13,7 @@ import java.util.List;
 public class Worksheet {
 
     public static int createExcelLT(String county) throws IOException, ClassNotFoundException {
-        CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.Mode.MDJ_LT);
+        CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.CourtMode.MDJ_LT);
         int startYear = ccr.getStart().getYear();
         int endYear = ccr.getEnd().getYear();
         int distinctYears = endYear - startYear + 1;
@@ -58,7 +58,7 @@ public class Worksheet {
         Object list = null;
 
         try {
-            list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
+            list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("parser failed, abandoning allYears");
             e.printStackTrace();
@@ -164,8 +164,8 @@ public class Worksheet {
     }
 
     public static void clearPreProcessed(String county) {
-        for (Scraper.Mode caseType: Scraper.Mode.values()) {
-            File dir = new File(Scraper.PDF_CACHE_PATH_WITHOUT_CASE_TYPE + caseType.getCaseType() + "/" + county);
+        for (Scraper.CourtMode caseType: Scraper.CourtMode.values()) {
+            File dir = new File(Scraper.PDF_CACHE_PATH + caseType.getCaseType() + "/" + county);
             if (!dir.exists()) {
                 return;
             }
@@ -199,7 +199,7 @@ public class Worksheet {
 
         for (String county: Website.counties) {
             System.out.println("Next county for csv: " + county);
-            CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.Mode.MDJ_LT);
+            CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.CourtMode.MDJ_LT);
             int startYear = ccr.getStart().getYear();
             int endYear = ccr.getEnd().getYear();
             int distinctYears = endYear - startYear + 1;
@@ -211,7 +211,7 @@ public class Worksheet {
             Object list = null;
 
             try {
-                list = ParseAll.get(Scraper.Mode.MDJ_LT, county, years);
+                list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
             } catch (IOException | ClassNotFoundException e) {
                 System.err.println("parser failed, abandoning allYears");
                 e.printStackTrace();

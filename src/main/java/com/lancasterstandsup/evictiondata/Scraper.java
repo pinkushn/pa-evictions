@@ -14,6 +14,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -34,7 +35,7 @@ public class Scraper {
     private static int BETWEEN_SCRAPE_PAUSE = 200;
     private static int BETWEEN_RESPONSE_PAUSE = 150;
 
-    public static enum Mode {
+    public static enum CourtMode {
         //LandlordTenantMDJ
         MDJ_LT("MJ", "LT", 4,
                 "MJ-05227-LT-0000094-2021".length(),
@@ -65,7 +66,7 @@ public class Scraper {
         int docketCharLen;
         int prependURLLength;
 
-        Mode(String level, String type, int i, int docketCharLen, int prependURLLength) {
+        CourtMode(String level, String type, int i, int docketCharLen, int prependURLLength) {
             this.courtLevel = level;
             caseType = type;
             missesBeforeGivingUp = i;
@@ -97,7 +98,7 @@ public class Scraper {
         }
 
         public String getPdfCachePath() {
-            return PDF_CACHE_PATH_WITHOUT_CASE_TYPE + getFolderName() + "/";
+            return PDF_CACHE_PATH + getFolderName() + "/";
         }
 
         public int getDocketCharLen() {
@@ -116,12 +117,11 @@ public class Scraper {
     private static final double HOURS_WAIT = .6;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
-    public final static String PDF_CACHE_PATH_WITHOUT_CASE_TYPE = "./pdfCache/";
-    //private final static String PDF_CACHE_PATH = "./pdfCache/" + mode.getCaseType() + "/";
+    public final static String PDF_CACHE_PATH = "./pdfCache/";
     private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
-    private final static String POINTER_PATH = "./src/main/resources/";
+    private final static String RESOURCES_PATH = "./src/main/resources/";
     //private final static String POINTER_FILE_NAME = mode.getCaseType() + "pointer";
-    private static HashMap<Mode, File> pointerFiles = new HashMap<>();
+    private static HashMap<CourtMode, File> pointerFiles = new HashMap<>();
     private final static String COMPLETION_FILE_NAME = "completion";
     private static int hits = 0;
     private static int urlHits = 0;
@@ -129,32 +129,65 @@ public class Scraper {
     private static int urlLoops = 0;
     //stop and wait for 'a while' (HOURS_WAIT, above) after this many url hits
     private final static int URL_HITS_PERMITTED = 400;
+    private static boolean firstOTNExistsWarning = true;
 
     private static LocalDateTime lastCheck = null;
 
-    private static HashMap<Mode, HashMap<String, List<String>>> courtLevelCountyCourtOffices = new HashMap<>();
+    private static HashMap<CourtMode, HashMap<String, List<String>>> courtLevelCountyCourtOffices = new HashMap<>();
 
     //mode -> county -> year -> ? -> url (is ? docket?)
-    private static HashMap<Mode, HashMap<String, HashMap<String, Map<String, String>>>> storedURLs =
+    private static HashMap<CourtMode, HashMap<String, HashMap<String, Map<String, String>>>> storedURLs =
             new HashMap<>();
 
+    //*** LIMITATION: no spaces in network ssid or pwd
     private static ArrayList<String> networkChoices;
 
     static {
         networkChoices = new ArrayList<>();
-        networkChoices.add("fake fake");
+        File networks = new File(RESOURCES_PATH + "networks");
 
-        for (Mode mode: Mode.values()) {
-            pointerFiles.put(mode, new File(POINTER_PATH + mode.getFolderName() + "pointer"));
-            storedURLs.put(mode, new HashMap<>());
+//        if (networks.exists()) {
+//            try {
+//                try (BufferedReader in = new BufferedReader(new FileReader(networks))) {
+//                    String next = null;
+//                    while ((next = in.readLine()) != null) {
+//                        networkChoices.add(next);
+//                    }
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        if (networkChoices.isEmpty()) {
+            networkChoices.add("fake fake");
+        }
+
+        for (CourtMode courtMode : CourtMode.values()) {
+            pointerFiles.put(courtMode, new File(RESOURCES_PATH + courtMode.getFolderName() + "pointer"));
+            storedURLs.put(courtMode, new HashMap<>());
         }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-        Mode mode = Mode.MDJ_CR;
-        //Mode mode = Mode.CP_CR;
-        commenceScrapingFromSavedPointer(mode);
+        //CourtMode courtMode = CourtMode.MDJ_LT;
+        CourtMode courtMode = CourtMode.CP_CR;
+        commenceScrapingFromSavedPointer(courtMode);
+
         // commenceScrapingFromArtificalPointer();
+        //getOTNDocketNames("U 684533-3");
+
+//        getPersonDocketNames("Lewis", "Tiekey",
+//                PdfData.convertSlashDateToDashDate("07/24/1972"));
+
+//        pingLancasterPrison(
+//                "Lewis",
+//                "Tiekey",
+//                LocalDate.parse("07/24/1972", PdfData.slashDateFormatter));
+
+//        pingLancasterPrison(
+//                "Lewis",
+//                "Tiekey",
+//                null);
     }
 
 //    private static void commenceScrapingFromArtificalPointer() throws IOException, InterruptedException, ClassNotFoundException {
@@ -169,43 +202,44 @@ public class Scraper {
 //        commenceScraping(pointer);
 //    }
 
-    private static void commenceScrapingFromSavedPointer(Mode mode) throws IOException, ClassNotFoundException, InterruptedException {
+    private static void commenceScrapingFromSavedPointer(CourtMode courtMode) throws IOException, ClassNotFoundException, InterruptedException {
         //we use this pointer to trigger starting from the beginning if there is no pointer file
-        File pointerFile = pointerFiles.get(mode);
+        File pointerFile = pointerFiles.get(courtMode);
         if (!pointerFile.exists()) {
             Pointer pointer = new Pointer();
             pointer.setYear(getCurrentYear());
             pointer.setCounty(Website.counties.get(Website.counties.size() - 1));
-            advancePointer(pointer, mode, true);
+            advancePointer(pointer, courtMode, true);
         }
 
-        commenceScraping(readPointer(mode), mode);
+        commenceScraping(readPointer(courtMode), courtMode);
     }
 
     /**
      * Assumes inbound pointer is already saved to pointer file
      * @param pointer
      */
-    public static void commenceScraping(Pointer pointer, Mode mode) throws InterruptedException, IOException {
+    public static void commenceScraping(Pointer pointer, CourtMode courtMode) throws InterruptedException, IOException, ClassNotFoundException {
         System.out.println("**********************");
         System.out.println("Starting with " + pointer);
         System.out.println("**********************");
 
+        setLastCheck(pointer.getCounty(), courtMode);
 
-        List<String> courtOffices = getCourtOffices(pointer.getCounty(), mode);
+        List<String> courtOffices = getCourtOffices(pointer.getCounty(), courtMode);
         int index = courtOffices.indexOf(pointer.getCourtOffice());
         System.out.println("court office is " + (index + 1) + " of " + courtOffices.size());
 
         boolean forever = true;
 
         int misses = 0;
-        int missesBeforeGivingUp = mode.getMissesBeforeGivingUp();
+        int missesBeforeGivingUp = courtMode.getMissesBeforeGivingUp();
         long lastTime = 0;
 
         while (forever) {
             Exception exception = null;
             try {
-                boolean scraped = scrape(pointer, mode, lastCheck);
+                boolean scraped = scrape(pointer, courtMode, lastCheck);
                 LocalDateTime time = LocalDateTime.now();
                 if (!scraped) {
                     misses++;
@@ -239,7 +273,7 @@ public class Scraper {
                     misses = 0;
                 }
                 lastTime = System.currentTimeMillis();
-                advancePointer(pointer, mode, nextCourtOffice);
+                advancePointer(pointer, courtMode, nextCourtOffice);
             }
             catch (Exception e) {
                 exception = e;
@@ -270,6 +304,109 @@ public class Scraper {
 
                     System.err.println("RESTARTING at " + LocalDateTime.now());
                 }
+            }
+        }
+    }
+
+    public static List<String> scrapeOTNListForDocketNames(List<String> otns) throws InterruptedException {
+        System.out.println("**********************");
+        System.out.println("Pursuing docket names for " + otns.size() + " OTN(s)");
+        System.out.println("**********************");
+
+        if (otns == null || otns.isEmpty()) throw new IllegalStateException("null or empty otns");
+
+        List<String> ret = new ArrayList<>();
+        boolean done = false;
+        int next = 0;
+        while (!done) {
+            Exception exception = null;
+            try {
+                ret.addAll(getOTNDocketNames(otns.get(next)));
+                //System.out.println("Read otn docket names for " + otns.get(next));
+                next++;
+                if (next >= otns.size()) {
+                    done = true;
+                };
+            }
+            catch (Exception e) {
+                exception = e;
+            }
+
+            if (exception != null || urlLoops >= URL_HITS_PERMITTED) {
+                urlLoops = 0;
+                LocalDateTime now = LocalDateTime.now();
+                if (exception != null) {
+                    System.err.println("Scrape fail on at otn: " + otns.get(next) + " at " + now);
+                    System.err.println(exception);
+                }
+                else {
+                    System.out.println("Scrape hit max url hits permitted " +
+                            "(" + URL_HITS_PERMITTED + ") with otn: " + otns.get(next) + " at " + now);
+                }
+
+                System.err.println("\nSleeping for " + HOURS_WAIT + " hours, restart at " +
+                        now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
+
+                Thread.sleep(RESET_PERMISSIONS_TIME);
+                millisForAllURLHits -= RESET_PERMISSIONS_TIME;
+
+                System.err.println("RESTARTING at " + LocalDateTime.now());
+            }
+        }
+
+        return ret;
+    }
+
+    public static void scrapeDockets(List<String> dockets) throws InterruptedException {
+        System.out.println("**********************");
+        System.out.println("Scraping " + dockets.size() + "target dockets");
+        System.out.println("**********************");
+        System.err.println("Warn: only supported for Lancaster County, no rescraping");
+        System.err.println("Warn: only supported for MJ_CR and CP_CR (not MJ_LT)");
+        lastCheck = LocalDateTime.now();
+
+        if (dockets == null || dockets.isEmpty()) throw new IllegalStateException("null or empty dockets");
+
+        boolean done = false;
+        int next = 0;
+        while (!done) {
+            Exception exception = null;
+            try {
+                String docket = dockets.get(next);
+                Pointer pointer = Pointer.fromDocket(docket, "Lancaster");
+                CourtMode mode =  docket.indexOf("CP") > -1 ?
+                        CourtMode.CP_CR :
+                        CourtMode.MDJ_CR;
+                scrape(pointer, mode, lastCheck);
+                //System.out.println("Read " + dockets.get(next));
+                next++;
+                if (next >= dockets.size()) {
+                    done = true;
+                };
+            }
+            catch (Exception e) {
+                exception = e;
+            }
+
+            if (exception != null || urlLoops >= URL_HITS_PERMITTED) {
+                urlLoops = 0;
+                LocalDateTime now = LocalDateTime.now();
+                if (exception != null) {
+                    System.err.println("Scrape fail on docket: " + dockets.get(next) + " at " + now);
+                    System.err.println(exception);
+                }
+                else {
+                    System.out.println("Scrape hit max url hits permitted " +
+                            "(" + URL_HITS_PERMITTED + ") with docket: " + dockets.get(next) + " at " + now);
+                }
+
+                System.err.println("\nSleeping for " + HOURS_WAIT + " hours, restart at " +
+                        now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
+
+                Thread.sleep(RESET_PERMISSIONS_TIME);
+                millisForAllURLHits -= RESET_PERMISSIONS_TIME;
+
+                System.err.println("RESTARTING at " + LocalDateTime.now());
             }
         }
     }
@@ -305,7 +442,7 @@ public class Scraper {
      * @param nextCourtOffice
      * @return
      */
-    private static void advancePointer (Pointer pointer, Mode mode, boolean nextCourtOffice) throws IOException, ClassNotFoundException {
+    private static void advancePointer (Pointer pointer, CourtMode courtMode, boolean nextCourtOffice) throws IOException, ClassNotFoundException {
         boolean commencingScrape = !pointer.hasCourtOffice();
         boolean nextCounty = commencingScrape;
 
@@ -318,8 +455,8 @@ public class Scraper {
                 pointer.setYear(year + 1);
             }
             else if (!commencingScrape){
-                pointer.setYear(getStartYear(mode));
-                List<String> courtOffices = getCourtOffices(pointer.getCounty(), mode);
+                pointer.setYear(getStartYear(courtMode));
+                List<String> courtOffices = getCourtOffices(pointer.getCounty(), courtMode);
                 int index = courtOffices.indexOf(pointer.getCourtOffice());
                 if (index == courtOffices.size() - 1) {
                     nextCounty = true;
@@ -331,15 +468,15 @@ public class Scraper {
 
                     System.out.println("\n*** Bumped " + pointer.getCounty() + " court office from " +
                             prior + " to " + advancedCourtOffice +
-                            " (" + (index + 2) + " of " + (courtOffices.size() + 1) + ") ***\n");
+                            " (" + (index + 2) + " of " + (courtOffices.size()) + ") ***\n");
                 }
             }
 
             if (nextCounty) {
                 //first, save 'done' range on old county
-                if (!commencingScrape) saveCountyDone(pointer.getCounty(), mode);
+                if (!commencingScrape) saveCountyDone(pointer.getCounty(), courtMode);
 
-                pointer.setYear(getStartYear(mode));
+                pointer.setYear(getStartYear(courtMode));
                 int index = 1 + Website.counties.indexOf(pointer.getCounty());
                 if (index == Website.counties.size()) {
                     index = 0;
@@ -358,37 +495,41 @@ public class Scraper {
                         " to " + pointer.getCounty() +
                         " (" + (index + 1) + " of " + (Website.counties.size()) + ")");
 
-                pointer.setCourtOffice(getCourtOffices(pointer.getCounty(), mode).get(0));
+                pointer.setCourtOffice(getCourtOffices(pointer.getCounty(), courtMode).get(0));
 
-                CountyCoveredRange ccr = getCountyStartAndEnd(pointer.getCounty(), mode);
-
-                lastCheck = ccr == null ? null : ccr.getEnd();
+                setLastCheck(pointer.getCounty(), courtMode);
 
                 System.out.println("\n*** " + pointer.getCounty() + " has " +
-                        getCourtOffices(pointer.getCounty(), mode).size() + " court offices");
+                        getCourtOffices(pointer.getCounty(), courtMode).size() + " court offices");
 
-                if (!commencingScrape && mode == Mode.MDJ_LT) {
-                    //update github data with each new county
-                    Thread t1 = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Update.update(mode);
-                            } catch (IOException | ClassNotFoundException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    t1.start();
-                }
+//                if (!commencingScrape && courtMode == CourtMode.MDJ_LT) {
+//                    //update github data with each new county
+//                    Thread t1 = new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            try {
+//                                Update.update(courtMode);
+//                            } catch (IOException | ClassNotFoundException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    });
+//                    t1.start();
+//                }
             }
         }
         else {
             pointer.setSequenceNumberUnformatted(1 + pointer.getSequenceNumberUnformatted());
         }
 
-        savePointer(pointer, mode);
+        savePointer(pointer, courtMode);
     }
+
+    private static void setLastCheck(String county, CourtMode courtMode) throws IOException, ClassNotFoundException {
+        CountyCoveredRange ccr = getCountyStartAndEnd(county, courtMode);
+        lastCheck = ccr == null ? null : ccr.getEnd();
+    }
+
 
     /**
      * two time stamps describing date range of local (scraped) pdfs
@@ -398,16 +539,16 @@ public class Scraper {
      * #2 is a pull'sstart year UNLESS
      *     already exists and is earlier
      */
-    private static void saveCountyDone(String county, Mode mode) throws IOException, ClassNotFoundException {
+    private static void saveCountyDone(String county, CourtMode courtMode) throws IOException, ClassNotFoundException {
         CountyCoveredRange ccr = new CountyCoveredRange();
         ccr.setEnd(LocalDateTime.now());
-        LocalDateTime startFromThisRun = LocalDateTime.of(getStartYear(mode), 1, 1, 0, 0);
+        LocalDateTime startFromThisRun = LocalDateTime.of(getStartYear(courtMode), 1, 1, 0, 0);
 
-        CountyCoveredRange prior = getCountyStartAndEnd(county, mode);
+        CountyCoveredRange prior = getCountyStartAndEnd(county, courtMode);
         LocalDateTime start = (prior != null && prior.getStart().compareTo(startFromThisRun) < 0) ?
                 prior.getStart() : startFromThisRun;
 
-        File file = new File(mode.getPdfCachePath() + county,COMPLETION_FILE_NAME);
+        File file = new File(courtMode.getPdfCachePath() + county,COMPLETION_FILE_NAME);
         try (FileOutputStream fileOut = new FileOutputStream(file);
              ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
 
@@ -416,8 +557,8 @@ public class Scraper {
         }
     }
 
-    public static CountyCoveredRange getCountyStartAndEnd(String county, Mode mode) throws IOException, ClassNotFoundException {
-        File file = new File(mode.getPdfCachePath() + county,COMPLETION_FILE_NAME);
+    public static CountyCoveredRange getCountyStartAndEnd(String county, CourtMode courtMode) throws IOException, ClassNotFoundException {
+        File file = new File(courtMode.getPdfCachePath() + county,COMPLETION_FILE_NAME);
         if (!file.exists()) {
             return null;
         }
@@ -427,14 +568,14 @@ public class Scraper {
         }
     }
 
-    private static List<String> getCourtOffices(String county, Mode mode) throws IOException {
+    private static List<String> getCourtOffices(String county, CourtMode courtMode) throws IOException {
         //ensure we have all the court offices for target county
-        if (!courtLevelCountyCourtOffices.containsKey(mode)) {
-            courtLevelCountyCourtOffices.put(mode, new HashMap<>());
+        if (!courtLevelCountyCourtOffices.containsKey(courtMode)) {
+            courtLevelCountyCourtOffices.put(courtMode, new HashMap<>());
         }
-        HashMap<String, List<String>> countyCourtOffices = courtLevelCountyCourtOffices.get(mode);
+        HashMap<String, List<String>> countyCourtOffices = courtLevelCountyCourtOffices.get(courtMode);
         if (!countyCourtOffices.containsKey(county)) {
-            if (mode.getCourtLevel().equals("MJ")) {
+            if (courtMode.getCourtLevel().equals("MJ")) {
                 countyCourtOffices.put(county, getCourtOfficesFromServer(county));
             }
             else {
@@ -451,22 +592,23 @@ public class Scraper {
         return countyCourtOffices.get(county);
     }
 
-    private static void savePointer(Pointer pointer, Mode mode) throws IOException {
-            try (PrintWriter out = new PrintWriter(new FileOutputStream(pointerFiles.get(mode)));) {
+    private static void savePointer(Pointer pointer, CourtMode courtMode) throws IOException {
+            try (PrintWriter out = new PrintWriter(new FileOutputStream(pointerFiles.get(courtMode)));) {
                 out.print(pointer.toString());
             }
     }
 
-    private static Pointer readPointer(Mode mode) throws IOException, ClassNotFoundException {
-        try (BufferedReader in = new BufferedReader(new FileReader(pointerFiles.get(mode)));) {
-            return Pointer.fromString(in.readLine());
+    private static Pointer readPointer(CourtMode courtMode) throws IOException, ClassNotFoundException {
+        try (BufferedReader in = new BufferedReader(new FileReader(pointerFiles.get(courtMode)));) {
+            return Pointer.fromSerializedPointerString(in.readLine());
         }
     }
 
-    private static int getStartYear(Mode mode) {
-        if (mode == Mode.MDJ_CR) return 2019;
-        else if (mode == Mode.CP_CR) return 2022;
-        return LocalDateTime.now().getYear() - 1;
+    private static int getStartYear(CourtMode courtMode) {
+        if (courtMode == CourtMode.MDJ_CR) return 2019;
+        else if (courtMode == CourtMode.CP_CR) return 2022;
+        //return LocalDateTime.now().getYear() - 1;
+        else return 2022;
     }
 
     static int getCurrentYear() {
@@ -480,22 +622,22 @@ public class Scraper {
 //                "/" + pointer.getYear());
 //    }
 
-    public static boolean scrape(Pointer pointer, Mode mode, LocalDateTime lastCheck) throws IOException, InterruptedException, NoSuchFieldException {
+    public static boolean scrape(Pointer pointer, CourtMode courtMode, LocalDateTime lastCheck) throws IOException, InterruptedException, NoSuchFieldException {
         String county = pointer.getCounty();
         String courtOffice = pointer.getCourtOffice();
         String year = pointer.getYear() + "";
         String sequenceNumber = buildSequenceNumber(pointer.getSequenceNumberUnformatted());
 
-        File dir = new File(mode.getPdfCachePath() + pointer.getCounty() + "/" + pointer.getYear());
+        File dir = new File(courtMode.getPdfCachePath() + pointer.getCounty() + "/" + pointer.getYear());
 
         if (!dir.exists()) dir.mkdirs();
 
-        String pathToFile = getPdfFilePath(pointer, mode);
+        String pathToFile = getPdfFilePath(pointer, courtMode);
         File file = new File(pathToFile);
 
         boolean foundOrRead = false;
         try {
-            String docket = mode.getDocket(courtOffice, sequenceNumber, year);
+            String docket = courtMode.getDocket(courtOffice, sequenceNumber, year);
             boolean scrape = true;
             boolean rescrape = false;
 
@@ -503,12 +645,13 @@ public class Scraper {
                 foundOrRead = true;
                 scrape = false;
                 PdfData oldData = null;
-                if (mode == Mode.MDJ_LT) {
-                    oldData = LTParser.processFile(file);
-                }
-                else {
-                    oldData = CRParser.processFile(file);
-                }
+//                if (courtMode == CourtMode.MDJ_LT) {
+//                    oldData = LTParser.getSingleton().processFile(file);
+//                }
+//                else {
+//                    oldData = CRParser.processFile(file);
+//                }
+                oldData = ParseAll.getParser(courtMode).processFile(file);
                 if (oldData.rescrape(lastCheck)) {
                     scrape = true;
                     rescrape = true;
@@ -522,15 +665,15 @@ public class Scraper {
                     throw e;
                 }
 
-                foundOrRead = getDocket(mode, county, year, docket, rescrape) || foundOrRead;
+                foundOrRead = getDocket(courtMode, county, year, docket, rescrape) || foundOrRead;
             }
         } catch (IllegalStateException ise) {
             throw ise;
         } catch (InvalidPdfException ipe) {
             System.err.println("Cannot process saved pdf for scraping: " + pointer);
             System.err.println("Next step: delete ^ locally and re-call " + pointer);
-            deleteLocalPdf(pointer, mode);
-            return scrape(pointer, mode, lastCheck);
+            deleteLocalPdf(pointer, courtMode);
+            return scrape(pointer, courtMode, lastCheck);
         } catch (Exception e) {
             System.err.println("Cannot scrape " + pointer);
             e.printStackTrace();
@@ -540,20 +683,27 @@ public class Scraper {
         return foundOrRead;
     }
 
-    private static void deleteLocalPdf(Pointer pointer, Mode mode) {
-        String pathToFile = getPdfFilePath(pointer, mode);
+    private static void deleteLocalPdf(Pointer pointer, CourtMode courtMode) {
+        String pathToFile = getPdfFilePath(pointer, courtMode);
         File file = new File(pathToFile);
         file.delete();
     }
 
-    public static boolean getDocket(Mode mode, String county, String year, String docket, boolean rescrape) throws IOException, InterruptedException {
+    public static boolean getDocket(
+            CourtMode courtMode,
+            String county,
+            String year,
+            String docket,
+            boolean rescrape)
+            throws IOException, InterruptedException {
+
         long startMillis = System.currentTimeMillis();
 
         String url = null;
         boolean storedURL = false;
 
         if (rescrape) {
-            String savedURL = getStoredURL(mode, county, year, docket);
+            String savedURL = getStoredURL(courtMode, county, year, docket);
             if (savedURL != null) {
                 url = savedURL;
                 storedURL = true;
@@ -666,14 +816,6 @@ public class Scraper {
 
             List<NameValuePair> nvps = new ArrayList<>();
 
-            //SearchBy: OTN
-            //OTN: X 344046-3
-            //SearchBy: ParticipantName
-
-            //ParticipantLastName: Eckert
-            //ParticipantFirstName: John
-            //DocketType: Criminal
-            //ParticipantDateOfBirth: 2022-05-12
             nvps.add(new BasicNameValuePair("SearchBy", "DocketNumber"));
             nvps.add(new BasicNameValuePair("DocketNumber", docket));
             nvps.add(new BasicNameValuePair("ParticipantSID=", ""));
@@ -735,14 +877,14 @@ public class Scraper {
 //                    "docketNumber=" + docket + "&" +
 //                    "dnh=" + dnh;
             url = "https://ujsportal.pacourts.us/Report/" +
-                    (mode.getCourtLevel().equals("MJ") ?
+                    (courtMode.getCourtLevel().equals("MJ") ?
                     "MdjDocketSheet" :
                     "CpDocketSheet") +
                     "?" +
                     "docketNumber=" + docket + "&" +
                     "dnh=" + dnh;
 
-            storeURL(mode, county, year, url);
+            storeURL(courtMode, county, year, url);
         }
 
 
@@ -779,7 +921,7 @@ public class Scraper {
             byte[] bytes = os.toByteArray();
             os.close();
 
-            String pathToFile = getPdfFilePath(mode, county, year, docket);
+            String pathToFile = getPdfFilePath(courtMode, county, year, docket);
             FileOutputStream fos = new FileOutputStream(pathToFile);
             fos.write(bytes);
             fos.close();
@@ -802,6 +944,494 @@ public class Scraper {
             httpGet.releaseConnection();
             httpclient.close();
         }
+    }
+
+    public static boolean isInLancasterCountyPrison(Person person) throws IOException, InterruptedException {
+        return isInLancasterCountyPrison(
+                person.getLast(),
+                person.getFirst(),
+                person.getBirthdate()
+        );
+    }
+
+    public static boolean isInLancasterCountyPrison(
+            String last,
+            String first,
+            LocalDate dob) throws IOException, InterruptedException {
+        return pingLancasterPrison(last, first, dob) != null;
+    }
+
+    public static LocalDate getDateOfIncarcerationIfCurrentlyJailedInLancaster(Person p) throws IOException, InterruptedException {
+        return pingLancasterPrison(p.getLast(), p.getFirst(), p.getBirthdate());
+    }
+
+    public static LocalDate pingLancasterPrison(
+            String last,
+            String first,
+            LocalDate dob)
+            throws IOException, InterruptedException {
+
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+
+        String jailSite = "https://it.co.lancaster.pa.us/SPS/Public";
+
+        HttpPost httpPost = new HttpPost(jailSite);
+
+        List<NameValuePair> nvps = new ArrayList<>();
+
+//        LastName: Lewis
+//        FirstName: Tiekey
+//        DateOfBirth: 7/24/1972    note: 07/24/1972 works
+        nvps.add(new BasicNameValuePair("LastName", last));
+        nvps.add(new BasicNameValuePair("FirstName", first));
+        nvps.add(new BasicNameValuePair("DateOfBirth",
+                (dob != null ? dob.format(PdfData.slashDateFormatter): "")));
+        nvps.add(new BasicNameValuePair("PermanentIncarcerationNumber", ""));
+        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+
+        CloseableHttpResponse response2 = httpclient.execute(httpPost);
+
+        try {
+            HttpEntity entity2 = response2.getEntity();
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            InputStream inputStream = entity2.getContent();
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+
+            String xml = new String(os.toByteArray()).trim();
+            inputStream.close();
+            os.close();
+            EntityUtils.consume(entity2);
+
+            try {
+                Thread.sleep(BETWEEN_RESPONSE_PAUSE);
+            } catch (InterruptedException e) {
+                httpclient.close();
+                throw e;
+            }
+
+            if (xml.indexOf("No Results") > -1) return null;
+
+            int i = xml.lastIndexOf("<tr>");
+            xml = xml.substring(i);
+            i = xml.indexOf("<td>") + "<td>".length();
+            xml = xml.substring(i);
+            String[] split = xml.split("<td>");
+            String date = split[5].trim();
+            date = date.substring(0, date.indexOf(' '));
+
+            //System.out.println("jail start: " + date);
+
+
+
+            LocalDate ret = PdfData.forceSlashedDateIntoLocalDate(date);
+            return ret;
+        } catch (Exception e) {
+            e.printStackTrace();
+            response2.close();
+            httpPost.releaseConnection();
+            httpclient.close();
+            throw e;
+        }
+    }
+
+    public static boolean getPersonDocketNames(
+            String last,
+            String first,
+            String dob)
+            throws IOException, InterruptedException {
+
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+
+        HttpGet httpGet = new HttpGet(site);
+
+        CloseableHttpResponse response = httpclient.execute(httpGet);
+
+        int status = response.getStatusLine().getStatusCode();
+        if (status != 200) {
+            response.close();
+            httpGet.releaseConnection();
+            httpclient.close();
+            throw new IllegalStateException("Failure in getOTN's first response, status = " + status);
+        }
+
+        Header[] headers = response.getAllHeaders();
+
+        //******** Get Cookies from base page return **********
+
+        String cookies = "";
+        for (Header header : headers) {
+            String val = header.getValue();
+            if (header.getName().equals("Set-Cookie")) {
+                if (!cookies.equals("")) {
+                    cookies += "; ";
+                }
+                cookies += val;
+            }
+        }
+
+        Set<String> badCookieChunks = new HashSet<>();
+        badCookieChunks.add(" path=/");
+        badCookieChunks.add(" samesite=strict");
+        badCookieChunks.add(" httponly");
+        badCookieChunks.add(" HttpOnly");
+        badCookieChunks.add(" secure");
+
+        String[] cookiePrint = cookies.split(";");
+        List<String> finalCookies = new ArrayList<>();
+        for (String s : cookiePrint) {
+            if (!badCookieChunks.contains(s)) {
+                finalCookies.add(s.trim());
+            }
+        }
+
+        cookies = "";
+        for (String s : finalCookies) {
+            if (!cookies.equals("")) {
+                cookies += "; ";
+            }
+            cookies += s;
+        }
+
+
+        //***** Extract RequestVerificationToken ****
+
+        String requestValidationToken = null;
+
+        try {
+            HttpEntity entity = response.getEntity();
+            InputStream inputStream = entity.getContent();
+
+            String tokenFlag = "RequestVerificationToken";
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            while (in.ready()) {
+                String next = in.readLine();
+                boolean done = false;
+                while (!done) {
+                    int i = next.indexOf(tokenFlag);
+                    if (i < 0) {
+                        done = true;
+                    } else {
+                        i = i + tokenFlag.length();
+                        next = next.substring(i);
+                        String valueOf = "value=\"";
+                        int iv = next.indexOf(valueOf);
+
+                        next = next.substring(iv + valueOf.length());
+                        int qi = next.indexOf('"');
+                        requestValidationToken = next.substring(0, qi);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            response.close();
+            httpGet.releaseConnection();
+            httpclient.close();
+            throw e;
+        }
+
+
+        try {
+            Thread.sleep(BETWEEN_RESPONSE_PAUSE);
+        } catch (InterruptedException e) {
+            httpclient.close();
+            throw e;
+        }
+
+
+        HttpPost httpPost = new HttpPost(site);
+
+        httpPost.addHeader("Cookie", cookies);
+
+        List<NameValuePair> nvps = new ArrayList<>();
+
+        //SearchBy: ParticipantName
+        //ParticipantLastName: Eckert
+        //ParticipantFirstName: John  **** make sure to excise middle name ****
+        //DocketType: Criminal
+        //ParticipantDateOfBirth: 2022-05-12
+        nvps.add(new BasicNameValuePair("SearchBy", "ParticipantName"));
+        nvps.add(new BasicNameValuePair("ParticipantLastName", last));
+        nvps.add(new BasicNameValuePair("ParticipantFirstName", first));
+        nvps.add(new BasicNameValuePair("ParticipantDateOfBirth", dob));
+        nvps.add(new BasicNameValuePair("DocketType", "Criminal"));
+        nvps.add(new BasicNameValuePair("ParticipantSID=", ""));
+        nvps.add(new BasicNameValuePair("ParticipantSSN", ""));
+        nvps.add(new BasicNameValuePair("PADriversLicenseNumber", ""));
+        nvps.add(new BasicNameValuePair("__RequestVerificationToken", requestValidationToken));
+        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+
+        CloseableHttpResponse response2 = httpclient.execute(httpPost);
+
+        try {
+            HttpEntity entity2 = response2.getEntity();
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            InputStream inputStream = entity2.getContent();
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+
+            String xml = new String(os.toByteArray()).trim();
+            inputStream.close();
+            os.close();
+
+            Set<String> otns = new TreeSet<>();
+            int i = xml.indexOf("caseSearchResultGrid");
+            xml = xml.substring(i);
+            i = xml.indexOf("<tbody>") + "<tbody><tr>".length();
+            int end = xml.indexOf("</tbody>");
+            xml = xml.substring(i, end);
+            String [] rows = xml.split("<tr>");
+            for (String row: rows) {
+                String[] cells = row.split("<td>");
+                String otn = cells[10].substring(0, cells[10].indexOf('<'));
+                otns.add(otn);
+            }
+
+            File dir = new File(PDF_CACHE_PATH + "People");
+            if (!dir.exists()) dir.mkdir();
+
+            File file = new File(PDF_CACHE_PATH + "People/" + getPersonFileName(last, first, dob));
+            try (PrintWriter out = new PrintWriter(file);) {
+                for (String otn: otns) {
+                    out.println(otn);
+                }
+            }
+            catch (Exception ugh) {
+                ugh.printStackTrace();
+            }
+
+            EntityUtils.consume(entity2);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response2.close();
+            httpPost.releaseConnection();
+            httpclient.close();
+            throw e;
+        }
+
+        return false;
+    }
+
+    private static String getPersonFileName(String last, String first, String dob) {
+        return last + ", " + first + " " + dob;
+    }
+
+    public static List<String> getOTNDocketNames(String otn)
+            throws IOException, InterruptedException {
+
+        List<String> ret = new ArrayList<>();
+
+        File dir = new File(PDF_CACHE_PATH + "OTN");
+        if (!dir.exists()) dir.mkdir();
+
+        File file = new File(PDF_CACHE_PATH + "OTN/" + otn);
+
+        if (file.exists()) {
+            if (firstOTNExistsWarning) {
+                System.err.println("Warn: otn file already exists for " + otn + ", not re-reading. " +
+                        "Risks missing docket created after earlier read. " +
+                        "Someday, check for CP docket name in existing, re-read if non-existent.");
+                firstOTNExistsWarning = false;
+            }
+            try (BufferedReader in = new BufferedReader(new FileReader(file));) {
+                String next = null;
+                while ((next = in.readLine()) != null) {
+                    ret.add(next);
+                }
+            }
+            catch (Exception eek) {
+                eek.printStackTrace();
+                throw eek;
+            }
+            return ret;
+        }
+
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+
+        HttpGet httpGet = new HttpGet(site);
+
+        CloseableHttpResponse response = httpclient.execute(httpGet);
+
+        int status = response.getStatusLine().getStatusCode();
+        if (status != 200) {
+            response.close();
+            httpGet.releaseConnection();
+            httpclient.close();
+            throw new IllegalStateException("Failure in getOTN's first response, status = " + status);
+        }
+
+        Header[] headers = response.getAllHeaders();
+
+        //******** Get Cookies from base page return **********
+
+        String cookies = "";
+        for (Header header : headers) {
+            String val = header.getValue();
+            if (header.getName().equals("Set-Cookie")) {
+                if (!cookies.equals("")) {
+                    cookies += "; ";
+                }
+                cookies += val;
+            }
+        }
+
+        Set<String> badCookieChunks = new HashSet<>();
+        badCookieChunks.add(" path=/");
+        badCookieChunks.add(" samesite=strict");
+        badCookieChunks.add(" httponly");
+        badCookieChunks.add(" HttpOnly");
+        badCookieChunks.add(" secure");
+
+        String[] cookiePrint = cookies.split(";");
+        List<String> finalCookies = new ArrayList<>();
+        for (String s : cookiePrint) {
+            if (!badCookieChunks.contains(s)) {
+                finalCookies.add(s.trim());
+            }
+        }
+
+        cookies = "";
+        for (String s : finalCookies) {
+            if (!cookies.equals("")) {
+                cookies += "; ";
+            }
+            cookies += s;
+        }
+
+
+        //***** Extract RequestVerificationToken ****
+
+        String requestValidationToken = null;
+
+        try {
+            HttpEntity entity = response.getEntity();
+            InputStream inputStream = entity.getContent();
+
+            String tokenFlag = "RequestVerificationToken";
+            BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+            while (in.ready()) {
+                String next = in.readLine();
+                boolean done = false;
+                while (!done) {
+                    int i = next.indexOf(tokenFlag);
+                    if (i < 0) {
+                        done = true;
+                    } else {
+                        i = i + tokenFlag.length();
+                        next = next.substring(i);
+                        String valueOf = "value=\"";
+                        int iv = next.indexOf(valueOf);
+
+                        next = next.substring(iv + valueOf.length());
+                        int qi = next.indexOf('"');
+                        requestValidationToken = next.substring(0, qi);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            response.close();
+            httpGet.releaseConnection();
+            httpclient.close();
+            throw e;
+        }
+
+
+        try {
+            Thread.sleep(BETWEEN_RESPONSE_PAUSE);
+        } catch (InterruptedException e) {
+            httpclient.close();
+            throw e;
+        }
+
+
+        HttpPost httpPost = new HttpPost(site);
+
+        httpPost.addHeader("Cookie", cookies);
+
+        List<NameValuePair> nvps = new ArrayList<>();
+
+        //SearchBy: OTN
+        //OTN: X 344046-3
+        nvps.add(new BasicNameValuePair("SearchBy", "OTN"));
+        nvps.add(new BasicNameValuePair("OTN", otn));
+        nvps.add(new BasicNameValuePair("ParticipantSID=", ""));
+        nvps.add(new BasicNameValuePair("ParticipantSSN", ""));
+        nvps.add(new BasicNameValuePair("PADriversLicenseNumber", ""));
+        nvps.add(new BasicNameValuePair("__RequestVerificationToken", requestValidationToken));
+        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+
+        CloseableHttpResponse response2 = httpclient.execute(httpPost);
+
+        try {
+            HttpEntity entity2 = response2.getEntity();
+
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            InputStream inputStream = entity2.getContent();
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+
+            String xml = new String(os.toByteArray()).trim();
+            inputStream.close();
+            os.close();
+
+            List<String> cpDocketsPlusDNH = extractOTNURLs(xml, "/Report/CpDocketSheet?docketNumber=");
+            List<String> mjDocketsPlusDNH = extractOTNURLs(xml, "/Report/MdjDocketSheet?docketNumber=");
+            //**** WOAH, did you know you can get a full summary of mj and cp for anyone? Just use same url ending, but route by 'CourtSummary' as below
+            //List<String> cpCourtSummaryPlusDNH = extractOTNURLs(xml, "/Report/CpCourtSummary?docketNumber=");
+            //List<String> mjCourtSummaryPlusDNH = extractOTNURLs(xml, "/Report/MdjCourtSummary?docketNumber=");
+
+            try (PrintWriter out = new PrintWriter(file);) {
+                for (String s: cpDocketsPlusDNH) {
+                    out.println(s);
+                    ret.add(s);
+                }
+                for (String s: mjDocketsPlusDNH) {
+                    out.println(s);
+                    ret.add(s);
+                }
+            }
+            catch (Exception ugh) {
+                ugh.printStackTrace();
+            }
+
+            EntityUtils.consume(entity2);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response2.close();
+            httpPost.releaseConnection();
+            httpclient.close();
+            throw e;
+        }
+
+        return ret;
+    }
+
+    private static List<String> extractOTNURLs(String html, String startOfURL) {
+        String terminator = "&dnh=";
+
+        List<String> ret = new ArrayList<>();
+
+        String copy = html;
+        int i = copy.indexOf(startOfURL);
+        while (i > -1) {
+            copy = copy.substring(i + startOfURL.length());
+            i = copy.indexOf(terminator);
+            ret.add(copy.substring(0, i));
+            copy = copy.substring(i);
+            i = copy.indexOf(startOfURL);
+        }
+        return ret;
     }
 
     static String preCountyFlag = "<option data-aopc-County=\"(";
@@ -870,31 +1500,31 @@ public class Scraper {
         return ret;
     }
 
-    private static String getPdfFilePath(Pointer pointer, Mode mode) {
-       return getPdfFilePath(mode,
+    private static String getPdfFilePath(Pointer pointer, CourtMode courtMode) {
+       return getPdfFilePath(courtMode,
                pointer.getCounty(),
                pointer.getYear() + "",
                pointer.getCourtOffice(),
                buildSequenceNumber(pointer.getSequenceNumberUnformatted()));
     }
 
-    private static String getPdfFilePath(Mode mode, String county, String year, String courtOffice, String sequence) {
+    private static String getPdfFilePath(CourtMode courtMode, String county, String year, String courtOffice, String sequence) {
         while (courtOffice.startsWith("0")) courtOffice = courtOffice.substring(1);
-        return mode.getPdfCachePath() + county + "/" + year + "/" +
+        return courtMode.getPdfCachePath() + county + "/" + year + "/" +
                 courtOffice + "_" + sequence + "_" + year + ".pdf";
     }
 
 
-    private static String getPdfFilePath(Mode mode, String county, String year, String docket) {
-        String mdj = mode.getCourtLevel() + "-";
-        String lt = mode.getCaseType() + "-";
+    private static String getPdfFilePath(CourtMode courtMode, String county, String year, String docket) {
+        String mdj = courtMode.getCourtLevel() + "-";
+        String lt = courtMode.getCaseType() + "-";
 
         docket = excise(excise(docket, mdj), lt);
         while (docket.startsWith("0")) {
             docket = docket.substring(1);
         }
         docket = docket.replace('-', '_');
-        return mode.getPdfCachePath() + county + "/" + year + "/" + docket + ".pdf";
+        return courtMode.getPdfCachePath() + county + "/" + year + "/" + docket + ".pdf";
     }
 
     private static String excise(String full, String target) {
@@ -937,7 +1567,7 @@ public class Scraper {
     //county --> years
 //    private static HashMap<String, Set<String>> probedURLFile = new HashMap<>();
     //mode -> county -> years
-    private static HashMap<Mode, HashMap<String, Set<String>>> modesWithProbedURLFiles = new HashMap<>();
+    private static HashMap<CourtMode, HashMap<String, Set<String>>> modesWithProbedURLFiles = new HashMap<>();
     private final static String URL_STORE_FILE_NAME = "url_store";
 //    private final static String prepend = "https://ujsportal.pacourts.us/Report/MdjDocketSheet?docketNumber=";
 //    private final static int PREPEND_URL_LENGTH = prepend.length();
@@ -948,39 +1578,39 @@ public class Scraper {
      * @return url used in past to get this pdf OR null if doesn't exist
      */
     //HashMap<String, HashMap<String, Map<String, String>>>
-    public static String getStoredURL(Mode mode, String county, String year, String fullDocket) throws IOException {
-        String ret = getStoredURLS(mode, county, year).get(fullDocket);
+    public static String getStoredURL(CourtMode courtMode, String county, String year, String fullDocket) throws IOException {
+        String ret = getStoredURLS(courtMode, county, year).get(fullDocket);
         if (ret == null) return null;
         String prepend = "https://ujsportal.pacourts.us/Report/" +
-                (mode.getCourtLevel().equals("MJ") ? "Mdj" : "Cp") +
+                (courtMode.getCourtLevel().equals("MJ") ? "Mdj" : "Cp") +
                 "DocketSheet?docketNumber=";
         return prepend + ret;
     }
 
-    private static Map<String, String> getStoredURLS(Mode mode, String county, String year) throws IOException {
-        if (!modesWithProbedURLFiles.containsKey(mode)) {
-            modesWithProbedURLFiles.put(mode, new HashMap<>());
+    private static Map<String, String> getStoredURLS(CourtMode courtMode, String county, String year) throws IOException {
+        if (!modesWithProbedURLFiles.containsKey(courtMode)) {
+            modesWithProbedURLFiles.put(courtMode, new HashMap<>());
         }
-        HashMap<String, Set<String>> probedURLFile = modesWithProbedURLFiles.get(mode);
+        HashMap<String, Set<String>> probedURLFile = modesWithProbedURLFiles.get(courtMode);
         if (probedURLFile.containsKey(county) && probedURLFile.get(county).contains(year)) {
-            return storedURLs.get(mode).get(county).get(year);
+            return storedURLs.get(courtMode).get(county).get(year);
         }
 
         //county may pre-exist, just not for this year
-        if (!storedURLs.get(mode).containsKey(county)) {
-            storedURLs.get(mode).put(county, new HashMap<>());
+        if (!storedURLs.get(courtMode).containsKey(county)) {
+            storedURLs.get(courtMode).put(county, new HashMap<>());
         }
 
         //year can't pre-exist
         Map<String, String> urls = new HashMap<>();
-        storedURLs.get(mode).get(county).put(year, urls);
+        storedURLs.get(courtMode).get(county).put(year, urls);
 
-        File file = new File(mode.getPdfCachePath() + county + "/" + year, URL_STORE_FILE_NAME);
+        File file = new File(courtMode.getPdfCachePath() + county + "/" + year, URL_STORE_FILE_NAME);
         if (file.exists()) {
             BufferedReader in = new BufferedReader(new FileReader(file));
             String next = null;
             while ((next = in.readLine()) != null) {
-                String docket = docketFromFullURL(next, mode);
+                String docket = docketFromFullURL(next, courtMode);
                 if (docket != null) {
                     urls.put(docket, next);
                 }
@@ -995,10 +1625,10 @@ public class Scraper {
         return urls;
     }
 
-    private static String docketFromFullURL(String fullURL, Mode mode) {
-        int i = fullURL.indexOf(mode.getCourtLevel() + "-");
+    private static String docketFromFullURL(String fullURL, CourtMode courtMode) {
+        int i = fullURL.indexOf(courtMode.getCourtLevel() + "-");
         if (i > -1) {
-            return fullURL.substring(i, i + mode.getDocketCharLen());
+            return fullURL.substring(i, i + courtMode.getDocketCharLen());
         }
         return null;
     }
@@ -1009,14 +1639,14 @@ public class Scraper {
      * @param year
      * @param fullURL ex: https://ujsportal.pacourts.us/Report/MdjDocketSheet?docketNumber=MJ-05227-LT-0000094-2021&dnh=PyIaNfEty5auetXme6GeJg%3D%3D
      */
-    private static void storeURL(Mode mode, String county, String year, String fullURL) throws IOException {
-        String shortenedURL = fullURL.substring(mode.getPrependURLLength());
-        Map<String, String> urls = getStoredURLS(mode, county, year);
-        urls.put(docketFromFullURL(shortenedURL, mode), shortenedURL);
+    private static void storeURL(CourtMode courtMode, String county, String year, String fullURL) throws IOException {
+        String shortenedURL = fullURL.substring(courtMode.getPrependURLLength());
+        Map<String, String> urls = getStoredURLS(courtMode, county, year);
+        urls.put(docketFromFullURL(shortenedURL, courtMode), shortenedURL);
 
         long start = System.currentTimeMillis();
 
-        File file = new File(mode.getPdfCachePath() + county + "/" + year, URL_STORE_FILE_NAME);
+        File file = new File(courtMode.getPdfCachePath() + county + "/" + year, URL_STORE_FILE_NAME);
         PrintWriter out = new PrintWriter(new FileWriter(file));
         for (String url: urls.values()) {
             out.println(url);

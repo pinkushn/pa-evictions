@@ -83,7 +83,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.io.*;
 import java.util.*;
 
-public class LTParser {
+public class LTParser implements Parser {
     //15301_0000023_2019
     public static final String TARGET_YEAR_FOR_MAIN = "2022";
     public static final String TARGET_COUNTY_FOR_MAIN = "Lancaster";
@@ -198,7 +198,7 @@ public class LTParser {
 
     public static void main (String[] args) {
         try {
-            String pathToFile = Scraper.PDF_CACHE_PATH_WITHOUT_CASE_TYPE + "LT/" +
+            String pathToFile = Scraper.PDF_CACHE_PATH + "LT/" +
                     TARGET_COUNTY_FOR_MAIN + "/" + TARGET_YEAR_FOR_MAIN +
                     "/" + TARGET_COURT_FOR_MAIN + "_" +
                     TARGET_SEQUENCE_FOR_MAIN + "_" +
@@ -224,14 +224,20 @@ public class LTParser {
     }
 
     public static LTPdfData processFile(String fileName, boolean printAll) throws Exception {
-        return processFile(new File(fileName), printAll);
+        return getSingleton().processFile(new File(fileName), printAll);
     }
 
-    public static LTPdfData processFile(File file) throws IOException {
+    private static LTParser singleton = new LTParser();
+
+    public static LTParser getSingleton() {
+        return singleton;
+    }
+
+    public LTPdfData processFile(File file) throws IOException {
         return processFile(file, false);
     }
 
-    public static LTPdfData processFile(File file, boolean printAll) throws IOException {
+    public LTPdfData processFile(File file, boolean printAll) throws IOException {
         try {
             InputStream targetStream = new FileInputStream(file);
             LTPdfData data = process(targetStream, printAll);
@@ -243,7 +249,11 @@ public class LTParser {
         }
     }
 
-    public static LTPdfData process (InputStream pdfStream, boolean printAll) throws IOException {
+//    public static LTPdfData process (InputStream pdfStream, boolean printAll) throws IOException {
+//        return getSingleton().processHelper(pdfStream, printAll);
+//    }
+
+    public LTPdfData process (InputStream pdfStream, boolean printAll) throws IOException {
         try {
             PdfReader pdfReader = new PdfReader(pdfStream);
             PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);

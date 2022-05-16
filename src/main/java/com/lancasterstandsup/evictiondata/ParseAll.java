@@ -7,7 +7,7 @@ import java.util.*;
 
 public class ParseAll {
 
-    private final static String PDF_CACHE_PATH = Scraper.PDF_CACHE_PATH_WITHOUT_CASE_TYPE;
+    private final static String PDF_CACHE_PATH = Scraper.PDF_CACHE_PATH;
 
     //county --> cities in county
     private static Map<String, Set<String>> cities = new HashMap<>();
@@ -16,11 +16,11 @@ public class ParseAll {
         String county = "Lancaster";
         String year = "2022";
 
-        get(Scraper.Mode.MDJ_CR, county, year, false);
+        get(Scraper.CourtMode.MDJ_CR, county, year, false);
     }
 
-    public static Map<String, List<PdfData>> get(Scraper.Mode mode, String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
-        List<PdfData> all = parseAll(mode, county, year, false);
+    public static Map<String, List<PdfData>> get(Scraper.CourtMode courtMode, String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
+        List<PdfData> all = parseAll(courtMode, county, year, false);
 
         Map<String, List<PdfData>> byJudge = sortByJudge(all);
 
@@ -34,11 +34,11 @@ public class ParseAll {
      *
      * @param county
      */
-    public static <T extends PdfData> List<T> get(Scraper.Mode mode, String county, String[] years) throws IOException, ClassNotFoundException {
+    public static <T extends PdfData> List<T> get(Scraper.CourtMode courtMode, String county, String[] years) throws IOException, ClassNotFoundException {
         List<T> list = new LinkedList<>();
 
         for (String year: years) {
-            list.addAll(parseAll(mode, county, year, false));
+            list.addAll(parseAll(courtMode, county, year, false));
         }
 
         return list;
@@ -75,13 +75,13 @@ public class ParseAll {
         return ret;
     }
 
-    public static <T extends PdfData> List<T> parseAll(Scraper.Mode mode, String county, String year, boolean countExpunged) throws IOException, ClassNotFoundException {
+    public static <T extends PdfData> List<T> parseAll(Scraper.CourtMode courtMode, String county, String year, boolean countExpunged) throws IOException, ClassNotFoundException {
         if (countExpunged) {
             Worksheet.clearPreProcessed(county);
         }
 
-        String dirPath = PDF_CACHE_PATH + mode.getCaseType() + "/" + county + "/" + year;
-        String preProcessedPath = PDF_CACHE_PATH + mode.getCaseType() + "/" + county + "/" + year + "_preProcessed";
+        String dirPath = PDF_CACHE_PATH + courtMode.getFolderName() + "/" + county + "/" + year;
+        String preProcessedPath = PDF_CACHE_PATH + courtMode.getFolderName() + "/" + county + "/" + year + "_preProcessed";
 
         File dir = new File(dirPath);
         File[] pdfs = dir.listFiles();
@@ -125,9 +125,10 @@ public class ParseAll {
                     } else {
                         //System.out.println("Processing " + pdf);
                         InputStream targetStream = new FileInputStream(pdf);
-                        data = mode == Scraper.Mode.MDJ_LT ?
-                                LTParser.process(targetStream, false) :
-                                CRParser.process(targetStream, false);
+//                        data = courtMode == Scraper.CourtMode.MDJ_LT ?
+//                                LTParser.process(targetStream, false) :
+//                                CRParser.process(targetStream, false);
+                        data = getParser(courtMode).process(targetStream, false);
                         if (data != null && data.isClosed()) {
                             FileOutputStream fout = new FileOutputStream(preProcessedPath + "/" + stripPdf, false);
                             ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -192,6 +193,66 @@ public class ParseAll {
         }
 
         return ret;
+    }
+
+    public static <T extends PdfData> List<T> parseFromDockets(List<String> dockets, String county) throws NoSuchFieldException, IOException, ClassNotFoundException {
+        List<T> ret = new ArrayList<>();
+        for (String docket: dockets) {
+            T t = parseFromDocket(docket, county);
+            if (t != null) ret.add(t);
+        }
+        return ret;
+    }
+
+    public static <T extends PdfData> T parseFromDocket(String docket, String county) throws IOException, ClassNotFoundException, NoSuchFieldException {
+        Scraper.CourtMode courtMode = PdfData.getCourtModeFromDocket(docket);
+        String year = PdfData.getYearFromDocket(docket);
+        String dirPath = PDF_CACHE_PATH + courtMode.getFolderName() + "/" + county + "/" + year;
+        String preProcessedPath = PDF_CACHE_PATH + courtMode.getFolderName() + "/" + county + "/" + year + "_preProcessed";
+
+        try {
+            String fileName = PdfData.getJBFileName(docket);
+            File file = new File(dirPath + "/" + fileName + ".pdf");
+            if (!file.exists()) {
+                System.err.println("No such file: " + file);
+                return null;
+            }
+            InputStream targetStream = new FileInputStream(file);
+            PdfData data = getParser(courtMode).process(targetStream, false);
+            if (data != null && data.isClosed()) {
+                FileOutputStream fout = new FileOutputStream(preProcessedPath + "/" + fileName, false);
+                ObjectOutputStream oos = new ObjectOutputStream(fout);
+                oos.writeObject(data);
+                oos.close();
+            }
+            else if (data == null) {
+                System.err.println("****** Unable to parse docket " + docket + " ******");
+            }
+            targetStream.close();
+
+            return (T) data;
+        }
+        catch (InvalidPdfException ipe) {
+            System.err.println("malformed docket cannot be processed: " + docket);
+            throw ipe;
+        } catch (Exception e) {
+            System.err.println("Cannot process docket " + docket);
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public static Parser getParser(Scraper.CourtMode courtMode) {
+        if (courtMode == Scraper.CourtMode.MDJ_LT) {
+            return LTParser.getSingleton();
+        }
+        else if (courtMode == Scraper.CourtMode.MDJ_CR) {
+            return CRParser.getSingleton();
+        }
+        else if (courtMode == Scraper.CourtMode.CP_CR) {
+            return CPParser.getSingleton();
+        }
+        throw new IllegalStateException("Mode " + courtMode + " not supported");
     }
 //
 //    private static boolean hasCitiesFile(String county) {

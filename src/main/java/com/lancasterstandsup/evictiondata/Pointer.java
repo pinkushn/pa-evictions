@@ -52,7 +52,7 @@ public class Pointer implements Serializable {
         return courtOffice != null;
     }
 
-    public static Pointer fromString(String s) {
+    public static Pointer fromSerializedPointerString(String s) {
         s = s.replace(",", "");
         String[] split = s.split(" ");
         Pointer ret = new Pointer();
@@ -61,6 +61,16 @@ public class Pointer implements Serializable {
         ret.setYear(Integer.parseInt(split[2]));
         ret.setSequenceNumberUnformatted(Integer.parseInt(split[3].substring(1)));
 
+        return ret;
+    }
+
+    public static Pointer fromDocket(String docket, String county) {
+        String[] split = docket.split("-");
+        Pointer ret = new Pointer();
+        ret.setCounty(county);
+        ret.setCourtOffice(split[1]);
+        ret.setSequenceNumberUnformatted(Integer.parseInt(split[3]));
+        ret.setYear(Integer.parseInt(split[4]));
         return ret;
     }
 }

@@ -15,7 +15,7 @@ import java.util.*;
  * 5/8/22 next up: probe for other section types
  */
 
-public class CRParser {
+public class CRParser implements Parser {
     static final String [] colHeaders = {
             "Court",
             "Presiding Judge",
@@ -112,7 +112,7 @@ public class CRParser {
     private static String judgeHeaderStart = "Magisterial District Judge ";
     //private static String presidingJudgeStart = "Judge Assigned: Magisterial District Judge ";
     //private static String magisterialDistrictJudge = "Magisterial District Judge ";
-    private static String docketNumberStart = "Docket Number: ";
+    private static String docketStart = "Docket Number: ";
 
 
     public static final String TARGET_YEAR_FOR_MAIN = "2022";
@@ -121,7 +121,7 @@ public class CRParser {
     public static final String TARGET_SEQUENCE_FOR_MAIN = "0000001";
     public static void main (String[] args) {
         try {
-            String pathToFile = Scraper.PDF_CACHE_PATH_WITHOUT_CASE_TYPE + "CR/" +
+            String pathToFile = Scraper.PDF_CACHE_PATH + "CR/" +
                     TARGET_COUNTY_FOR_MAIN + "/" + TARGET_YEAR_FOR_MAIN +
                     "/" + TARGET_COURT_FOR_MAIN + "_" +
                     TARGET_SEQUENCE_FOR_MAIN + "_" +
@@ -140,14 +140,14 @@ public class CRParser {
         return processFile(new File(fileName), printAll);
     }
 
-    public static CRPdfData processFile(File file) throws IOException, NoSuchFieldException {
+    public CRPdfData processFile(File file) throws IOException, NoSuchFieldException {
         return processFile(file, false);
     }
 
     public static CRPdfData processFile(File file, boolean printAll) throws IOException, NoSuchFieldException {
         try {
             InputStream targetStream = new FileInputStream(file);
-            CRPdfData data = process(targetStream, printAll);
+            CRPdfData data = getSingleton().process(targetStream, printAll);
             targetStream.close();
             return data;
         } catch (Exception e) {
@@ -156,7 +156,12 @@ public class CRParser {
         }
     }
 
-    public static CRPdfData process (InputStream pdfStream, boolean printAll) throws IOException, NoSuchFieldException {
+    private static CRParser singleton = new CRParser();
+    public static CRParser getSingleton() {
+        return singleton;
+    }
+
+    public CRPdfData process (InputStream pdfStream, boolean printAll) throws IOException, NoSuchFieldException {
         try {
             PdfReader pdfReader = new PdfReader(pdfStream);
             PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
@@ -266,7 +271,7 @@ public class CRParser {
         if (sectionType == CRParser.SectionType.DOCKET) {
             String judgeHeader = section.getJudgeHeader();
             data.setCourtOffice("MDJ " + judgeHeader.substring(judgeHeaderStart.length()));
-            data.setDocketNumber(strings[0].substring(docketNumberStart.length()));
+            data.setDocket(strings[0].substring(docketStart.length()));
         }
         else if (sectionType == SectionType.CASE_INFORMATION) {
             String s = strings[0];
@@ -287,7 +292,7 @@ public class CRParser {
             String a = "OTN: ";
             String b = "File Date: ";
 
-            data.setOTN(s.substring(a.length(), s.indexOf(b)).trim());
+            data.setOTNs(s.substring(a.length(), s.indexOf(b)).trim());
             data.setFileDate(s.substring(s.indexOf(b) + b.length()).trim());
 
             s = strings[next++];
@@ -323,19 +328,24 @@ public class CRParser {
 
             data.setCaseStatus(s.substring(a.length()).trim());
         }
-//        else if (sectionType == SectionType.STATUS_INFORMATION) {
+        else if (sectionType == SectionType.STATUS_INFORMATION) {
 //            for (String s: strings) {
 //                System.out.println(s);
 //            }
-//        }
+        }
         else if (sectionType == SectionType.BAIL) {
+            boolean foundSet = false;
             for (String s: strings) {
-                //System.out.println(s);
+                //if (foundSet) System.out.println("beyond bail Set: " + s);
                 if (s.indexOf("Set") == 0) {
+                    foundSet = true;
                     int d = s.indexOf('$');
                     String bailWithCommas = s.substring(d + 1, s.lastIndexOf('.')).trim();
                     String bailWithoutCommas = bailWithCommas.replaceAll(",", "");
                     data.setBail(Integer.parseInt(bailWithoutCommas));
+                }
+                if (s.indexOf("orfeiture") > -1) {
+                    data.setForfeiture(true);
                 }
             }
         }
@@ -344,13 +354,29 @@ public class CRParser {
 //                System.out.println(s);
 //            }
             String s = strings[0];
-            String name = s.substring("Name: ".length(), s.indexOf("Sex:"));
+            String name = s.substring("Name: ".length(), s.indexOf(" Sex:"));
             data.setDefendantName(name);
+
+            s = strings[1].toLowerCase();
+            String dob = s.substring("date of birth:".length(), s.indexOf(" race:"));
+            dob = dob.trim();
+            //some mj dockets don't show dob
+            if (dob.length() > 0) {
+                data.setBirthdate(LocalDate.parse(dob, PdfData.slashDateFormatter));
+            }
         }
         else if (sectionType == SectionType.CONFINEMENT) {
             String unable = "unable to post bail";
+            HashSet<String> skippers = new HashSet<>();
+            skippers.add("confinement location confinement type confinement reason confinement confinement ");
+            skippers.add("date end date");
+            skippers.add("case confinement");
+            boolean foundRecent = false;
             for (String s: strings) {
                 s = s.toLowerCase();
+                if (s.indexOf("recent entries") > -1) {
+                    foundRecent = true;
+                }
                 if (s.indexOf(unable) > -1) {
                     String remains = s.substring(s.indexOf(unable) + unable.length()).trim();
                     String startConfinement = remains;
@@ -363,6 +389,9 @@ public class CRParser {
                     data.setStartConfinement(startConfinement);
                     data.setEndConfinement(endConfinement);
                 }
+//                else if (!foundRecent && !skippers.contains(s) && s.indexOf("mdjs") < 0){
+//                    System.out.println("unprocessed confinement line: " + s);
+//                }
             }
         }
     }

@@ -5,11 +5,15 @@ import java.util.TreeSet;
 
 public class Update {
 
-    public static void update (Scraper.Mode mode) throws IOException, ClassNotFoundException {
+    public static void main(String [] args) throws IOException, ClassNotFoundException {
+        update(Scraper.CourtMode.MDJ_LT);
+    }
+
+    public static void update (Scraper.CourtMode courtMode) throws IOException, ClassNotFoundException {
         TreeSet<String> countiesWithData = new TreeSet<>();
         for (String county: Website.counties) {
             try {
-                if (Scraper.getCountyStartAndEnd(county, mode) != null) {
+                if (Scraper.getCountyStartAndEnd(county, courtMode) != null) {
                     countiesWithData.add(county);
                 }
             } catch (IOException e) {
