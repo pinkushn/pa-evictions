@@ -171,6 +171,7 @@ public class Scraper {
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         //CourtMode courtMode = CourtMode.MDJ_LT;
         CourtMode courtMode = CourtMode.CP_CR;
+        //CourtMode courtMode = CourtMode.MDJ_CR;
         commenceScrapingFromSavedPointer(courtMode);
 
         // commenceScrapingFromArtificalPointer();
@@ -605,8 +606,8 @@ public class Scraper {
     }
 
     private static int getStartYear(CourtMode courtMode) {
-        if (courtMode == CourtMode.MDJ_CR) return 2019;
-        else if (courtMode == CourtMode.CP_CR) return 2022;
+        if (courtMode == CourtMode.MDJ_CR) return 2017;
+        else if (courtMode == CourtMode.CP_CR) return 2017;
         //return LocalDateTime.now().getYear() - 1;
         else return 2022;
     }
