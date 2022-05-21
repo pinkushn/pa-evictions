@@ -5,15 +5,25 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 public class CRPdfData extends PdfData {
 
-    private TreeMap<Integer, String> row = new TreeMap<>();
+    private static List<ColumnToken> columnHeaders;
+    static {
+        columnHeaders = new ArrayList<>();
+        columnHeaders.add(ColumnToken.DOCKET);
+        columnHeaders.add(ColumnToken.JUDGE);
+        columnHeaders.add(ColumnToken.FILE_DATE);
+        columnHeaders.add(ColumnToken.UNABLE_TO_PAY_BAIL);
+        columnHeaders.add(ColumnToken.BAIL);
+    }
+
+    public List<ColumnToken> getColumnHeaders() {
+        return columnHeaders;
+    }
 
     private String courtOffice;
     private String docket;
-    private String judgeName;
     private String fileDate;
     private LocalDate comparableDate = null;
 
@@ -53,7 +63,6 @@ public class CRPdfData extends PdfData {
 
     public void setCourtOffice(String courtOffice) {
         this.courtOffice = courtOffice;
-        row.put(0, courtOffice);
     }
 
     @Override
@@ -61,18 +70,14 @@ public class CRPdfData extends PdfData {
         return courtOffice;
     }
 
-    public void setJudgeName(String judgeName) {
-        this.judgeName = judgeName;
-        row.put(1, judgeName);
-    }
 
     public String getJudgeName() {
-        return judgeName;
+        return judgeAssigned;
     }
 
     public void setDocket(String docket) {
         this.docket = docket;
-        row.put(2, docket);
+        setColumn(ColumnToken.DOCKET, docket);
     }
 
     @Override
@@ -82,7 +87,7 @@ public class CRPdfData extends PdfData {
 
     public void setFileDate(String string) {
         this.fileDate = string;
-        row.put(3, string);
+        setColumn(ColumnToken.FILE_DATE, string);
     }
 
     public LocalDate getFileDate() {
@@ -103,6 +108,7 @@ public class CRPdfData extends PdfData {
 
     public void setJudgeAssigned(String judgeAssigned) {
         this.judgeAssigned = judgeAssigned;
+        setColumn(ColumnToken.JUDGE, judgeAssigned);
     }
 
     public LocalDate getIssueDate() {
@@ -120,13 +126,14 @@ public class CRPdfData extends PdfData {
         return OTNs;
     }
 
-    public void addOTN(String OTN) {
-        OTNs.add(OTN);
-    }
+//    public void addOTN(String OTN) {
+//        OTNs.add(OTN);
+//    }
 
     public void setOTNs(String otns) {
         String[] split = otns.split("/");
-        for (String s: split) addOTN(s);
+        for (String s: split) OTNs.add(s);
+        setColumn(ColumnToken.OTN, otns);
     }
 
     public String getArrestingAgency() {
@@ -216,6 +223,7 @@ public class CRPdfData extends PdfData {
 
     public void setUnableToPostBail(boolean unableToPostBail) {
         this.unableToPostBail = unableToPostBail;
+        setColumn(ColumnToken.UNABLE_TO_PAY_BAIL, unableToPostBail);
     }
 
     public boolean hasStartConfinement() {
@@ -250,6 +258,7 @@ public class CRPdfData extends PdfData {
 
     public void setBail(int bail) {
         this.bail = bail;
+        setColumn(ColumnToken.BAIL, bail);
     }
 
     public boolean hasBail() {
@@ -308,7 +317,7 @@ public class CRPdfData extends PdfData {
         return hasStartConfinement();
     }
 
-    public boolean wasJailed(LocalDate date) {
+    public boolean wasJailedThisDay(LocalDate date) {
         if (!wasJailed()) return false;
 
         LocalDate start = getStartConfinement();

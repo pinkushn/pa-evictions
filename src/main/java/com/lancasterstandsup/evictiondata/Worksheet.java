@@ -8,9 +8,21 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
 
 public class Worksheet {
+
+    public static String webDataPath = "./webdata/";
+    public static String localDataPath = "./localdata/";
+
+    static {
+        File localData = new File(localDataPath);
+        if (!localData.exists()) localData.mkdir();
+        File webData = new File(webDataPath);
+        if (!webData.exists()) webData.mkdir();
+    }
 
     public static int createExcelLT(String county) throws IOException, ClassNotFoundException {
         CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.CourtMode.MDJ_LT);
@@ -33,13 +45,13 @@ public class Worksheet {
                 month + "_" + day + "_" + year +
                 ".xlsx";
 
-        String countyPath = LTAnalysis.dataPathWithDot + county;
+        String countyPath = webDataPath + county;
         File countyDir = new File(countyPath);
 
         if (countyDir.exists() && countyDir.listFiles().length > 0) {
             String worksheetIndicator = county + "_eviction_cases_";
             File worksheet = null;
-            String worksheetFileName = null;
+            String worksheetFileName;
 
             for (File file : countyDir.listFiles()) {
                 worksheetFileName = file.getName();
@@ -55,17 +67,17 @@ public class Worksheet {
             }
         }
 
-        Object list = null;
+        List<PdfData> pdfs = null;
 
         try {
-            list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
+            pdfs = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
         } catch (IOException | ClassNotFoundException e) {
-            System.err.println("parser failed, abandoning allYears");
+            System.err.println("parser failed, abandoning createExcelLT");
             e.printStackTrace();
             System.exit(1);
         }
 
-        File dir = new File(LTAnalysis.dataPathWithDot + county);
+        File dir = new File(webDataPath + county);
         if (!dir.exists()) dir.mkdir();
         else {
             File [] files = dir.listFiles();
@@ -74,12 +86,80 @@ public class Worksheet {
             }
         }
 
-        List<LTPdfData> reallyAList = (List<LTPdfData>) list;
+        writeExcel(webDataPath + county + "/" + excelFileName, pdfs, null, null);
 
-        //new website
-        writeExcel(LTAnalysis.dataPathWithDot + county + "/" + excelFileName, reallyAList, null, null);
+        return pdfs.size();
+    }
 
-        return reallyAList.size();
+    public static int createExcelCP(String county, String[] years) throws IOException, ClassNotFoundException {
+        String excelFileName = county + "_common_pleas_criminal_dockets_" +
+                years[0] +
+                (years.length == 1 ? "" :
+                "_to_" +
+                years[years.length - 1]) +
+                ".xlsx";
+
+        List<PdfData> pdfs = null;
+
+        try {
+            pdfs = ParseAll.get(Scraper.CourtMode.CP_CR, county, years);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("parser failed, abandoning createExcelCP");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        File dir = new File(localDataPath + county);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        else {
+            File [] files = dir.listFiles();
+            for (File file: files) {
+                if (file.getName().indexOf(".xlsx") > -1) file.delete();
+            }
+        }
+
+        writeExcel(localDataPath + county + "/" + excelFileName, pdfs, null, null);
+
+        return pdfs.size();
+    }
+
+    public static int createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException {
+        String excelFileName = county + "_mdj_criminal_dockets_" +
+                years[0] +
+                (years.length == 1 ? "" :
+                        "_to_" +
+                                years[years.length - 1]) +
+                ".xlsx";
+
+        List<PdfData> pdfs = null;
+
+        try {
+            pdfs = ParseAll.get(Scraper.CourtMode.MDJ_CR, county, years);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("parser failed, abandoning createExcelCP");
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        File dir = new File(localDataPath + county);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        else {
+            File [] files = dir.listFiles();
+            for (File file: files) {
+                if (file.getName().indexOf(".xlsx") > -1) file.delete();
+            }
+        }
+
+        TreeSet<PdfData> ordered = new TreeSet<>();
+        ordered.addAll(pdfs);
+
+        writeExcel(localDataPath + county + "/" + excelFileName, ordered, null, null);
+
+        return pdfs.size();
     }
 
     /**
@@ -90,7 +170,7 @@ public class Worksheet {
      * @param end inclusive
      * @throws IOException
      */
-    private static void writeExcel(String filePath, List<LTPdfData> list, LocalDate start, LocalDate end) throws IOException {
+    private static void writeExcel(String filePath, Collection<PdfData> list, LocalDate start, LocalDate end) throws IOException {
         System.out.println("building excel file " + filePath);
         XSSFWorkbook workbook = new XSSFWorkbook();
 
@@ -104,14 +184,15 @@ public class Worksheet {
         Row header = sheet.createRow(rowNum);
         rowNum++;
         int col = 0;
-        for (String h: LTParser.colHeaders) {
+        PdfData aPdfForHeaders = list.iterator().next();
+        for (ColumnToken headerToken: aPdfForHeaders.getColumnHeaders()) {
             Cell headerCell = header.createCell(col);
-            headerCell.setCellValue(h);
+            headerCell.setCellValue(headerToken.toString());
             col++;
         }
 
         int cols = 0;
-        for (LTPdfData pdf: list) {
+        for (PdfData pdf: list) {
             LocalDate date = pdf.getFileDate();
             boolean use = start == null || (date.compareTo(start) >= 0 && date.compareTo(end) < 1);
             if (use) {
@@ -145,8 +226,11 @@ public class Worksheet {
     }
 
     public static void main (String [] args) throws IOException, ClassNotFoundException {
-        //clearAllPreProcessed();
-        //csvAllLT();
+        String[] years = {"2022"};
+        createExcelMJ_CR("Lancaster", years);
+
+        //        clearAllPreProcessed();
+//        csvAllLT();
 
 //        boolean isWindows = System.getProperty("os.name")
 //                .toLowerCase().startsWith("windows");
@@ -154,7 +238,7 @@ public class Worksheet {
 ////        String commands = "cd ~/git/pa-evictions; git add *; git commit -m \"update\"; git push";
 ////        if (isWindows) commands = "cmd.exe " + commands;
 
-        Runtime.getRuntime().exec("networksetup -setairportnetwork en0 Hodad garbagio");
+        //Runtime.getRuntime().exec("networksetup -setairportnetwork en0 Hodad garbagio");
     }
 
     public static void clearAllPreProcessed() {

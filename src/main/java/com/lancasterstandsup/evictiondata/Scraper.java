@@ -42,7 +42,7 @@ public class Scraper {
                 "https://ujsportal.pacourts.us/Report/MdjDocketSheet?docketNumber=".length()),
         //once I hit a string of six missing when pulling CRs
         //might even be worth counting missing and noting on any summary reports
-        //(I'm guessing they are due to 'clean slate' types of expunging)
+        //(I'm guessing they are due to 'clean slate' types of record hiding)
         /**
          * No such docket #: MJ-02103-CR-0000473-2019
          * No such docket #: MJ-02103-CR-0000474-2019
@@ -56,7 +56,8 @@ public class Scraper {
                 "MJ-05227-CR-0000094-2021".length(),
                 "https://ujsportal.pacourts.us/Report/MdjDocketSheet?docketNumber=".length()),
         //Criminal Common Pleas
-        CP_CR("CP", "CR", 9,
+        //Hit a consecutive string of 9 'no such dockets' in 2017!
+        CP_CR("CP", "CR", 15,
                 "CP-36-CR-0000094-2021".length(),
                 "https://ujsportal.pacourts.us/Report/CpDocketSheet?docketNumber=".length());
 
@@ -125,7 +126,7 @@ public class Scraper {
     private final static String COMPLETION_FILE_NAME = "completion";
     private static int hits = 0;
     private static int urlHits = 0;
-    private static long millisForAllURLHits = 0;
+    //private static long millisForAllURLHits = 0;
     private static int urlLoops = 0;
     //stop and wait for 'a while' (HOURS_WAIT, above) after this many url hits
     private final static int URL_HITS_PERMITTED = 400;
@@ -250,7 +251,7 @@ public class Scraper {
                     hits++;
                     String hitWord = hits == 1 ? "hit" : "hits";
                     System.out.println(hits + " " + hitWord + " (" + urlHits + " from url)" +
-                            "   average url hit millis: " + getAverageUrlHitTime() +
+                            //"   average url hit millis: " + getAverageUrlHitTime() +
                             "   last pointer: " + pointer +
                             "   urlLoop: " + urlLoops +
                             "   time: " + time);
@@ -266,7 +267,7 @@ public class Scraper {
                         System.err.println("Abnormally long scrape of " + diff + " millis. Pause for " +
                                 pauseSeconds + " seconds.");
                         Thread.sleep(pauseSeconds * 1000);
-                        millisForAllURLHits -= pauseSeconds * 1000;
+                        //millisForAllURLHits -= pauseSeconds * 1000;
                     }
                 }
                 boolean nextCourtOffice = misses >= missesBeforeGivingUp;
@@ -301,7 +302,7 @@ public class Scraper {
                             now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
 
                     Thread.sleep(RESET_PERMISSIONS_TIME);
-                    millisForAllURLHits -= RESET_PERMISSIONS_TIME;
+                    //millisForAllURLHits -= RESET_PERMISSIONS_TIME;
 
                     System.err.println("RESTARTING at " + LocalDateTime.now());
                 }
@@ -349,7 +350,7 @@ public class Scraper {
                         now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
 
                 Thread.sleep(RESET_PERMISSIONS_TIME);
-                millisForAllURLHits -= RESET_PERMISSIONS_TIME;
+                //millisForAllURLHits -= RESET_PERMISSIONS_TIME;
 
                 System.err.println("RESTARTING at " + LocalDateTime.now());
             }
@@ -405,7 +406,7 @@ public class Scraper {
                         now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
 
                 Thread.sleep(RESET_PERMISSIONS_TIME);
-                millisForAllURLHits -= RESET_PERMISSIONS_TIME;
+                //millisForAllURLHits -= RESET_PERMISSIONS_TIME;
 
                 System.err.println("RESTARTING at " + LocalDateTime.now());
             }
@@ -426,10 +427,10 @@ public class Scraper {
         Thread.sleep(15000);
     }
 
-    private static String getAverageUrlHitTime() {
-        if (urlHits == 0) return "N/A";
-        return "" + (millisForAllURLHits/urlHits);
-    }
+//    private static String getAverageUrlHitTime() {
+//        if (urlHits == 0) return "N/A";
+//        return "" + (millisForAllURLHits/urlHits);
+//    }
 
     /**
      * We'll stay on a single courtOffice as we advance through all the years
@@ -929,9 +930,9 @@ public class Scraper {
 
             EntityUtils.consume(entity3);
 
-            long endMillis = System.currentTimeMillis();
-            long millis = endMillis - startMillis;
-            millisForAllURLHits += millis;
+            //long endMillis = System.currentTimeMillis();
+            //long millis = endMillis - startMillis;
+            //millisForAllURLHits += millis;
             urlHits++;
             urlLoops++;
             return true;

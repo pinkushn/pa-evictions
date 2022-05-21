@@ -278,15 +278,19 @@ public class CRParser implements Parser {
             String ja = "Judge Assigned: ";
             String id = "Issue Date: ";
 
-            data.setJudgeAssigned(s.substring(ja.length(), s.indexOf(id)).trim());
+            String judge = s.substring(ja.length(), s.indexOf(id)).trim();
             data.setIssueDate(s.substring(s.indexOf(id) + id.length()).trim());
 
             //judge name can bleed into next line
             int next = 1;
             if (strings[1].indexOf("OTN") < 0) {
-                data.setJudgeAssigned(data.getJudgeAssigned() + " " + strings[1]);
+                judge += " " + strings[1].trim();
                 next = 2;
             }
+
+            judge = judge.replace("Magisterial District Judge ", "");
+            judge = judge.replace("The Honorable ", "");
+            data.setJudgeAssigned(judge);
 
             s = strings[next++];
             String a = "OTN: ";

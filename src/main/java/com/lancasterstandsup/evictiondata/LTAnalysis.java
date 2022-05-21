@@ -179,9 +179,6 @@ public class LTAnalysis {
     public static String preEndName = march14_2020.getMonthValue() + "_" + march14_2020.getDayOfMonth() + "_" + march14_2020.getYear();
     public static String pivotName = march15_2020.getMonthValue() + "_" + march15_2020.getDayOfMonth() + "_" + march15_2020.getYear();
 
-    public static String dataPathWithoutDot = "webdata/";
-    public static String dataPathWithDot = "./" + dataPathWithoutDot;
-
     private static String rootName = "lanco_eviction_cases";
     public static String allName = rootName + "_1_1_2015_to_" + presentName + ".xlsx";
     public static String postName = rootName + "_" + pivotName + "_to_" + presentName + ".xlsx";
@@ -367,7 +364,7 @@ public class LTAnalysis {
 
         //Map to lookup data per court
         String fileName = county.toLowerCase() + "_pre_versus_post.js";
-        String filePath = dataPathWithDot + fileName;
+        String filePath = Worksheet.webDataPath + fileName;
         PrintWriter out = new PrintWriter(new FileWriter(filePath));
         out.println("let courtData = new Map([");
         for (String court: pre.keySet()) {

@@ -13,6 +13,17 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public static Set<String> missingWennerstrom = new HashSet<>();
 
+    private static List<ColumnToken> columnHeaders;
+    static {
+        columnHeaders = new ArrayList<>();
+//        columnHeaders.add(ColumnToken.JUDGE);
+//        columnHeaders.add(ColumnToken.DOCKET);
+    }
+
+    public List<ColumnToken> getColumnHeaders() {
+        return columnHeaders;
+    }
+
     public static final String MISSING_ZIP = "MISSING ZIP";
     public static final String MONEY_FORMAT_ERROR = "ERROR";
     public static final String ACTIVE_STATUS = "Active";

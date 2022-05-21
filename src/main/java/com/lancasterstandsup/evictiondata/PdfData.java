@@ -3,7 +3,7 @@ package com.lancasterstandsup.evictiondata;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
+import java.util.*;
 
 public abstract class PdfData implements Comparable<PdfData>{
 
@@ -45,6 +45,29 @@ public abstract class PdfData implements Comparable<PdfData>{
         return ret.replace('-', '_');
     }
 
+    private Map<ColumnToken, Object> columns;
+
+    public void setColumn(ColumnToken header, Object value) {
+        if (columns == null) columns = new HashMap<>();
+        columns.put(header, value);
+    }
+
+//    public Object getColumn(ColumnToken header) {
+//        return columns.get(header);
+//    }
+
+    public String[] getRow() {
+        String[] ret = new String[getColumnHeaders().size()];
+        int col = 0;
+        for (ColumnToken ct: getColumnHeaders()) {
+            Object o = columns.get(ct);
+            ret[col] = o == null ? "" : o.toString();
+            col++;
+        }
+        return ret;
+    }
+
+    abstract List<ColumnToken> getColumnHeaders();
     abstract boolean rescrape(LocalDateTime lastCheck);
     abstract boolean isClosed();
     abstract String getDocket();

@@ -52,7 +52,7 @@ public class CRAnalysis {
     public static int pretrial(List<CRPdfData> list, LocalDate date) {
         List<CRPdfData> ret = new ArrayList<>();
         for (CRPdfData pdf: list) {
-            if (pdf.wasJailed(date)) {// && pdf.wasNotSentenced(date)) {
+            if (pdf.wasJailedThisDay(date)) {// && pdf.wasNotSentenced(date)) {
                 ret.add(pdf);
             }
         }
