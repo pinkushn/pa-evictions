@@ -91,6 +91,8 @@ public class CRParser implements Parser {
         }
     }
 
+    public static final String SECTION_SIGN = "§";
+
     private static Map<String, CRParser.SectionType> stringToSectionType = new HashMap<>();
 
     private static final String[] nonPAStates = {"AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY"};
@@ -294,9 +296,11 @@ public class CRParser implements Parser {
 
             s = strings[next++];
             String a = "OTN: ";
+            String a2 = "OTN/LOTN: ";
+            int i = s.contains(a2) ? a2.length() : a.length();
             String b = "File Date: ";
 
-            data.setOTNs(s.substring(a.length(), s.indexOf(b)).trim());
+            data.setOTNs(s.substring(i, s.indexOf(b)).trim());
             data.setFileDate(s.substring(s.indexOf(b) + b.length()).trim());
 
             s = strings[next++];
@@ -337,12 +341,130 @@ public class CRParser implements Parser {
 //                System.out.println(s);
 //            }
         }
+        // 3 18 § 5505 S Public Drunkenness And Similar Misconduct 02/13/2022
+        // 4 18 § 903 F2  Conspiracy - Robbery-Inflict Threat Imm Bod Inj 03/19/2022 Held for Court
+        // 1 18 § 3921 §§ A Theft By...
+        // 2 18 § 2709 §§ A1 S Harassment - Subject Other to Physical Contact 02/13/2022
+        // 1 18 § 2702 §§ A3 F2...
+        // 1 75 § 3802 §§ D2* M ...
+        // 2 75 § 3802 §§ D1i* M
+        // 3 35 § 780-113 §§ A16 M
+        // 1 18 § 2701 §§ A1 M2
+        // 2 18 § 5503 §§ A4 M3
+
+        // 1 35 § 780-113 §§ A30 F Manufacture, Delivery,
+        // 2 18 § 903 F Conspiracy - Manufacture,
+//        Murder
+//        Felony (1st degree) (F1)
+//                Felony (2nd degree) (F2)
+//                Felony (3rd degree) (F3)
+//                Ungraded Felony (F3)
+//        Misdemeanor (1st degree)(M1)
+//                Misdemeanor (2nd degree)(M2)
+//                Misdemeanor (3rd degree)(M3)
+//                Ungraded Misdemeanor (Same as M3)
+//        Summary Offenses
+        else if (sectionType == SectionType.CHARGES) {
+            for (String s: strings) {
+                s = s.trim();
+                //if (s.indexOf(SECTION_SIGN) > -1 && s.indexOf(SECTION_SIGN+SECTION_SIGN) < 0) System.out.println(s);
+                if (s.indexOf(SECTION_SIGN) > -1) {
+                    String [] split = s.split(" ");
+                    int proposedGradeI;
+                    CRPdfData.GRADE grade;
+                    if (s.indexOf(SECTION_SIGN+SECTION_SIGN) > -1) {
+                        // 1 18 § 2702 §§ A3 F2
+                        // would be broken by
+                        // 1 18 § 3921 §§ A Theft By...
+                        proposedGradeI = 6;
+                    }
+                    else {
+                        // 3 18 § 5505 S
+                        // would be broken by
+                        // 3 18 § 5505 Public Drunkenness
+                        proposedGradeI = 4;
+                    }
+                    try {
+                        grade = CRPdfData.GRADE.valueOf(split[proposedGradeI]);
+                    }
+
+                    catch (IllegalArgumentException iae) {
+//                        HashSet allowedPre = new HashSet();
+//                        allowedPre.add("A");
+//                        allowedPre.add("A1");
+//                        allowedPre.add("A1.1-34");
+//                        allowedPre.add("A1i");
+//                        allowedPre.add("A1*");
+//                        allowedPre.add("A2");
+//                        allowedPre.add("A2*");
+//                        allowedPre.add("A2-43");
+//                        allowedPre.add("A3");
+//                        allowedPre.add("A31I");
+//                        allowedPre.add("A3-17");
+//                        allowedPre.add("A3-20");
+//                        allowedPre.add("A3-21");
+//                        allowedPre.add("A3-23");
+//                        allowedPre.add("A3-27");
+//                        allowedPre.add("A3-31");
+//                        allowedPre.add("A4");
+//                        allowedPre.add("A7");
+//                        allowedPre.add("A16");
+//                        allowedPre.add("A30");
+//                        allowedPre.add("A32");
+//                        allowedPre.add("B");
+//                        allowedPre.add("B1i");
+//                        allowedPre.add("B1I");
+//                        allowedPre.add("B.11I");
+//                        allowedPre.add("B*");
+//                        allowedPre.add("B**");
+//                        allowedPre.add("C*");
+//                        allowedPre.add("C***");
+//                        allowedPre.add("D1i*");
+//                        allowedPre.add("D1ii*");
+//                        allowedPre.add("D1iii*");
+//                        allowedPre.add("D2");
+//                        allowedPre.add("D2*");
+//                        allowedPre.add("D2***");
+//
+//                        String pre = split[proposedGradeI - 1];
+//                        if (!allowedPre.contains(pre)) {
+                            //Ugh, two cases of not space delimited out of 2885 2022 pdfs in Lancaster as of 5/22/22
+                            //1 75§3362§§A1-026 S EXCEED 35
+                        if (split[1].contains(SECTION_SIGN+SECTION_SIGN)) {
+                            try {
+                                grade = CRPdfData.GRADE.valueOf(split[2]);
+                            }
+                            catch (Exception e) {
+                                grade = CRPdfData.GRADE.NOT_SPECIFIED;
+                            }
+                        }
+                        else {
+                            grade = CRPdfData.GRADE.NOT_SPECIFIED;
+                        }
+                    }
+                    data.addGrade(grade);
+                }
+            }
+        }
         else if (sectionType == SectionType.BAIL) {
+            data.setHasBailSection(true);
             boolean foundSet = false;
             for (String s: strings) {
                 //if (foundSet) System.out.println("beyond bail Set: " + s);
-                if (s.indexOf("Set") == 0) {
+                if (!foundSet && s.indexOf("Set") == 0) {
                     foundSet = true;
+
+                    String[] split = s.split(" ");
+                    String bailType = split[2];
+                    data.setBailType(bailType);
+
+                    for (String temp: split) {
+                        if (temp.indexOf('%') > -1) {
+                            data.setBailPercent(temp);
+                            break;
+                        }
+                    }
+
                     int d = s.indexOf('$');
                     String bailWithCommas = s.substring(d + 1, s.lastIndexOf('.')).trim();
                     String bailWithoutCommas = bailWithCommas.replaceAll(",", "");

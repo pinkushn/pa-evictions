@@ -5,8 +5,32 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class CRPdfData extends PdfData {
+
+//        Felony (1st degree) (F1)
+//                Felony (2nd degree) (F2)
+//                Felony (3rd degree) (F3)
+//                Ungraded Felony (F3)
+//        Misdemeanor (1st degree)(M1)
+//                Misdemeanor (2nd degree)(M2)
+//                Misdemeanor (3rd degree)(M3)
+//                Ungraded Misdemeanor (Same as M3)
+//        Summary Offenses
+    public enum GRADE {
+        F1,
+        F2,
+        F3,
+        F,
+        M1,
+        M2,
+        M3,
+        M,
+        S,
+        NOT_SPECIFIED
+    }
 
     private static List<ColumnToken> columnHeaders;
     static {
@@ -14,8 +38,15 @@ public class CRPdfData extends PdfData {
         columnHeaders.add(ColumnToken.DOCKET);
         columnHeaders.add(ColumnToken.JUDGE);
         columnHeaders.add(ColumnToken.FILE_DATE);
-        columnHeaders.add(ColumnToken.UNABLE_TO_PAY_BAIL);
+        columnHeaders.add(ColumnToken.HAS_BAIL_SECTION);
+        columnHeaders.add(ColumnToken.BAIL_TYPE);
+        columnHeaders.add(ColumnToken.BAIL_PERCENTAGE);
         columnHeaders.add(ColumnToken.BAIL);
+        columnHeaders.add(ColumnToken.UNABLE_TO_PAY_BAIL);
+        columnHeaders.add(ColumnToken.MOST_SERIOUS_GRADE);
+        columnHeaders.add(ColumnToken.GRADES);
+        columnHeaders.add(ColumnToken.OTNS);
+        columnHeaders.add(ColumnToken.OTHER_DOCKETS);
     }
 
     public List<ColumnToken> getColumnHeaders() {
@@ -30,7 +61,6 @@ public class CRPdfData extends PdfData {
     //CASE INFORMATION
     private String judgeAssigned;
     private LocalDate issueDate;
-    private List<String> OTNs = new ArrayList<>();
     //private LocalDate fileDate;
     private String arrestingAgency;
     private LocalDate arrestDate;
@@ -46,10 +76,62 @@ public class CRPdfData extends PdfData {
     private boolean unableToPostBail;
     private LocalDate startConfinement;
     private LocalDate endConfinement;
+    private boolean hasBailSection;
+    private String bailPercent;
     private Integer bail;
+    private String bailType;
 
     private String defendantName;
     private LocalDate birthdate;
+
+    private List<GRADE> grades;
+
+    public void addGrade(GRADE grade) {
+        if (grades == null) grades = new ArrayList<>();
+        grades.add(grade);
+    }
+
+    public GRADE getMostSeriousGrade() {
+        if (grades == null || grades.contains(GRADE.NOT_SPECIFIED)) {
+            return GRADE.NOT_SPECIFIED;
+        }
+        TreeSet<GRADE> map = new TreeSet<>();
+        map.addAll(grades);
+        return map.first();
+    }
+
+    public String getColumn(ColumnToken header) throws IOException, InterruptedException {
+        if (header == ColumnToken.GRADES) {
+            if (grades == null) return "No grade specified";
+            String ret = "";
+            for (GRADE grade: grades) {
+                if (ret.equals("")) ret = grade.toString();
+                else ret += ", " + grade.toString();
+            }
+            return ret;
+        }
+        else if (header == ColumnToken.MOST_SERIOUS_GRADE) {
+            return getMostSeriousGrade().toString();
+        }
+        else {
+            return super.getColumn(header);
+        }
+    }
+
+    public void setBailPercent(String s) {
+        bailPercent = s;
+        setColumn(ColumnToken.BAIL_PERCENTAGE, s);
+    }
+
+    public void setBailType(String s) {
+        this.bailType = s;
+        setColumn(ColumnToken.BAIL_TYPE, s);
+    }
+
+    public void setHasBailSection(boolean b) {
+        hasBailSection = b;
+        setColumn(ColumnToken.HAS_BAIL_SECTION, b);
+    }
 
     @Override
     public boolean rescrape(LocalDateTime lastCheck) {
@@ -102,10 +184,6 @@ public class CRPdfData extends PdfData {
         return getFileDate().getYear();
     }
 
-    public String getJudgeAssigned() {
-        return judgeAssigned;
-    }
-
     public void setJudgeAssigned(String judgeAssigned) {
         this.judgeAssigned = judgeAssigned;
         setColumn(ColumnToken.JUDGE, judgeAssigned);
@@ -120,20 +198,6 @@ public class CRPdfData extends PdfData {
             this.issueDate = LocalDate.parse(issueDate, slashDateFormatter);
         }
         catch (Exception e) {}
-    }
-
-    public List<String> getOTNs() {
-        return OTNs;
-    }
-
-//    public void addOTN(String OTN) {
-//        OTNs.add(OTN);
-//    }
-
-    public void setOTNs(String otns) {
-        String[] split = otns.split("/");
-        for (String s: split) OTNs.add(s);
-        setColumn(ColumnToken.OTN, otns);
     }
 
     public String getArrestingAgency() {

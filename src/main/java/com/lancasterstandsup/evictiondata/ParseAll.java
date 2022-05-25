@@ -125,10 +125,8 @@ public class ParseAll {
                     } else {
                         //System.out.println("Processing " + pdf);
                         InputStream targetStream = new FileInputStream(pdf);
-//                        data = courtMode == Scraper.CourtMode.MDJ_LT ?
-//                                LTParser.process(targetStream, false) :
-//                                CRParser.process(targetStream, false);
                         data = getParser(courtMode).process(targetStream, false);
+                        data.setHyperlink(Scraper.getStoredURL(courtMode, county, year, data.getDocket()));
                         if (data != null && data.isClosed()) {
                             FileOutputStream fout = new FileOutputStream(preProcessedPath + "/" + stripPdf, false);
                             ObjectOutputStream oos = new ObjectOutputStream(fout);

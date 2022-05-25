@@ -186,15 +186,15 @@ public class LTPdfData extends PdfData implements Serializable {
     //row --> cell value
     private TreeMap<Integer, String> row = new TreeMap<>();
 
-    public String[] getRow() {
-        String[] ret = new String[LTParser.colHeaders.length];
-
-        for (Integer i: row.keySet()) {
-            ret[i] = row.get(i);
-        }
-
-        return ret;
-    }
+//    public String[] getRow() {
+//        String[] ret = new String[LTParser.colHeaders.length];
+//
+//        for (Integer i: row.keySet()) {
+//            ret[i] = row.get(i);
+//        }
+//
+//        return ret;
+//    }
 
     public void setCourtOffice(String courtOffice) {
         this.courtOffice = courtOffice;
@@ -571,47 +571,54 @@ public class LTPdfData extends PdfData implements Serializable {
     }
 
     public String toString() {
-        return "\nCourt: " + courtOffice + "\n" +
-                "docketNumber: " + docketNumber + "\n" +
-                "fileDate: " + fileDate + "\n" +
-                "judgeName: " + judgeName + "\n" +
-                "case status: " + caseStatus + "\n" +
-                "plaintiff(s): " + plaintiffNames + "\n" +
-                "plaintiff zip(s): " + plaintiffZips + "\n" +
-                "defendant(s): " + defendantNames + "\n" +
-                "defendant zip(s): " + defendantZips + "\n" +
-                "hearingDate: " + hearingDate + "\n" +
-                "hearingTime: " + hearingTime + "\n" +
-                "claim: " + claim + "\n" +
-                "judgment: " + judgment + "\n" +
-                "disposition date: " + dispositionDate + "\n" +
-                "rent in arrears: " + rentInArrears + "\n" +
-                "filing fees: " + filingFees + "\n" +
-                "server fees: " + serverFees + "\n" +
-                "attorney fees: " + attorneyFees + "\n" +
-                "damages: " + damages + "\n" +
-                "costs: " + costs + "\n" +
-                "interest: " + interest + "\n" +
-                "monthlyRent: " + monthlyRent + "\n" +
-                "withdrawn: " + withdrawn + "\n" +
-                "grant possession: " + grantPossession + "\n" +
-                "grant possession if: " + grantPossessionIf + "\n" +
-                "order for possession requested: " + orderForPossessionRequested + "\n" +
-                "order for possession served: " + orderForPossessionServed + "\n" +
-                //"tenant win: " + tenantWin + "\n" +
-                "judgment for plaintiff: " + judgmentForPlaintiff + "\n" +
-                "judgment for defendant: " + judgmentForDefendant + "\n" +
-                "served: " + served + "\n" +
-                "settled: " + settled + "\n" +
-                "notes: " + notes + "\n\n" +
-                toTestDataRowOutput();
+        try {
+            return "\nCourt: " + courtOffice + "\n" +
+                    "docketNumber: " + docketNumber + "\n" +
+                    "fileDate: " + fileDate + "\n" +
+                    "judgeName: " + judgeName + "\n" +
+                    "case status: " + caseStatus + "\n" +
+                    "plaintiff(s): " + plaintiffNames + "\n" +
+                    "plaintiff zip(s): " + plaintiffZips + "\n" +
+                    "defendant(s): " + defendantNames + "\n" +
+                    "defendant zip(s): " + defendantZips + "\n" +
+                    "hearingDate: " + hearingDate + "\n" +
+                    "hearingTime: " + hearingTime + "\n" +
+                    "claim: " + claim + "\n" +
+                    "judgment: " + judgment + "\n" +
+                    "disposition date: " + dispositionDate + "\n" +
+                    "rent in arrears: " + rentInArrears + "\n" +
+                    "filing fees: " + filingFees + "\n" +
+                    "server fees: " + serverFees + "\n" +
+                    "attorney fees: " + attorneyFees + "\n" +
+                    "damages: " + damages + "\n" +
+                    "costs: " + costs + "\n" +
+                    "interest: " + interest + "\n" +
+                    "monthlyRent: " + monthlyRent + "\n" +
+                    "withdrawn: " + withdrawn + "\n" +
+                    "grant possession: " + grantPossession + "\n" +
+                    "grant possession if: " + grantPossessionIf + "\n" +
+                    "order for possession requested: " + orderForPossessionRequested + "\n" +
+                    "order for possession served: " + orderForPossessionServed + "\n" +
+                    //"tenant win: " + tenantWin + "\n" +
+                    "judgment for plaintiff: " + judgmentForPlaintiff + "\n" +
+                    "judgment for defendant: " + judgmentForDefendant + "\n" +
+                    "served: " + served + "\n" +
+                    "settled: " + settled + "\n" +
+                    "notes: " + notes + "\n\n" +
+                    toTestDataRowOutput();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "error in toString for " + docketNumber;
     }
 
-    public String toTestDataRowOutput() {
+    public String toTestDataRowOutput() throws IOException, InterruptedException {
         StringBuffer sb = new StringBuffer();
         sb.append("\n{");
 
-        String [] row = getRow();
+        String [] row = getRowValues().getRow();
         for (int x = 0; x < row.length; x++) {
             String next = row[x];
             if (x != 0) sb.append(", ");

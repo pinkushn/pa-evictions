@@ -1,6 +1,8 @@
 package com.lancasterstandsup.evictiondata;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -24,7 +26,7 @@ public class Worksheet {
         if (!webData.exists()) webData.mkdir();
     }
 
-    public static int createExcelLT(String county) throws IOException, ClassNotFoundException {
+    public static int createExcelLT(String county) throws IOException, ClassNotFoundException, InterruptedException {
         CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.CourtMode.MDJ_LT);
         int startYear = ccr.getStart().getYear();
         int endYear = ccr.getEnd().getYear();
@@ -91,7 +93,7 @@ public class Worksheet {
         return pdfs.size();
     }
 
-    public static int createExcelCP(String county, String[] years) throws IOException, ClassNotFoundException {
+    public static int createExcelCP(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
         String excelFileName = county + "_common_pleas_criminal_dockets_" +
                 years[0] +
                 (years.length == 1 ? "" :
@@ -125,7 +127,7 @@ public class Worksheet {
         return pdfs.size();
     }
 
-    public static int createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException {
+    public static int createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
         String excelFileName = county + "_mdj_criminal_dockets_" +
                 years[0] +
                 (years.length == 1 ? "" :
@@ -170,7 +172,7 @@ public class Worksheet {
      * @param end inclusive
      * @throws IOException
      */
-    private static void writeExcel(String filePath, Collection<PdfData> list, LocalDate start, LocalDate end) throws IOException {
+    private static void writeExcel(String filePath, Collection<PdfData> list, LocalDate start, LocalDate end) throws IOException, InterruptedException {
         System.out.println("building excel file " + filePath);
         XSSFWorkbook workbook = new XSSFWorkbook();
 
@@ -188,6 +190,12 @@ public class Worksheet {
         for (ColumnToken headerToken: aPdfForHeaders.getColumnHeaders()) {
             Cell headerCell = header.createCell(col);
             headerCell.setCellValue(headerToken.toString());
+            if (headerToken == ColumnToken.GRADES) {
+                sheet.setColumnWidth(col, 50);
+            }
+            else if (headerToken == ColumnToken.OTHER_DOCKETS) {
+                sheet.setColumnWidth(col, 50 * 256);
+            }
             col++;
         }
 
@@ -198,13 +206,95 @@ public class Worksheet {
             if (use) {
                 Row row = sheet.createRow(rowNum);
                 rowNum++;
-                String[] rowData = pdf.getRow();
-                cols = rowData.length;
-                for (int c = 0; c < rowData.length; c++) {
-                    String cellValue = rowData[c];
+                RowValues rowValues = pdf.getRowValues();
+                String[] rowCellStrings = rowValues.getRow();
+                cols = rowCellStrings.length;
+                for (int c = 0; c < rowCellStrings.length; c++) {
+                    String cellValue = rowCellStrings[c];
                     if (cellValue != null) {
                         Cell cell = row.createCell(c);
                         cell.setCellValue(cellValue);
+
+                        final String docketURL = rowValues.getHyperlink(c);
+                        if (docketURL != null) {
+                            final int hRow = rowNum;
+                            final int hCol = c;
+                            Hyperlink hl = (new Hyperlink() {
+                                @Override
+                                public int getFirstRow() {
+                                    return hRow;
+                                }
+
+                                @Override
+                                public void setFirstRow(int row) {
+
+                                }
+
+                                @Override
+                                public int getLastRow() {
+                                    return hRow;
+                                }
+
+                                @Override
+                                public void setLastRow(int row) {
+
+                                }
+
+                                @Override
+                                public int getFirstColumn() {
+                                    return hCol;
+                                }
+
+                                @Override
+                                public void setFirstColumn(int col) {
+
+                                }
+
+                                @Override
+                                public int getLastColumn() {
+                                    return hCol;
+                                }
+
+                                @Override
+                                public void setLastColumn(int col) {
+
+                                }
+
+                                @Override
+                                public String getAddress() {
+                                    return docketURL;
+                                }
+
+                                @Override
+                                public void setAddress(String address) {
+
+                                }
+
+                                @Override
+                                public String getLabel() {
+                                    return null;
+                                }
+
+                                @Override
+                                public void setLabel(String label) {
+
+                                }
+
+                                @Override
+                                public int getType() {
+                                    return 0;
+                                }
+
+                                @Override
+                                public HyperlinkType getTypeEnum() {
+                                    return null;
+                                }
+                            });
+                            org.apache.poi.xssf.usermodel.XSSFHyperlink h =
+                                    new org.apache.poi.xssf.usermodel.XSSFHyperlink (hl);
+
+                            cell.setHyperlink(h);
+                        }
                     }
                 }
             }
@@ -212,6 +302,17 @@ public class Worksheet {
 
         for (int x = 0; x < cols; x++) {
             sheet.autoSizeColumn(x);
+        }
+
+        col = 0;
+        for (ColumnToken headerToken: aPdfForHeaders.getColumnHeaders()) {
+            if (headerToken == ColumnToken.GRADES) {
+                sheet.setColumnWidth(col, 30 * 256);
+            }
+            else if (headerToken == ColumnToken.OTHER_DOCKETS) {
+                sheet.setColumnWidth(col, 50 * 256);
+            }
+            col++;
         }
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -225,7 +326,7 @@ public class Worksheet {
         }
     }
 
-    public static void main (String [] args) throws IOException, ClassNotFoundException {
+    public static void main (String [] args) throws IOException, ClassNotFoundException, InterruptedException {
         String[] years = {"2022"};
         createExcelMJ_CR("Lancaster", years);
 
@@ -268,7 +369,7 @@ public class Worksheet {
         }
     }
 
-    public static void csvAllLT() throws IOException, ClassNotFoundException {
+    public static void csvAllLT() throws IOException, ClassNotFoundException, InterruptedException {
         File file = new File("./LT_All.csv");
         FileOutputStream fos = new FileOutputStream(file);
         PrintWriter pw = new PrintWriter(fos);
@@ -304,7 +405,7 @@ public class Worksheet {
 
             for (LTPdfData pdf: (List<LTPdfData>) list) {
                 pw.print(county + "\t");
-                String[] rowData = pdf.getRow();
+                String[] rowData = pdf.getRowValues().getRow();
                 for (int c = 0; c < rowData.length; c++) {
                     String cellValue = rowData[c];
                     if (cellValue == null) cellValue = "";

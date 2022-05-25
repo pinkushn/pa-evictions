@@ -5,11 +5,11 @@ import java.util.TreeSet;
 
 public class Update {
 
-    public static void main(String [] args) throws IOException, ClassNotFoundException {
+    public static void main(String [] args) throws IOException, ClassNotFoundException, InterruptedException {
         update(Scraper.CourtMode.MDJ_LT);
     }
 
-    public static void update (Scraper.CourtMode courtMode) throws IOException, ClassNotFoundException {
+    public static void update (Scraper.CourtMode courtMode) throws IOException, ClassNotFoundException, InterruptedException {
         TreeSet<String> countiesWithData = new TreeSet<>();
         for (String county: Website.counties) {
             try {
@@ -42,6 +42,8 @@ public class Update {
                 System.err.println("Failed to create spreadsheet for " + county + ", abandoning update");
                 e.printStackTrace();
                 return;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
 

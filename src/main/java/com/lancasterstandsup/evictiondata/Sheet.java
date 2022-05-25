@@ -109,7 +109,7 @@ public class Sheet {
                     rows.addAll(build(ParseAll.get(Scraper.CourtMode.MDJ_LT, county, otherCountyYears), county));
                 }
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | InterruptedException e) {
             System.err.println("parser failed, abandoning allYears");
             e.printStackTrace();
             System.exit(1);
@@ -128,12 +128,12 @@ public class Sheet {
         System.out.println("Finished upload of spreadsheet.");
     }
 
-    public static List<List<Object>> build(List<LTPdfData> list, String county) {
+    public static List<List<Object>> build(List<LTPdfData> list, String county) throws IOException, InterruptedException {
         List<List<Object>> ret = new ArrayList<>();
 
         System.out.println("Starting build of Sheets ValueRange for " + county);
         for (LTPdfData pdf: list) {
-            String[] rowData = pdf.getRow();
+            String[] rowData = pdf.getRowValues().getRow();
             List<Object> row = new ArrayList();
             row.add(county);
             for (int c = 0; c < rowData.length; c++) {

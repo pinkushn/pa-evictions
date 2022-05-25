@@ -1,5 +1,9 @@
 package com.lancasterstandsup.evictiondata;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.Hyperlink;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,20 +12,138 @@ import java.util.*;
 public abstract class PdfData implements Comparable<PdfData>{
 
     static DateTimeFormatter slashDateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-    static DateTimeFormatter dashDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    //static DateTimeFormatter dashDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//
+//    private static final Comparator<PdfData> COMPARATOR =
+//            Comparator.comparing(PdfData::getFileDate)
+//                    .thenComparing(PdfData::getJudgeName)
+//                    .thenComparing(PdfData::getDocket);
+
 
     private static final Comparator<PdfData> COMPARATOR =
-            Comparator.comparing(PdfData::getFileDate)
-                    .thenComparing(PdfData::getJudgeName)
-                    .thenComparing(PdfData::getDocket);
+            Comparator.comparing(PdfData::getDocket);
 
-    public static LocalDate forceSlashedDateIntoLocalDate(String date) {
-        String[] split = date.split("/");
-        if (split[0].length() < 2) split[0] = "0" + split[0];
-        if (split[1].length() < 2) split[1] = "0" + split[1];
-        String useMe = split[0] + "/" + split[1] + "/" + split[2];
-        return LocalDate.parse(useMe, slashDateFormatter);
+    private Map<ColumnToken, Object> columns;
+
+    private String hyperlink;
+
+    private List<String> OTNs;
+
+    public List<String> getOTNs() {
+        return OTNs;
     }
+
+    public boolean hasOTN() {
+        return OTNs != null;
+    }
+
+    public void setOTNs(String otns) {
+        if (otns.trim().length() == 0) return;
+        String[] split = otns.split("/");
+        OTNs = new ArrayList<>();
+        for (String s: split) {
+            OTNs.add(s);
+        }
+        setColumn(ColumnToken.OTNS, otns);
+    }
+
+    public void setHyperlink(String s) {
+        hyperlink = s;
+    }
+
+    public void setColumn(ColumnToken header, Object value) {
+        if (columns == null) columns = new HashMap<>();
+        columns.put(header, value);
+    }
+
+    public String getOtherDockets() throws IOException, InterruptedException {
+        String ret = "";
+        for (String otn: getOTNs()) {
+            try {
+                List<String> others = Scraper.getOTNDocketNames(otn, true);
+                for (String docket: others) {
+                    if (!docket.equals(getDocket())) {
+                        if (ret.equals("")) ret += docket;
+                        else ret += ", " + docket;
+                    }
+                }
+            }
+            catch (Exception e) {
+                System.err.println("unable to read otn associated dockets for " + getDocket());
+                ret = "Unable to procure associated dockets";
+            }
+        }
+        return ret;
+    }
+
+    public String getColumn(ColumnToken header) throws IOException, InterruptedException {
+        if (header == ColumnToken.OTHER_DOCKETS) {
+            return getOtherDockets();
+        }
+        Object ret = columns.get(header);
+        return ret == null ? "" : ret.toString();
+    }
+
+    public String[] getRowStrings() throws IOException, InterruptedException {
+        String[] ret = new String[getColumnHeaders().size()];
+        int col = 0;
+        for (ColumnToken ct: getColumnHeaders()) {
+            ret[col] = getColumn(ct);
+            col++;
+        }
+        return ret;
+    }
+
+    public RowValues getRowValues() throws IOException, InterruptedException {
+        RowValues ret = new RowValues();
+        ret.setRow(getRowStrings());
+        if (hyperlink != null) {
+            int i = getColumnHeaders().indexOf(ColumnToken.DOCKET);
+            ret.setHyperlink(i, hyperlink);
+        }
+        return ret;
+    }
+
+    abstract List<ColumnToken> getColumnHeaders();
+    abstract boolean rescrape(LocalDateTime lastCheck);
+    abstract boolean isClosed();
+    abstract String getDocket();
+    abstract String getCourtOffice();
+    abstract String getJudgeName();
+    abstract LocalDate getFileDate();
+
+    public int getDocketNumberAsInt() {
+        return getDocketNumberAsIntStatic(getDocket());
+    }
+
+    //just the 0000001 of CP-36-CR-0000001-2021
+    public String getDocketNumberAsString() {
+        return getDocketNumberAsStringStatic(getDocket());
+    }
+
+    public int compareTo(PdfData o) {
+        return COMPARATOR.compare(this, o);
+    }
+
+//    /**
+//     *
+//     * @param slashDate must be formatted MM/dd/yyyy
+//     * @return date formattted yyyy-MM-dd, intended for portal format requirement
+//     * when using birthdate as part of person search
+//     */
+//    public static String convertSlashDateToDashDate(String slashDate) {
+//        LocalDate date = LocalDate.parse(slashDate, slashDateFormatter);
+//        date.format(dashDateFormatter);
+//        return date.toString();
+//    }
+
+public static LocalDate forceSlashedDateIntoLocalDate(String date) {
+    String[] split = date.split("/");
+    if (split[0].length() < 2) split[0] = "0" + split[0];
+    if (split[1].length() < 2) split[1] = "0" + split[1];
+    String useMe = split[0] + "/" + split[1] + "/" + split[2];
+    return LocalDate.parse(useMe, slashDateFormatter);
+}
 
     public static String getYearFromDocket(String docket) {
         int i = docket.lastIndexOf("-");
@@ -45,58 +167,6 @@ public abstract class PdfData implements Comparable<PdfData>{
         return ret.replace('-', '_');
     }
 
-    private Map<ColumnToken, Object> columns;
-
-    public void setColumn(ColumnToken header, Object value) {
-        if (columns == null) columns = new HashMap<>();
-        columns.put(header, value);
-    }
-
-//    public Object getColumn(ColumnToken header) {
-//        return columns.get(header);
-//    }
-
-    public String[] getRow() {
-        String[] ret = new String[getColumnHeaders().size()];
-        int col = 0;
-        for (ColumnToken ct: getColumnHeaders()) {
-            Object o = columns.get(ct);
-            ret[col] = o == null ? "" : o.toString();
-            col++;
-        }
-        return ret;
-    }
-
-    abstract List<ColumnToken> getColumnHeaders();
-    abstract boolean rescrape(LocalDateTime lastCheck);
-    abstract boolean isClosed();
-    abstract String getDocket();
-    abstract String getCourtOffice();
-    abstract String getJudgeName();
-    abstract LocalDate getFileDate();
-
-    public int getDocketNumberAsInt() {
-        return getDocketNumberAsIntStatic(getDocket());
-    }
-
-    //just the 0000001 of CP-36-CR-0000001-2021
-    public String getDocketNumberAsString() {
-        return getDocketNumberAsStringStatic(getDocket());
-    }
-
-    public static int getDocketNumberAsIntStatic(String docket) {
-        return Integer.parseInt(docket);
-    }
-
-    //just the 0000001 of CP-36-CR-0000001-2021
-    public static String getDocketNumberAsStringStatic(String docket) {
-        int i = docket.lastIndexOf('-');
-        docket = docket.substring(0, i);
-        i = docket.lastIndexOf('-');
-        docket = docket.substring(i + 1);
-        return docket;
-    }
-
     public static String getCourtOfficeFromDocket(String docket) {
         int i = docket.indexOf('-');
         docket = docket.substring(i);
@@ -111,20 +181,16 @@ public abstract class PdfData implements Comparable<PdfData>{
         }
         return Scraper.CourtMode.CP_CR;
     }
-
-    public int compareTo(PdfData o) {
-        return COMPARATOR.compare(this, o);
+    public static int getDocketNumberAsIntStatic(String docket) {
+        return Integer.parseInt(docket);
     }
 
-//    /**
-//     *
-//     * @param slashDate must be formatted MM/dd/yyyy
-//     * @return date formattted yyyy-MM-dd, intended for portal format requirement
-//     * when using birthdate as part of person search
-//     */
-//    public static String convertSlashDateToDashDate(String slashDate) {
-//        LocalDate date = LocalDate.parse(slashDate, slashDateFormatter);
-//        date.format(dashDateFormatter);
-//        return date.toString();
-//    }
+    //just the 0000001 of CP-36-CR-0000001-2021
+    public static String getDocketNumberAsStringStatic(String docket) {
+        int i = docket.lastIndexOf('-');
+        docket = docket.substring(0, i);
+        i = docket.lastIndexOf('-');
+        docket = docket.substring(i + 1);
+        return docket;
+    }
 }

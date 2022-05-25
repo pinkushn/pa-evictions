@@ -52,7 +52,7 @@ public class Scraper {
          * No such docket #: MJ-02103-CR-0000478-2019
          */
         //CriminalMDJ
-        MDJ_CR("MJ", "CR", 9,
+        MDJ_CR("MJ", "CR", 15,
                 "MJ-05227-CR-0000094-2021".length(),
                 "https://ujsportal.pacourts.us/Report/MdjDocketSheet?docketNumber=".length()),
         //Criminal Common Pleas
@@ -169,11 +169,30 @@ public class Scraper {
         }
     }
 
+    public static void scrapeOTNs(String county, String [] years) throws IOException, ClassNotFoundException, InterruptedException {
+        List<CRPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_CR, county, years);
+
+        Set<String> otns = new HashSet<>();
+        for (CRPdfData pdf: list) {
+            if (pdf.hasOTN()) otns.addAll(pdf.getOTNs());
+            else {
+                System.err.println("No OTN for " + pdf.getDocket());
+            }
+        }
+        List<String> sList = new ArrayList<>();
+        sList.addAll(otns);
+
+        Scraper.scrapeOTNListForDocketNames(sList);
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-        //CourtMode courtMode = CourtMode.MDJ_LT;
-        CourtMode courtMode = CourtMode.CP_CR;
-        //CourtMode courtMode = CourtMode.MDJ_CR;
+        CourtMode courtMode = CourtMode.MDJ_LT;
+//        //CourtMode courtMode = CourtMode.CP_CR;
+//        //CourtMode courtMode = CourtMode.MDJ_CR;
         commenceScrapingFromSavedPointer(courtMode);
+
+//        String[] years = {"2022"};
+//        scrapeOTNs("Lancaster", years);
 
         // commenceScrapingFromArtificalPointer();
         //getOTNDocketNames("U 684533-3");
@@ -323,8 +342,9 @@ public class Scraper {
         while (!done) {
             Exception exception = null;
             try {
-                ret.addAll(getOTNDocketNames(otns.get(next)));
-                //System.out.println("Read otn docket names for " + otns.get(next));
+                ret.addAll(getOTNDocketNames(otns.get(next), false));
+                System.out.println(next + "/" + otns.size() + ": " +
+                        "Read otn docket name(s) for OTN " + otns.get(next));
                 next++;
                 if (next >= otns.size()) {
                     done = true;
@@ -334,8 +354,7 @@ public class Scraper {
                 exception = e;
             }
 
-            if (exception != null || urlLoops >= URL_HITS_PERMITTED) {
-                urlLoops = 0;
+            if (exception != null) {
                 LocalDateTime now = LocalDateTime.now();
                 if (exception != null) {
                     System.err.println("Scrape fail on at otn: " + otns.get(next) + " at " + now);
@@ -350,7 +369,6 @@ public class Scraper {
                         now.plus(RESET_PERMISSIONS_TIME, ChronoUnit.MILLIS) + "\n");
 
                 Thread.sleep(RESET_PERMISSIONS_TIME);
-                //millisForAllURLHits -= RESET_PERMISSIONS_TIME;
 
                 System.err.println("RESTARTING at " + LocalDateTime.now());
             }
@@ -606,7 +624,7 @@ public class Scraper {
         }
     }
 
-    private static int getStartYear(CourtMode courtMode) {
+    private static int  getStartYear(CourtMode courtMode) {
         if (courtMode == CourtMode.MDJ_CR) return 2017;
         else if (courtMode == CourtMode.CP_CR) return 2017;
         //return LocalDateTime.now().getYear() - 1;
@@ -1226,7 +1244,7 @@ public class Scraper {
         return last + ", " + first + " " + dob;
     }
 
-    public static List<String> getOTNDocketNames(String otn)
+    public static List<String> getOTNDocketNames(String otn, boolean failIfNotLocal)
             throws IOException, InterruptedException {
 
         List<String> ret = new ArrayList<>();
@@ -1240,11 +1258,12 @@ public class Scraper {
             if (firstOTNExistsWarning) {
                 System.err.println("Warn: otn file already exists for " + otn + ", not re-reading. " +
                         "Risks missing docket created after earlier read. " +
-                        "Someday, check for CP docket name in existing, re-read if non-existent.");
+                        "Someday, check for CP docket name in existing, re-read if non-existent.\n" +
+                        "**** This msg will not be repeated for subsequent ons ****");
                 firstOTNExistsWarning = false;
             }
             try (BufferedReader in = new BufferedReader(new FileReader(file));) {
-                String next = null;
+                String next;
                 while ((next = in.readLine()) != null) {
                     ret.add(next);
                 }
@@ -1254,6 +1273,10 @@ public class Scraper {
                 throw eek;
             }
             return ret;
+        }
+
+        if (failIfNotLocal) {
+            throw new IllegalStateException("Cannot find local record of dockets for OTN " + otn);
         }
 
         CloseableHttpClient httpclient = HttpClients.createDefault();

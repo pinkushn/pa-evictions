@@ -7,7 +7,7 @@ import java.util.*;
 public class CRAnalysis {
 
     public static void main (String[] args) throws IOException, ClassNotFoundException, InterruptedException, NoSuchFieldException {
-        String[] years = {"2021", "2022"};
+        String[] years = {"2022"};
         List<CRPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_CR, "Lancaster", years);
 
         //unable(list);
