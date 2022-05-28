@@ -16,8 +16,42 @@ public class LTPdfData extends PdfData implements Serializable {
     private static List<ColumnToken> columnHeaders;
     static {
         columnHeaders = new ArrayList<>();
-//        columnHeaders.add(ColumnToken.JUDGE);
-//        columnHeaders.add(ColumnToken.DOCKET);
+        columnHeaders.add(ColumnToken.COURT);
+        columnHeaders.add(ColumnToken.JUDGE);
+        columnHeaders.add(ColumnToken.DOCKET);
+        columnHeaders.add(ColumnToken.FILE_DATE);
+        columnHeaders.add(ColumnToken.STATUS);
+        columnHeaders.add(ColumnToken.PLAINTIFF);
+        columnHeaders.add(ColumnToken.PLAINTIFF_ZIP);
+        columnHeaders.add(ColumnToken.DEFENDANT);
+        columnHeaders.add(ColumnToken.DEFENDANT_ZIP);
+        columnHeaders.add(ColumnToken.HEARING_DATE);
+        columnHeaders.add(ColumnToken.HEARING_TIME);
+        columnHeaders.add(ColumnToken.CLAIM_AMOUNT);
+        columnHeaders.add(ColumnToken.JUDGMENT_AMOUNT);
+        columnHeaders.add(ColumnToken.RENT_IN_ARREARS);
+        columnHeaders.add(ColumnToken.FILING_FEES);
+        columnHeaders.add(ColumnToken.COSTS);
+        columnHeaders.add(ColumnToken.SERVER_FEES);
+        columnHeaders.add(ColumnToken.DAMAGES);
+        columnHeaders.add(ColumnToken.ATTORNEY_FEES);
+        columnHeaders.add(ColumnToken.RENT_RESERVED_AND_DUE);
+        columnHeaders.add(ColumnToken.INTEREST);
+        columnHeaders.add(ColumnToken.MONTHLY_RENT);
+        columnHeaders.add(ColumnToken.WITHDRAWN);
+        columnHeaders.add(ColumnToken.DISMISSED);
+        columnHeaders.add(ColumnToken.GRANT_POSS);
+        columnHeaders.add(ColumnToken.GRANT_POSS_IF_JUDGE_NOT_SATISFIED);
+        columnHeaders.add(ColumnToken.ORDER_FOR_POSS_REQ);
+        columnHeaders.add(ColumnToken.ORDER_FOR_POSS_SERVED);
+        columnHeaders.add(ColumnToken.JUDGMENT_FOR_PLAINTIFF);
+        columnHeaders.add(ColumnToken.JUDGMENT_FOR_DEFENDANT);
+        columnHeaders.add(ColumnToken.SETTLED);
+        columnHeaders.add(ColumnToken.STAYED);
+        columnHeaders.add(ColumnToken.APPEALED);
+        columnHeaders.add(ColumnToken.PLAINTIFF_ATTORNEY);
+        columnHeaders.add(ColumnToken.DEFENDANT_ATTORNEY);
+        columnHeaders.add(ColumnToken.NOTES);
     }
 
     public List<ColumnToken> getColumnHeaders() {
@@ -158,11 +192,10 @@ public class LTPdfData extends PdfData implements Serializable {
     private String monthlyRent;
     private String grantPossession;
     private String grantPossessionIf;
-    private String orderForPossessionRequested;
-    private LocalDate orderForPossessionRequestedDate;
+    private String orderForPossessionRequired;
+    private LocalDate orderForPossessionRequiredDate;
     private String orderForPossessionServed;
     private LocalDate orderForPossessionServedDate;
-    //private String tenantWin;
     private String served;
     private String withdrawn;
     private String dismissed;
@@ -175,30 +208,14 @@ public class LTPdfData extends PdfData implements Serializable {
     private String dispositionDate;
     private boolean bankruptcy;
     private String notes;
-    //private List<String> attorneys;
-    //private boolean defendantAttorneyExists;
-    //private boolean plaintiffAttorneyExists;
     private String plaintiffAttorney;
     private String defendantAttorney;
 
     private LocalDate comparableDate;
 
-    //row --> cell value
-    private TreeMap<Integer, String> row = new TreeMap<>();
-
-//    public String[] getRow() {
-//        String[] ret = new String[LTParser.colHeaders.length];
-//
-//        for (Integer i: row.keySet()) {
-//            ret[i] = row.get(i);
-//        }
-//
-//        return ret;
-//    }
-
     public void setCourtOffice(String courtOffice) {
         this.courtOffice = courtOffice;
-        row.put(0, courtOffice);
+        setColumn(ColumnToken.COURT, courtOffice);
     }
 
     /**
@@ -211,17 +228,18 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public void setJudgeName(String judgeName) {
         this.judgeName = judgeName;
-        row.put(1, judgeName);
+
+        setColumn(ColumnToken.JUDGE, judgeName);
     }
 
     public void setDocketNumber(String docketNumber) {
         this.docketNumber = docketNumber;
-        row.put(2, docketNumber);
+        setColumn(ColumnToken.DOCKET, docketNumber);
     }
 
     public void setFileDate(String string) {
         this.fileDate = string;
-        row.put(3, string);
+        setColumn(ColumnToken.FILE_DATE, string);
     }
 
     public LocalDate getFileDate() {
@@ -234,12 +252,12 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public void setCaseStatus(String caseStatus) {
         this.caseStatus = caseStatus;
-        row.put(4, caseStatus);
+        setColumn(ColumnToken.STATUS, caseStatus);
     }
 
     public void setPlaintiffs(String plaintiffNames) {
         this.plaintiffNames = getNormalizedPlaintiff(plaintiffNames);
-        row.put(5, plaintiffNames);
+        setColumn(ColumnToken.PLAINTIFF, plaintiffNames);
     }
 
     private String getNormalizedPlaintiff(String plaintiff) {
@@ -261,12 +279,12 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public void setPlaintiffZips(String plaintiffZips) {
         this.plaintiffZips = plaintiffZips;
-        row.put(6, plaintiffZips);
+        setColumn(ColumnToken.PLAINTIFF_ZIP, plaintiffZips);
     }
 
     public void setDefendant(String defendantNames) {
         this.defendantNames = defendantNames;
-        row.put(7, obfuscateNames(defendantNames));
+        setColumn(ColumnToken.DEFENDANT, defendantNames);
     }
 
     private String obfuscateNames(String s) {
@@ -284,12 +302,12 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public void setDefendantZips(String defendantZips) {
         this.defendantZips = defendantZips;
-        row.put(8, defendantZips);
+        setColumn(ColumnToken.DEFENDANT_ZIP, defendantZips);
     }
 
     public void setScheduledDate(String hd) {
         hearingDate = hd;
-        row.put(9, hd);
+        setColumn(ColumnToken.HEARING_DATE, hd);
     }
 
     public boolean hasHearingDate() {
@@ -303,12 +321,12 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public void setScheduledHour(String ht) {
         hearingTime = ht;
-        row.put(10, ht);
+        setColumn(ColumnToken.HEARING_TIME, ht);
     }
 
     public void setClaim(String claim) {
         this.claim = claim;
-        row.put(11, claim);
+        setColumn(ColumnToken.CLAIM_AMOUNT, claim);
     }
 
     public int getClaim() {
@@ -317,7 +335,7 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public void setJudgment(String judgment) {
         this.judgment = validateMoney(judgment);
-        row.put(12, judgment);
+        setColumn(ColumnToken.JUDGMENT_AMOUNT, this.judgment);
     }
 
     public void setRentInArrears(String m) {
@@ -325,7 +343,7 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             rentInArrears = addMoneyStrings(rentInArrears, m);
         }
-        row.put(13, m);
+        setColumn(ColumnToken.RENT_IN_ARREARS, rentInArrears);
     }
 
     public void setFilingFees(String m) {
@@ -333,7 +351,7 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             filingFees = addMoneyStrings(filingFees, m);
         }
-        row.put(14, filingFees);
+        setColumn(ColumnToken.FILING_FEES, filingFees);
     }
 
     public void setCosts(String m) {
@@ -341,7 +359,7 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             costs = addMoneyStrings(costs, m);
         }
-        row.put(15, costs);
+        setColumn(ColumnToken.COSTS, costs);
     }
 
     public void setServerFees(String m) {
@@ -349,7 +367,7 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             serverFees = addMoneyStrings(serverFees, m);
         }
-        row.put(16, serverFees);
+        setColumn(ColumnToken.SERVER_FEES, serverFees);
     }
 
     public int getDamages() {
@@ -377,7 +395,7 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             damages = addMoneyStrings(damages, m);
         }
-        row.put(17, damages);
+        setColumn(ColumnToken.DAMAGES, damages);
     }
 
     public void setAttorneyFees(String m) {
@@ -385,7 +403,7 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             attorneyFees = addMoneyStrings(attorneyFees, m);
         }
-        row.put(18, attorneyFees);
+        setColumn(ColumnToken.ATTORNEY_FEES, attorneyFees);
     }
 
     public void setRentReservedAndDue(String m) {
@@ -393,7 +411,7 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             rentReservedAndDue = addMoneyStrings(rentReservedAndDue, m);
         }
-        row.put(19, rentReservedAndDue);
+        setColumn(ColumnToken.RENT_RESERVED_AND_DUE, rentReservedAndDue);
     }
 
     public void setInterest(String m) {
@@ -401,29 +419,29 @@ public class LTPdfData extends PdfData implements Serializable {
         else {
             interest = addMoneyStrings(interest, m);
         }
-        row.put(20, interest);
+        setColumn(ColumnToken.INTEREST, interest);
     }
 
     public void setMonthlyRent(String s) {
         this.monthlyRent = s;
-        row.put(21, s);
+        setColumn(ColumnToken.MONTHLY_RENT, monthlyRent);
     }
 
     public void setWithdrawn(boolean b) {
         this.withdrawn = b ? "TRUE" : "FALSE";
-        row.put(22, this.withdrawn);
+        setColumn(ColumnToken.WITHDRAWN, withdrawn);
     }
 
     public void setDismissed(boolean b) {
         this.dismissed = b ? "TRUE" : "FALSE";
-        row.put(23, this.dismissed);
+        setColumn(ColumnToken.DISMISSED, dismissed);
     }
 
     public void setDismissedWithPrejudice(boolean b) {
         if (!b) return;
         this.dismissedWithPrejudice ="TRUE";
 
-        row.put(23, "TRUE");
+        setColumn(ColumnToken.DISMISSED, "TRUE");
     }
 
     public boolean isTenantWin() {
@@ -433,20 +451,20 @@ public class LTPdfData extends PdfData implements Serializable {
     public void setGrantPossession(String gp) {
         //System.out.println(docketNumber);
         this.grantPossession = gp;
-        row.put(24, gp);
+        setColumn(ColumnToken.GRANT_POSS, grantPossession);
     }
 
     public void setGrantPossessionIf(String gp) {
         this.grantPossessionIf = gp;
-        row.put(25, gp);
+        setColumn(ColumnToken.GRANT_POSS_IF_JUDGE_NOT_SATISFIED, grantPossessionIf);
     }
 
     public void setOrderForPossessionRequested(boolean b, String date) {
-        this.orderForPossessionRequested = b ? "TRUE" : "FALSE";
+        this.orderForPossessionRequired = b ? "TRUE" : "FALSE";
 
-        orderForPossessionRequestedDate = LocalDate.parse(date, slashDateFormatter);
+        orderForPossessionRequiredDate = LocalDate.parse(date, slashDateFormatter);
 
-        row.put(26, date);
+        setColumn(ColumnToken.ORDER_FOR_POSS_REQ, orderForPossessionRequired);
 
     }
 
@@ -455,40 +473,33 @@ public class LTPdfData extends PdfData implements Serializable {
 
         orderForPossessionServedDate = LocalDate.parse(date, slashDateFormatter);
 
-        row.put(27, date);
+        setColumn(ColumnToken.ORDER_FOR_POSS_SERVED, orderForPossessionServed);
     }
-
-//    //judgment for defendant or dismissed
-//    public void setTenantWin(boolean b) {
-//        this.tenantWin = b ? "TRUE" : "FALSE";
-//        row.put(28, this.tenantWin);
-//    }
 
     public void judgmentForPlaintiff(boolean b) {
         judgmentForPlaintiff = b;
-        row.put(28, b ? "TRUE" : "FALSE");
+        setColumn(ColumnToken.JUDGMENT_FOR_PLAINTIFF, b ? "TRUE" : "FALSE");
     }
 
     public void judgmentForDefendant(boolean b) {
         judgmentForDefendant = b;
-        row.put(29, b ? "TRUE" : "FALSE");
+        setColumn(ColumnToken.JUDGMENT_FOR_DEFENDANT, b ? "TRUE" : "FALSE");
     }
 
     public void setSettled(boolean b, String date) {
         if (!b) return;
         this.settled = date != null ? date : "TRUE";
-        row.put(30, this.settled);
+        setColumn(ColumnToken.SETTLED, settled);
     }
 
     public void setStayed (String stayedString) {
         if (stayedString == null) return;
         stayed = true;
-        row.put(31, "TRUE");
+        setColumn(ColumnToken.STAYED, "TRUE");
     }
 
     public void setServed(boolean b) {
         this.served = b ? "TRUE" : "FALSE";
-        //row.put(31, this.served);
     }
 
     public void setAppeal(String s) {
@@ -499,7 +510,7 @@ public class LTPdfData extends PdfData implements Serializable {
         }
         else notes = s;
 
-        row.put(32, "TRUE");
+        setColumn(ColumnToken.APPEALED, "TRUE");
     }
 
     private boolean isStayed() {
@@ -510,12 +521,11 @@ public class LTPdfData extends PdfData implements Serializable {
         if (containsMatchingEntity(representing, defendantNames, false)) {
             if (defendantAttorney == null) defendantAttorney = name;
             else defendantAttorney += ", " + name;
-            row.put(34, defendantAttorney);
         }
         else if (containsMatchingEntity(representing, plaintiffNames, true)) {
             if (plaintiffAttorney == null) plaintiffAttorney = name;
             else plaintiffAttorney += ", " + name;
-            row.put(33, plaintiffAttorney);
+            setColumn(ColumnToken.PLAINTIFF_ATTORNEY, plaintiffAttorney);
         }
         else if (!ignoreAttorneyProvenance.contains(getDocket())) {
             System.err.println("Can't determine attorney provenance for " + docketNumber);
@@ -530,7 +540,7 @@ public class LTPdfData extends PdfData implements Serializable {
             notes += "; " + note;
         }
         else notes = note;
-        row.put(35, notes);
+        setColumn(ColumnToken.NOTES, notes);
     }
 
     public boolean sentToCommonPleas() {
@@ -539,10 +549,6 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public String getJudgeName() {
         return judgeName;
-    }
-
-    public String getCourtOfficeFull() {
-        return courtOffice;
     }
 
     /**
@@ -597,7 +603,7 @@ public class LTPdfData extends PdfData implements Serializable {
                     "withdrawn: " + withdrawn + "\n" +
                     "grant possession: " + grantPossession + "\n" +
                     "grant possession if: " + grantPossessionIf + "\n" +
-                    "order for possession requested: " + orderForPossessionRequested + "\n" +
+                    "order for possession requested: " + orderForPossessionRequired + "\n" +
                     "order for possession served: " + orderForPossessionServed + "\n" +
                     //"tenant win: " + tenantWin + "\n" +
                     "judgment for plaintiff: " + judgmentForPlaintiff + "\n" +

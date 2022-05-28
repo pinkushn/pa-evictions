@@ -13,7 +13,7 @@ import static j2html.TagCreator.*;
 public class Website {
 
 //    public final static String[] countiesRaw = {
-//            "Lancaster",
+//            "Bedford",
 //    };
 
     public final static String[] countiesRaw = {
@@ -184,6 +184,12 @@ public class Website {
                                 br(),
                                 span("Not all courts upload cases or changes same-day.")
 
+                        ).withStyle("text-align:center; margin-bottom: 10px"),
+                        br(),
+                        div(
+                                span("Data analysis and visualizations "),
+                                a("here")
+                                        .withHref("https://datastudio.google.com/embed/reporting/ad9a4d86-a85f-493e-b41e-e25ca17b481c/page/p_pqkfjbc2qc")
                         ).withStyle("text-align:center; margin-bottom: 10px")
                 )
         ).renderFormatted();

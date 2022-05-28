@@ -1,15 +1,13 @@
 package com.lancasterstandsup.evictiondata;
 
-import org.apache.poi.common.usermodel.HyperlinkType;
-import org.apache.poi.ss.usermodel.Hyperlink;
-
 import java.io.IOException;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public abstract class PdfData implements Comparable<PdfData>{
+public abstract class PdfData implements Comparable<PdfData>, Serializable {
 
     static DateTimeFormatter slashDateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     //static DateTimeFormatter dashDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -23,7 +21,7 @@ public abstract class PdfData implements Comparable<PdfData>{
     private static final Comparator<PdfData> COMPARATOR =
             Comparator.comparing(PdfData::getDocket);
 
-    private Map<ColumnToken, Object> columns;
+    protected Map<ColumnToken, Object> columns;
 
     private String hyperlink;
 
@@ -33,7 +31,7 @@ public abstract class PdfData implements Comparable<PdfData>{
         return OTNs;
     }
 
-    public boolean hasOTN() {
+    public boolean hasOTNs() {
         return OTNs != null;
     }
 
@@ -57,6 +55,7 @@ public abstract class PdfData implements Comparable<PdfData>{
     }
 
     public String getOtherDockets() throws IOException, InterruptedException {
+        if (!hasOTNs()) return "";
         String ret = "";
         for (String otn: getOTNs()) {
             try {
@@ -77,6 +76,9 @@ public abstract class PdfData implements Comparable<PdfData>{
     }
 
     public String getColumn(ColumnToken header) throws IOException, InterruptedException {
+        if (columns == null) {
+            throw new NullPointerException("no columns for " + getDocket());
+        }
         if (header == ColumnToken.OTHER_DOCKETS) {
             return getOtherDockets();
         }
@@ -192,5 +194,9 @@ public static LocalDate forceSlashedDateIntoLocalDate(String date) {
         i = docket.lastIndexOf('-');
         docket = docket.substring(i + 1);
         return docket;
+    }
+
+    public boolean hasNoColumns() {
+        return columns == null;
     }
 }

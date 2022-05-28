@@ -12,11 +12,15 @@ public class ParseAll {
     //county --> cities in county
     private static Map<String, Set<String>> cities = new HashMap<>();
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, NoSuchFieldException {
         String county = "Lancaster";
         String year = "2022";
 
-        get(Scraper.CourtMode.MDJ_CR, county, year, false);
+        //get(Scraper.CourtMode.MDJ_CR, county, year, false);
+
+        String docket = "MJ-51303-LT-0000052-2019";
+        PdfData ret = parseFromDocket(docket, "Adams");
+        System.out.println(ret);
     }
 
     public static Map<String, List<PdfData>> get(Scraper.CourtMode courtMode, String county, String year, boolean reverseChronological) throws IOException, ClassNotFoundException {
@@ -136,9 +140,17 @@ public class ParseAll {
                         else if (data == null) {
                             System.err.println("****** Unable to parse " + pdf.getName() + " ******");
                         }
+
                         targetStream.close();
                     }
                     if (data != null) ret.add((T) data);
+
+                    if (data.hasNoColumns()) {
+                        throw new NullPointerException("no columns for " + data.getDocket());
+                    }
+                    else {
+                        //System.out.println("Yay");
+                    }
 
                     if (countExpunged) {
                         if (previous != null) {
@@ -157,7 +169,7 @@ public class ParseAll {
                     if (data != null) previous = data;
                 }
                 else {
-                    System.out.println("Found a non-pdf file: " + pdf.getName());
+//                    System.out.println("Ignoring a non-pdf file: " + pdf.getName());
                 }
             }
             /**

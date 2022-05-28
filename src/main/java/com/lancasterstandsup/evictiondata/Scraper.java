@@ -35,7 +35,7 @@ public class Scraper {
     private static int BETWEEN_SCRAPE_PAUSE = 200;
     private static int BETWEEN_RESPONSE_PAUSE = 150;
 
-    public static enum CourtMode {
+    public enum CourtMode {
         //LandlordTenantMDJ
         MDJ_LT("MJ", "LT", 4,
                 "MJ-05227-LT-0000094-2021".length(),
@@ -111,6 +111,16 @@ public class Scraper {
         }
     }
 
+    public final static String LOCAL_DATA_PATH = "/Users/josh/git/PAEvictionsLocalData/";
+    public final static String PDF_CACHE_PATH = LOCAL_DATA_PATH + "pdfCache/";
+    private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
+    private final static String RESOURCES_PATH = "./src/main/resources/";
+    private static HashMap<CourtMode, File> pointerFiles = new HashMap<>();
+    private final static String COMPLETION_FILE_NAME = "completion";
+
+    private static int hits = 0;
+    private static int urlHits = 0;
+    private static int urlLoops = 0;
     //wait after a failed call
     //note to self: got this to manually work after 1.1 hours 1/22/22
     //about
@@ -118,16 +128,6 @@ public class Scraper {
     private static final double HOURS_WAIT = .6;
     private final static long RESET_PERMISSIONS_TIME = (long) (1000 * 60 * 60 * HOURS_WAIT);
 
-    public final static String PDF_CACHE_PATH = "./pdfCache/";
-    private final static String site = "https://ujsportal.pacourts.us/CaseSearch";
-    private final static String RESOURCES_PATH = "./src/main/resources/";
-    //private final static String POINTER_FILE_NAME = mode.getCaseType() + "pointer";
-    private static HashMap<CourtMode, File> pointerFiles = new HashMap<>();
-    private final static String COMPLETION_FILE_NAME = "completion";
-    private static int hits = 0;
-    private static int urlHits = 0;
-    //private static long millisForAllURLHits = 0;
-    private static int urlLoops = 0;
     //stop and wait for 'a while' (HOURS_WAIT, above) after this many url hits
     private final static int URL_HITS_PERMITTED = 400;
     private static boolean firstOTNExistsWarning = true;
@@ -174,7 +174,7 @@ public class Scraper {
 
         Set<String> otns = new HashSet<>();
         for (CRPdfData pdf: list) {
-            if (pdf.hasOTN()) otns.addAll(pdf.getOTNs());
+            if (pdf.hasOTNs()) otns.addAll(pdf.getOTNs());
             else {
                 System.err.println("No OTN for " + pdf.getDocket());
             }
@@ -188,11 +188,11 @@ public class Scraper {
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         //CourtMode courtMode = CourtMode.MDJ_LT;
         //CourtMode courtMode = CourtMode.CP_CR;
-        CourtMode courtMode = CourtMode.MDJ_CR;
-        commenceScrapingFromSavedPointer(courtMode);
+//        CourtMode courtMode = CourtMode.MDJ_CR;
+//        commenceScrapingFromSavedPointer(courtMode);
 
-//        String[] years = {"2022"};
-//        scrapeOTNs("Lancaster", years);
+        String[] years = {"2021"};
+        scrapeOTNs("Lancaster", years);
 
         // commenceScrapingFromArtificalPointer();
         //getOTNDocketNames("U 684533-3");
@@ -578,7 +578,7 @@ public class Scraper {
     }
 
     public static CountyCoveredRange getCountyStartAndEnd(String county, CourtMode courtMode) throws IOException, ClassNotFoundException {
-        File file = new File(courtMode.getPdfCachePath() + county,COMPLETION_FILE_NAME);
+        File file = new File(courtMode.getPdfCachePath() + county, COMPLETION_FILE_NAME);
         if (!file.exists()) {
             return null;
         }
@@ -625,8 +625,8 @@ public class Scraper {
     }
 
     private static int  getStartYear(CourtMode courtMode) {
-        if (courtMode == CourtMode.MDJ_CR) return 2017;
-        else if (courtMode == CourtMode.CP_CR) return 2017;
+        if (courtMode == CourtMode.MDJ_CR) return 2022;
+        else if (courtMode == CourtMode.CP_CR) return 2022;
         //return LocalDateTime.now().getYear() - 1;
         else return 2022;
     }
@@ -1277,7 +1277,7 @@ public class Scraper {
                 System.err.println("Warn: otn file already exists for " + otn + ", not re-reading. " +
                         "Risks missing docket created after earlier read. " +
                         "Someday, check for CP docket name in existing, re-read if non-existent.\n" +
-                        "**** This msg will not be repeated for subsequent ons ****");
+                        "**** This msg will not be repeated for subsequent otns ****");
                 firstOTNExistsWarning = false;
             }
             try (BufferedReader in = new BufferedReader(new FileReader(file));) {
@@ -1296,6 +1296,8 @@ public class Scraper {
         if (failIfNotLocal) {
             throw new IllegalStateException("Cannot find local record of dockets for OTN " + otn);
         }
+
+        System.out.println("Going to portal for OTN " + otn);
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
 

@@ -17,10 +17,9 @@ import java.util.TreeSet;
 public class Worksheet {
 
     public static String webDataPath = "./webdata/";
-    public static String localDataPath = "./localdata/";
 
     static {
-        File localData = new File(localDataPath);
+        File localData = new File(Scraper.LOCAL_DATA_PATH);
         if (!localData.exists()) localData.mkdir();
         File webData = new File(webDataPath);
         if (!webData.exists()) webData.mkdir();
@@ -111,7 +110,7 @@ public class Worksheet {
             System.exit(1);
         }
 
-        File dir = new File(localDataPath + county);
+        File dir = new File(Scraper.LOCAL_DATA_PATH + county);
         if (!dir.exists()) {
             dir.mkdir();
         }
@@ -122,7 +121,7 @@ public class Worksheet {
             }
         }
 
-        writeExcel(localDataPath + county + "/" + excelFileName, pdfs, null, null);
+        writeExcel(Scraper.LOCAL_DATA_PATH + county + "/" + excelFileName, pdfs, null, null);
 
         return pdfs.size();
     }
@@ -130,9 +129,9 @@ public class Worksheet {
     public static int createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
         String excelFileName = county + "_mdj_criminal_dockets_" +
                 years[0] +
-                (years.length == 1 ? "" :
-                        "_to_" +
-                                years[years.length - 1]) +
+                (years.length == 1 ?
+                        "" :
+                        "_to_" + years[years.length - 1]) +
                 ".xlsx";
 
         List<PdfData> pdfs = null;
@@ -145,7 +144,7 @@ public class Worksheet {
             System.exit(1);
         }
 
-        File dir = new File(localDataPath + county);
+        File dir = new File(Scraper.LOCAL_DATA_PATH + county);
         if (!dir.exists()) {
             dir.mkdir();
         }
@@ -159,7 +158,7 @@ public class Worksheet {
         TreeSet<PdfData> ordered = new TreeSet<>();
         ordered.addAll(pdfs);
 
-        writeExcel(localDataPath + county + "/" + excelFileName, ordered, null, null);
+        writeExcel(Scraper.LOCAL_DATA_PATH + county + "/" + excelFileName, ordered, null, null);
 
         return pdfs.size();
     }
@@ -201,6 +200,9 @@ public class Worksheet {
 
         int cols = 0;
         for (PdfData pdf: list) {
+            if (pdf.hasNoColumns()) {
+                throw new IllegalStateException("NO COLUMNS ???? " + pdf.getDocket());
+            }
             LocalDate date = pdf.getFileDate();
             boolean use = start == null || (date.compareTo(start) >= 0 && date.compareTo(end) < 1);
             if (use) {
@@ -306,11 +308,8 @@ public class Worksheet {
 
         col = 0;
         for (ColumnToken headerToken: aPdfForHeaders.getColumnHeaders()) {
-            if (headerToken == ColumnToken.GRADES) {
-                sheet.setColumnWidth(col, 30 * 256);
-            }
-            else if (headerToken == ColumnToken.OTHER_DOCKETS) {
-                sheet.setColumnWidth(col, 50 * 256);
+            if (headerToken.hasMaxWidth()) {
+                sheet.setColumnWidth(col, headerToken.getMaxWidth() * 256);
             }
             col++;
         }
@@ -327,11 +326,15 @@ public class Worksheet {
     }
 
     public static void main (String [] args) throws IOException, ClassNotFoundException, InterruptedException {
-        String[] years = {"2022"};
+        String[] years = {"2021"};
         createExcelMJ_CR("Lancaster", years);
-
-        //        clearAllPreProcessed();
+//        clearAllPreProcessed();
 //        csvAllLT();
+
+//        File file = new File(Scraper.PDF_CACHE_PATH);
+//        for (File child: file.listFiles()) {
+//            System.out.println("child: " + child.getName());
+//        }
 
 //        boolean isWindows = System.getProperty("os.name")
 //                .toLowerCase().startsWith("windows");
@@ -350,7 +353,7 @@ public class Worksheet {
 
     public static void clearPreProcessed(String county) {
         for (Scraper.CourtMode caseType: Scraper.CourtMode.values()) {
-            File dir = new File(Scraper.PDF_CACHE_PATH + caseType.getCaseType() + "/" + county);
+            File dir = new File(caseType.getPdfCachePath() + county);
             if (!dir.exists()) {
                 return;
             }

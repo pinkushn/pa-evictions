@@ -17,12 +17,12 @@ public class RowValues {
         return vals;
     }
 
-    public String getHyperlink(int i) {
-        return links == null ? null : links.get(i);
+    public String getHyperlink(int col) {
+        return links == null ? null : links.get(col);
     }
 
-    public void setHyperlink(int i, String hyperlink) {
+    public void setHyperlink(int col, String hyperlink) {
         if (links == null) links = new HashMap<>();
-        links.put(i, hyperlink);
+        links.put(col, hyperlink);
     }
 }
