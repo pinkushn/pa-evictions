@@ -186,9 +186,9 @@ public class Scraper {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-        CourtMode courtMode = CourtMode.MDJ_LT;
-//        //CourtMode courtMode = CourtMode.CP_CR;
-//        //CourtMode courtMode = CourtMode.MDJ_CR;
+        //CourtMode courtMode = CourtMode.MDJ_LT;
+        //CourtMode courtMode = CourtMode.CP_CR;
+        CourtMode courtMode = CourtMode.MDJ_CR;
         commenceScrapingFromSavedPointer(courtMode);
 
 //        String[] years = {"2022"};
@@ -675,6 +675,24 @@ public class Scraper {
                 if (oldData.rescrape(lastCheck)) {
                     scrape = true;
                     rescrape = true;
+                }
+            }
+            // Is this a known gap from 'clean slate' hiding records or expunging?
+            else {
+                //probe for subsequent file. If it exists, we've already identified this gap
+                Pointer probePointer = pointer.clone();
+                int probeSequence = Integer.parseInt(sequenceNumber);
+                for (int x = 0; x < courtMode.getMissesBeforeGivingUp(); x++) {
+                    probeSequence++;
+                    probePointer.setSequenceNumberUnformatted(probeSequence);
+                    String probeFilePath = getPdfFilePath(probePointer, courtMode);
+                    File probeFile = new File(probeFilePath);
+                    if (probeFile.exists()) {
+                        System.out.println("Skipping missing docket (expunged/hidden): " + docket);
+                        foundOrRead = true;
+                        scrape = false;
+                        break;
+                    }
                 }
             }
 

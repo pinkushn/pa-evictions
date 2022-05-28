@@ -52,6 +52,15 @@ public class Pointer implements Serializable {
         return courtOffice != null;
     }
 
+    public Pointer clone() {
+        Pointer ret = new Pointer();
+        ret.setSequenceNumberUnformatted(sequenceNumberUnformatted);
+        ret.setYear(year);
+        ret.setCourtOffice(courtOffice);
+        ret.setCounty(county);
+        return ret;
+    }
+
     public static Pointer fromSerializedPointerString(String s) {
         s = s.replace(",", "");
         String[] split = s.split(" ");
