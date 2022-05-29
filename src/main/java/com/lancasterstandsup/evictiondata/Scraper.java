@@ -169,7 +169,7 @@ public class Scraper {
         }
     }
 
-    public static void scrapeOTNs(String county, String [] years) throws IOException, ClassNotFoundException, InterruptedException {
+    public static void scrapeOTNs(String county, String [] years, boolean ignoreLocalCache) throws IOException, ClassNotFoundException, InterruptedException {
         List<CRPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_CR, county, years);
 
         Set<String> otns = new HashSet<>();
@@ -182,17 +182,17 @@ public class Scraper {
         List<String> sList = new ArrayList<>();
         sList.addAll(otns);
 
-        Scraper.scrapeOTNListForDocketNames(sList);
+        Scraper.scrapeOTNListForDocketNames(sList, ignoreLocalCache);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         //CourtMode courtMode = CourtMode.MDJ_LT;
-        //CourtMode courtMode = CourtMode.CP_CR;
+        CourtMode courtMode = CourtMode.CP_CR;
 //        CourtMode courtMode = CourtMode.MDJ_CR;
-//        commenceScrapingFromSavedPointer(courtMode);
+        commenceScrapingFromSavedPointer(courtMode);
 
-        String[] years = {"2021"};
-        scrapeOTNs("Lancaster", years);
+        //String[] years = {"2021"};
+        //scrapeOTNs("Lancaster", years, true);
 
         // commenceScrapingFromArtificalPointer();
         //getOTNDocketNames("U 684533-3");
@@ -329,7 +329,7 @@ public class Scraper {
         }
     }
 
-    public static List<String> scrapeOTNListForDocketNames(List<String> otns) throws InterruptedException {
+    public static List<String> scrapeOTNListForDocketNames(List<String> otns, boolean ignoreLocalCache) throws InterruptedException {
         System.out.println("**********************");
         System.out.println("Pursuing docket names for " + otns.size() + " OTN(s)");
         System.out.println("**********************");
@@ -342,13 +342,13 @@ public class Scraper {
         while (!done) {
             Exception exception = null;
             try {
-                ret.addAll(getOTNDocketNames(otns.get(next), false));
-                System.out.println(next + "/" + otns.size() + ": " +
+                ret.addAll(getOTNDocketNames(otns.get(next), false, ignoreLocalCache));
+                System.out.println((next + 1) + "/" + otns.size() + ": " +
                         "Read otn docket name(s) for OTN " + otns.get(next));
                 next++;
                 if (next >= otns.size()) {
                     done = true;
-                };
+                }
             }
             catch (Exception e) {
                 exception = e;
@@ -1262,7 +1262,7 @@ public class Scraper {
         return last + ", " + first + " " + dob;
     }
 
-    public static List<String> getOTNDocketNames(String otn, boolean failIfNotLocal)
+    public static List<String> getOTNDocketNames(String otn, boolean failIfNotLocal, boolean ignoreLocalCache)
             throws IOException, InterruptedException {
 
         List<String> ret = new ArrayList<>();
@@ -1272,7 +1272,7 @@ public class Scraper {
 
         File file = new File(PDF_CACHE_PATH + "OTN/" + otn);
 
-        if (file.exists()) {
+        if (file.exists() && !ignoreLocalCache) {
             if (firstOTNExistsWarning) {
                 System.err.println("Warn: otn file already exists for " + otn + ", not re-reading. " +
                         "Risks missing docket created after earlier read. " +
@@ -1293,7 +1293,7 @@ public class Scraper {
             return ret;
         }
 
-        if (failIfNotLocal) {
+        if (failIfNotLocal && !ignoreLocalCache) {
             throw new IllegalStateException("Cannot find local record of dockets for OTN " + otn);
         }
 

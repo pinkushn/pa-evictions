@@ -3,10 +3,7 @@ package com.lancasterstandsup.evictiondata;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 public class CRPdfData extends PdfData {
 
@@ -36,6 +33,7 @@ public class CRPdfData extends PdfData {
     static {
         columnHeaders = new ArrayList<>();
         columnHeaders.add(ColumnToken.DOCKET);
+        columnHeaders.add(ColumnToken.PAIRED_MDJS_SAME_COUNTY);
         columnHeaders.add(ColumnToken.JUDGE);
         columnHeaders.add(ColumnToken.FILE_DATE);
         columnHeaders.add(ColumnToken.HAS_BAIL_SECTION);
@@ -84,7 +82,33 @@ public class CRPdfData extends PdfData {
     private String defendantName;
     private LocalDate birthdate;
 
+    // severity of each charge
     private List<GRADE> grades;
+
+    private int countPairedMDJSSameCounty;
+
+    public void setPairedMDJsSameCounty(int i) {
+        countPairedMDJSSameCounty = i;
+        setColumn(ColumnToken.PAIRED_MDJS_SAME_COUNTY, countPairedMDJSSameCounty);
+    }
+
+//    public void setOTNs(String otns) {
+//        super.setOTNs(otns);
+//
+//        if (!usedOTNS.containsKey(county)) {
+//            usedOTNS.put(county, new HashSet<>());
+//        }
+//
+//        for (String otn: super.getOTNs()) {
+//            if (!usedOTNS.get(county).contains(otn)) {
+//                usedOTNS.get(county).add(otn);
+//            }
+//            else {
+//                incrementPairedMDJSSameCounty();
+//                break;
+//            }
+//        }
+//    }
 
     public void addGrade(GRADE grade) {
         if (grades == null) grades = new ArrayList<>();

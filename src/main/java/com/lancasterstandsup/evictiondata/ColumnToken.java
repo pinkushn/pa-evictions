@@ -46,8 +46,8 @@ public enum ColumnToken {
     APPEALED("Appealed"),
     PLAINTIFF_ATTORNEY("Plaintiff Attorney", 60),
     DEFENDANT_ATTORNEY("Defendant Attorney", 60),
-    NOTES("Notes");
-
+    NOTES("Notes"),
+    PAIRED_MDJS_SAME_COUNTY("Paired MDJs Same County");
     String header;
     int maxWidth;
 

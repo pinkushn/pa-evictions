@@ -202,6 +202,36 @@ public class ParseAll {
             System.out.println(county + " " + year + "  Expunged: " + expunged + "  Malformed: " + malformed);
         }
 
+        //are there rows referencing the same case, same county?
+        if (courtMode == Scraper.CourtMode.MDJ_CR) {
+            Map<String, Integer> mdjsWithOTN = new HashMap<>();
+            for (PdfData pdf: ret) {
+                if (pdf.hasOTNs()) {
+                    for (String otn : pdf.getOTNs()) {
+                        if (!mdjsWithOTN.containsKey(otn)) {
+                            mdjsWithOTN.put(otn, 1);
+                        } else {
+                            mdjsWithOTN.put(otn, mdjsWithOTN.get(otn) + 1);
+                        }
+                    }
+                }
+                else {
+                    System.out.println("No otn for " + pdf.getDocket());
+                }
+            }
+
+            for (PdfData pdf: ret) {
+                if (pdf.hasOTNs()) {
+                    for (String otn : pdf.getOTNs()) {
+                        int i = mdjsWithOTN.get(otn);
+                        if (i > 1) {
+                            ((CRPdfData) pdf).setPairedMDJsSameCounty(i - 1);
+                        }
+                    }
+                }
+            }
+        }
+
         return ret;
     }
 

@@ -25,9 +25,9 @@ public abstract class PdfData implements Comparable<PdfData>, Serializable {
 
     private String hyperlink;
 
-    private List<String> OTNs;
+    private Set<String> OTNs;
 
-    public List<String> getOTNs() {
+    public Set<String> getOTNs() {
         return OTNs;
     }
 
@@ -38,11 +38,21 @@ public abstract class PdfData implements Comparable<PdfData>, Serializable {
     public void setOTNs(String otns) {
         if (otns.trim().length() == 0) return;
         String[] split = otns.split("/");
-        OTNs = new ArrayList<>();
+        OTNs = new HashSet<>();
         for (String s: split) {
             OTNs.add(s);
         }
-        setColumn(ColumnToken.OTNS, otns);
+        // sometimes the 'two' OTNS are identical (most of the time, perhaps)
+        String cellVal = "";
+        for (String s: OTNs) {
+            if (cellVal.equals("")) {
+                cellVal = s;
+            }
+            else {
+                cellVal += ", " + s;
+            }
+        }
+        setColumn(ColumnToken.OTNS, cellVal);
     }
 
     public void setHyperlink(String s) {
@@ -59,7 +69,7 @@ public abstract class PdfData implements Comparable<PdfData>, Serializable {
         String ret = "";
         for (String otn: getOTNs()) {
             try {
-                List<String> others = Scraper.getOTNDocketNames(otn, true);
+                List<String> others = Scraper.getOTNDocketNames(otn, true, false);
                 for (String docket: others) {
                     if (!docket.equals(getDocket())) {
                         if (ret.equals("")) ret += docket;

@@ -206,7 +206,7 @@ public class CRAnalysis {
         List<String> sList = new ArrayList<>();
         sList.addAll(otns);
 
-        List<String> dockets = Scraper.scrapeOTNListForDocketNames(sList);
+        List<String> dockets = Scraper.scrapeOTNListForDocketNames(sList, false);
 
         Scraper.scrapeDockets(dockets);
 
