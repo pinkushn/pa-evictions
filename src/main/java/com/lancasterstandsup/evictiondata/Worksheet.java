@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
@@ -143,6 +144,18 @@ public class Worksheet {
             e.printStackTrace();
             System.exit(1);
         }
+
+//        List<PdfData> debug = new ArrayList<>();
+//        for (PdfData pdf: pdfs) {
+////            if (pdf.getDocket().equals("MJ-02101-CR-0000213-2021")) {
+////                debug.add(pdf);
+////            }
+//            if (pdf.getOtherDockets().length() < 1) {
+//                debug.add(pdf);
+//            }
+//        }
+//
+//        pdfs = debug;
 
         File dir = new File(Scraper.LOCAL_DATA_PATH + county);
         if (!dir.exists()) {
@@ -328,6 +341,9 @@ public class Worksheet {
     public static void main (String [] args) throws IOException, ClassNotFoundException, InterruptedException {
         String[] years = {"2021"};
         createExcelMJ_CR("Lancaster", years);
+
+        //deleteBlankOTNS();
+
 //        clearAllPreProcessed();
 //        csvAllLT();
 
@@ -368,6 +384,19 @@ public class Worksheet {
                         System.err.println("Failed to delete " + yearFile);
                     }
                 }
+            }
+        }
+    }
+
+    public static void deleteBlankOTNS() throws IOException {
+        String path = Scraper.PDF_CACHE_PATH + "OTN";
+        File dir = new File(path);
+        File[] otnFiles = dir.listFiles();
+        for (File file: otnFiles) {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String s = br.readLine();
+            if (s == null || s.trim().length() == 0) {
+                file.delete();
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.lancasterstandsup.evictiondata;
 
+import javax.print.attribute.standard.PDLOverrideSupported;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
@@ -10,6 +11,8 @@ public class CRAnalysis {
         String[] years = {"2022"};
         List<CRPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_CR, "Lancaster", years);
 
+        m3OrLower(list);
+
         //unable(list);
         //uniqueOTN(list);
         //unableAndCurrentlyJailedInLancaster(list);
@@ -18,7 +21,7 @@ public class CRAnalysis {
 
         //bailFundOTNs(list);
 
-        forfeitureOTNs(list);
+        //forfeitureOTNs(list);
 
 //        for (CRPdfData pdf: list) {
 //            System.out.println(pdf.getDefendantName() + " currently jailed");
@@ -46,6 +49,88 @@ public class CRAnalysis {
 //        list = ParseAll.get(Scraper.CourtMode.MDJ_CR, "Lancaster", years4);
 //
 //        percentageOfMissingDockets(list);
+    }
+
+    public static <T extends PdfData> Set<String> getOTNs(List<T> list) {
+        Set<String> ret = new HashSet<>();
+        for (PdfData pdf: list) {
+            ret.addAll(pdf.getOTNs());
+        }
+        return ret;
+    }
+
+    /**
+     * how many misdeamenors M3 or lower (lower = ungraded?) have secured cash bail
+     *
+     * smaller issues:
+     * how many dockets are missing?
+     * how many dockets are linked to other dockets?
+     *    so need to only record the set from the 'first' docket
+     */
+    public static void m3OrLower (List<CRPdfData> list) {
+        int i = 0;
+        Set<String> otns = getOTNs(list);
+        Set<PdfData> usedDockets = new HashSet<>();
+        Map<String, Set<CRPdfData>> otnGroups = getDocketsByOTN(list);
+        for (CRPdfData pdf: list) {
+            boolean inc;
+            if (pdf.isSecuredCashBail() &&
+                    !pdf.hasGrade(CRPdfData.GRADE.NOT_SPECIFIED) &&
+                    pdf.isMostSeriousGradeAtOrBelow(CRPdfData.GRADE.M3)) {
+                if (!pdf.hasOTNs()) {
+                    inc = true;
+                }
+                else {
+                    inc = true;
+                    for (String otn: pdf.getOTNs()) {
+                        Set<CRPdfData> dockets = otnGroups.get(otn);
+                        if (dockets != null) {
+                            for (CRPdfData member: dockets) {
+                                if (member.equals(pdf)) {
+                                    break;
+                                }
+                                else if (member.isSecuredCashBail() &&
+                                        !member.hasGrade(CRPdfData.GRADE.NOT_SPECIFIED) &&
+                                        pdf.isMostSeriousGradeAtOrBelow(CRPdfData.GRADE.M3)) {
+                                    inc = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (inc && !usedDockets.contains(pdf)) {
+                    i++;
+                    usedDockets.add(pdf);
+                }
+            }
+        }
+        System.out.println(i + " of " + otns.size());
+    }
+
+    public static Map<String, Set<CRPdfData>> getDocketsByOTN(List<CRPdfData> list) {
+        TreeMap<String, Set<CRPdfData>> ret = new TreeMap<>();
+
+        for (CRPdfData pdf: list) {
+            if (pdf.hasOTNs()) {
+                for (String otn: pdf.getOTNs()) {
+                    if (!ret.containsKey(otn)) {
+                        ret.put(otn, new TreeSet<>(PdfData.DATE_COMPARATOR));
+                    }
+                    ret.get(otn).add(pdf);
+                }
+            }
+        }
+
+        TreeMap <String, Set<CRPdfData>> noSingles = new TreeMap<>();
+        for (String otn: ret.keySet()) {
+            Set<CRPdfData> set = ret.get(otn);
+            if (set.size() > 1) {
+                noSingles.put(otn, set);
+            }
+        }
+
+        return noSingles;
     }
 
     //what if cp level pdfs show more?

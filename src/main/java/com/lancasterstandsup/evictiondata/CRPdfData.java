@@ -7,7 +7,49 @@ import java.util.*;
 
 public class CRPdfData extends PdfData {
 
-//        Felony (1st degree) (F1)
+    public enum BAIL_TYPE {
+        MONETARY("Monetary", true),
+        NOMINAL("Nominal", true),
+        NON_MONETARY("Nonmonetary", false),
+        ROR("ROR", false),
+        UNSECURED("Unsecured", false);
+
+        String desc;
+        boolean secured;
+
+        BAIL_TYPE(String match, boolean secured) {
+            desc = match;
+            this.secured = secured;
+        }
+
+        public String toString() {
+            return desc;
+        }
+
+        public boolean isSecured() {
+            return secured;
+        }
+    }
+
+    private static Map<String, BAIL_TYPE> bailTypes;
+    static {
+        bailTypes = new TreeMap<>();
+        for (BAIL_TYPE bt: BAIL_TYPE.values()) {
+            bailTypes.put(bt.toString(), bt);
+        }
+    }
+
+    /**
+     *
+     * @param match
+     * @return null if no match
+     */
+    public static BAIL_TYPE getBailType(String match) {
+        BAIL_TYPE ret = bailTypes.get(match);
+        return ret;
+    }
+
+    //        Felony (1st degree) (F1)
 //                Felony (2nd degree) (F2)
 //                Felony (3rd degree) (F3)
 //                Ungraded Felony (F3)
@@ -77,7 +119,7 @@ public class CRPdfData extends PdfData {
     private boolean hasBailSection;
     private String bailPercent;
     private Integer bail;
-    private String bailType;
+    private BAIL_TYPE bailType;
 
     private String defendantName;
     private LocalDate birthdate;
@@ -92,23 +134,14 @@ public class CRPdfData extends PdfData {
         setColumn(ColumnToken.PAIRED_MDJS_SAME_COUNTY, countPairedMDJSSameCounty);
     }
 
-//    public void setOTNs(String otns) {
-//        super.setOTNs(otns);
-//
-//        if (!usedOTNS.containsKey(county)) {
-//            usedOTNS.put(county, new HashSet<>());
-//        }
-//
-//        for (String otn: super.getOTNs()) {
-//            if (!usedOTNS.get(county).contains(otn)) {
-//                usedOTNS.get(county).add(otn);
-//            }
-//            else {
-//                incrementPairedMDJSSameCounty();
-//                break;
-//            }
-//        }
-//    }
+    public boolean isSecuredCashBail() {
+
+        if (!hasBailType()) {
+            return false;
+        }
+
+        return bailType.isSecured();
+    }
 
     public void addGrade(GRADE grade) {
         if (grades == null) grades = new ArrayList<>();
@@ -122,6 +155,14 @@ public class CRPdfData extends PdfData {
         TreeSet<GRADE> map = new TreeSet<>();
         map.addAll(grades);
         return map.first();
+    }
+
+    public boolean isMostSeriousGradeAtOrBelow(GRADE grade) {
+        return getMostSeriousGrade().compareTo(grade) <= 0;
+    }
+
+    public boolean hasGrade(GRADE grade) {
+        return grades.contains(grade);
     }
 
     public String getColumn(ColumnToken header) throws IOException, InterruptedException {
@@ -148,8 +189,11 @@ public class CRPdfData extends PdfData {
     }
 
     public void setBailType(String s) {
-        this.bailType = s;
-        setColumn(ColumnToken.BAIL_TYPE, s);
+        this.bailType = getBailType(s);
+        if (bailType == null) {
+            throw new IllegalArgumentException("No BAIL_TYPE matches " + s + " for " + getDocket());
+        }
+        setColumn(ColumnToken.BAIL_TYPE, this.bailType);
     }
 
     public void setHasBailSection(boolean b) {
@@ -351,6 +395,10 @@ public class CRPdfData extends PdfData {
 
     public boolean hasBail() {
         return bail != null;
+    }
+
+    public boolean hasBailType() {
+        return bailType != null;
     }
 
     public Integer getBail() {

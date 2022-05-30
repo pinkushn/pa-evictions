@@ -182,17 +182,26 @@ public class Scraper {
         List<String> sList = new ArrayList<>();
         sList.addAll(otns);
 
+//        if (!otns.contains("X 371209-6")) {
+//            throw new IllegalStateException("missing debug otn");
+//        }
+//        sList.clear();
+//        sList.add("X 371209-6");
+
         Scraper.scrapeOTNListForDocketNames(sList, ignoreLocalCache);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         //CourtMode courtMode = CourtMode.MDJ_LT;
-        CourtMode courtMode = CourtMode.CP_CR;
-//        CourtMode courtMode = CourtMode.MDJ_CR;
-        commenceScrapingFromSavedPointer(courtMode);
+        //CourtMode courtMode = CourtMode.CP_CR;
+        //CourtMode courtMode = CourtMode.MDJ_CR;
+        //commenceScrapingFromSavedPointer(courtMode);
 
-        //String[] years = {"2021"};
-        //scrapeOTNs("Lancaster", years, true);
+//        List<String> list = getOTNDocketNames("X 416816-1", false, true);
+//        System.out.println(list.size());
+
+        String[] years = {"2021"};
+        scrapeOTNs("Lancaster", years, false);
 
         // commenceScrapingFromArtificalPointer();
         //getOTNDocketNames("U 684533-3");
@@ -625,7 +634,7 @@ public class Scraper {
     }
 
     private static int  getStartYear(CourtMode courtMode) {
-        if (courtMode == CourtMode.MDJ_CR) return 2022;
+        if (courtMode == CourtMode.MDJ_CR) return 2015;
         else if (courtMode == CourtMode.CP_CR) return 2022;
         //return LocalDateTime.now().getYear() - 1;
         else return 2022;

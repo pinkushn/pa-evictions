@@ -455,7 +455,11 @@ public class CRParser implements Parser {
                     foundSet = true;
 
                     String[] split = s.split(" ");
-                    String bailType = split[2];
+                    int typeI = 2;
+                    if (s.indexOf("Set - Bail Modification") > -1) {
+                        typeI = 5;
+                    }
+                    String bailType = split[typeI];
                     data.setBailType(bailType);
 
                     for (String temp: split) {

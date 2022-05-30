@@ -12,13 +12,13 @@ public abstract class PdfData implements Comparable<PdfData>, Serializable {
     static DateTimeFormatter slashDateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     //static DateTimeFormatter dashDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 //
-//    private static final Comparator<PdfData> COMPARATOR =
-//            Comparator.comparing(PdfData::getFileDate)
-//                    .thenComparing(PdfData::getJudgeName)
-//                    .thenComparing(PdfData::getDocket);
 
+    public static final Comparator<PdfData> DATE_COMPARATOR =
+            Comparator.comparing(PdfData::getFileDate)
+                    .thenComparing(PdfData::getJudgeName)
+                    .thenComparing(PdfData::getDocket);
 
-    private static final Comparator<PdfData> COMPARATOR =
+    private static final Comparator<PdfData> DOCKET_COMPARATOR =
             Comparator.comparing(PdfData::getDocket);
 
     protected Map<ColumnToken, Object> columns;
@@ -72,17 +72,21 @@ public abstract class PdfData implements Comparable<PdfData>, Serializable {
                 List<String> others = Scraper.getOTNDocketNames(otn, true, false);
                 for (String docket: others) {
                     if (!docket.equals(getDocket())) {
+                        if (ret.equals("Unable to procure associated dockets")) {
+                            ret = "";
+                        }
                         if (ret.equals("")) ret += docket;
                         else ret += ", " + docket;
                     }
                 }
             }
             catch (Exception e) {
+                e.printStackTrace();
                 System.err.println("unable to read otn associated dockets for " + getDocket());
                 ret = "Unable to procure associated dockets";
             }
         }
-        return ret;
+        return ret.equals("") ? "No associated dockets" : ret;
     }
 
     public String getColumn(ColumnToken header) throws IOException, InterruptedException {
@@ -134,7 +138,7 @@ public abstract class PdfData implements Comparable<PdfData>, Serializable {
     }
 
     public int compareTo(PdfData o) {
-        return COMPARATOR.compare(this, o);
+        return DOCKET_COMPARATOR.compare(this, o);
     }
 
 //    /**
