@@ -18,7 +18,7 @@ public abstract class PdfData implements Comparable<PdfData>, Serializable {
                     .thenComparing(PdfData::getJudgeName)
                     .thenComparing(PdfData::getDocket);
 
-    private static final Comparator<PdfData> DOCKET_COMPARATOR =
+    public static final Comparator<PdfData> DOCKET_COMPARATOR =
             Comparator.comparing(PdfData::getDocket);
 
     protected Map<ColumnToken, Object> columns;
@@ -198,7 +198,7 @@ public static LocalDate forceSlashedDateIntoLocalDate(String date) {
         return Scraper.CourtMode.CP_CR;
     }
     public static int getDocketNumberAsIntStatic(String docket) {
-        return Integer.parseInt(docket);
+        return Integer.parseInt(getDocketNumberAsStringStatic(docket));
     }
 
     //just the 0000001 of CP-36-CR-0000001-2021

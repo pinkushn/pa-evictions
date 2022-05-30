@@ -11,6 +11,8 @@ public class CRAnalysis {
         String[] years = {"2022"};
         List<CRPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_CR, "Lancaster", years);
 
+        //estimateHidden(list);
+        //estimateUniqueCases(list);
         m3OrLower(list);
 
         //unable(list);
@@ -51,6 +53,96 @@ public class CRAnalysis {
 //        percentageOfMissingDockets(list);
     }
 
+    private static <T extends PdfData> int estimateUniqueCases(List<T> list) {
+        Map<String, Set<T>> doubles = getDocketsByOTN(list);
+        Set<T> doNotCount = new TreeSet<>();
+        for (Set<T> val: doubles.values()) {
+            boolean first = true;
+            for (T t: val) {
+                if (!first) {
+                    doNotCount.add(t);
+                }
+                first = false;
+            }
+        }
+
+        int ret = list.size() - doNotCount.size();
+
+        System.out.println("unique otns: " + getOTNs(list).size());
+        System.out.println("dockets with more than one otn: " + getDocketsWithMoreThanOneOTN(list).size());
+        System.out.println("estimated count of unique cases: " + ret);
+        return ret;
+    }
+
+    public static <T extends PdfData> List<T> getDocketsWithMoreThanOneOTN(List<T> list) {
+        List<T> ret = new ArrayList<>();
+        for (T t: list) {
+            if (t.getOTNs().size() > 1) {
+                ret.add(t);
+            }
+        }
+        return ret;
+    }
+
+    //raw missing
+    //but some of the missing are two per otn
+    //so raw missing - percentThatAreDoubles(rawMissing)
+    //or rather: percentThanAren'tDoubles(rawMissing)
+    //then you have predictions of missing at end of run... not caluclate for now
+    public static <T extends PdfData> int estimateHidden(List<T> list) {
+        //year --> judge --> numbers
+        Map<String, Map<String, Set<String>>> map = new HashMap<>();
+        for (T t: list) {
+            String docket = t.getDocket();
+            int i = docket.length() - 4;
+            String year = docket.substring(i);
+            docket = docket.substring(0, i -1);
+            i = docket.lastIndexOf('-');
+            String number = docket.substring(i + 1);
+            String judge = docket.substring(0 , i);
+
+            if (!map.containsKey(year)) {
+                map.put(year, new HashMap<>());
+            }
+            Map<String, Set<String>> judges = map.get(year);
+            if (!judges.containsKey(judge)) {
+                judges.put(judge, new TreeSet<>());
+            }
+            judges.get(judge).add(number);
+        }
+
+        int ret = 0;
+        for (Map<String, Set<String>> judges: map.values()) {
+            for (Set<String> judge: judges.values()) {
+                int expected = 1;
+                int totalMisses = 0;
+                for (String number: judge) {
+                    int num = Integer.parseInt(number);
+                    int misses = 0;
+                    while (num != expected) {
+                        expected++;
+                        misses++;
+                    }
+                    expected++;
+                    totalMisses += misses;
+                }
+                ret += totalMisses;
+            }
+        }
+
+        Map<String, Set<T>> doubles = getDocketsByOTN(list);
+
+//        int uniqueSize = list.size() - doNotCount.size();
+        double percentThatAreNotDoubles = 1.0 - ((double) doubles.size()) / list.size();
+
+        //System.out.println(ret);
+        ret = (int) (percentThatAreNotDoubles * ret);
+
+        //System.out.println(ret);
+
+        return ret;
+    }
+
     public static <T extends PdfData> Set<String> getOTNs(List<T> list) {
         Set<String> ret = new HashSet<>();
         for (PdfData pdf: list) {
@@ -69,49 +161,55 @@ public class CRAnalysis {
      */
     public static void m3OrLower (List<CRPdfData> list) {
         int i = 0;
-        Set<String> otns = getOTNs(list);
+        int unspecified = 0;
         Set<PdfData> usedDockets = new HashSet<>();
         Map<String, Set<CRPdfData>> otnGroups = getDocketsByOTN(list);
         for (CRPdfData pdf: list) {
             boolean inc;
             if (pdf.isSecuredCashBail() &&
-                    !pdf.hasGrade(CRPdfData.GRADE.NOT_SPECIFIED) &&
                     pdf.isMostSeriousGradeAtOrBelow(CRPdfData.GRADE.M3)) {
-                if (!pdf.hasOTNs()) {
-                    inc = true;
+                if (pdf.hasGrade(CRPdfData.GRADE.NOT_SPECIFIED)) {
+                    unspecified++;
                 }
                 else {
                     inc = true;
-                    for (String otn: pdf.getOTNs()) {
-                        Set<CRPdfData> dockets = otnGroups.get(otn);
-                        if (dockets != null) {
-                            for (CRPdfData member: dockets) {
-                                if (member.equals(pdf)) {
-                                    break;
-                                }
-                                else if (member.isSecuredCashBail() &&
-                                        !member.hasGrade(CRPdfData.GRADE.NOT_SPECIFIED) &&
-                                        pdf.isMostSeriousGradeAtOrBelow(CRPdfData.GRADE.M3)) {
-                                    inc = false;
-                                    break;
+                    if (pdf.hasOTNs()) {
+                        for (String otn : pdf.getOTNs()) {
+                            Set<CRPdfData> dockets = otnGroups.get(otn);
+                            if (dockets != null) {
+                                for (CRPdfData member : dockets) {
+                                    if (member.equals(pdf)) {
+                                        break;
+                                    } else if (member.isSecuredCashBail() &&
+                                            !member.hasGrade(CRPdfData.GRADE.NOT_SPECIFIED) &&
+                                            pdf.isMostSeriousGradeAtOrBelow(CRPdfData.GRADE.M3)) {
+                                        inc = false;
+                                        break;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (inc && !usedDockets.contains(pdf)) {
-                    i++;
-                    usedDockets.add(pdf);
+                    if (inc && !usedDockets.contains(pdf)) {
+                        i++;
+                        usedDockets.add(pdf);
+                    }
                 }
             }
         }
-        System.out.println(i + " of " + otns.size());
+        System.out.println(i + " of estimated unique cases: " + estimateUniqueCases(list));
+        System.out.println("Note skipped " + unspecified + " dockets with cash bail BUT at least one unspecified charge");
     }
 
-    public static Map<String, Set<CRPdfData>> getDocketsByOTN(List<CRPdfData> list) {
-        TreeMap<String, Set<CRPdfData>> ret = new TreeMap<>();
+    /**
+     *
+     * @param list
+     * @return NO SINGLES!!!
+     */
+    public static <T extends PdfData> Map<String, Set<T>> getDocketsByOTN(List<T> list) {
+        TreeMap<String, Set<T>> ret = new TreeMap<>();
 
-        for (CRPdfData pdf: list) {
+        for (T pdf: list) {
             if (pdf.hasOTNs()) {
                 for (String otn: pdf.getOTNs()) {
                     if (!ret.containsKey(otn)) {
@@ -122,9 +220,9 @@ public class CRAnalysis {
             }
         }
 
-        TreeMap <String, Set<CRPdfData>> noSingles = new TreeMap<>();
+        TreeMap <String, Set<T>> noSingles = new TreeMap<>();
         for (String otn: ret.keySet()) {
-            Set<CRPdfData> set = ret.get(otn);
+            Set<T> set = ret.get(otn);
             if (set.size() > 1) {
                 noSingles.put(otn, set);
             }
