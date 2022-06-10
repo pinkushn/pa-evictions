@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class CPPdfData extends PdfData{
+    public static final long serialVersionUID = 1;
 
     private static List<ColumnToken> columnHeaders;
     static {

@@ -192,16 +192,16 @@ public class Scraper {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
-        //CourtMode courtMode = CourtMode.MDJ_LT;
+        CourtMode courtMode = CourtMode.MDJ_LT;
         //CourtMode courtMode = CourtMode.CP_CR;
         //CourtMode courtMode = CourtMode.MDJ_CR;
-        //commenceScrapingFromSavedPointer(courtMode);
+        commenceScrapingFromSavedPointer(courtMode);
 
 //        List<String> list = getOTNDocketNames("X 416816-1", false, true);
 //        System.out.println(list.size());
 
-        String[] years = {"2021"};
-        scrapeOTNs("Lancaster", years, false);
+//        String[] years = {"2021"};
+//        scrapeOTNs("Lancaster", years, false);
 
         // commenceScrapingFromArtificalPointer();
         //getOTNDocketNames("U 684533-3");
@@ -1275,6 +1275,10 @@ public class Scraper {
             throws IOException, InterruptedException {
 
         List<String> ret = new ArrayList<>();
+
+        if (otn.equals("R 219240-0")) {
+            System.out.println("yea");
+        }
 
         File dir = new File(PDF_CACHE_PATH + "OTN");
         if (!dir.exists()) dir.mkdir();

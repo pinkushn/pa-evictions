@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class CRPdfData extends PdfData {
+    public static final long serialVersionUID = 1;
 
     public enum BAIL_TYPE {
         MONETARY("Monetary", true),

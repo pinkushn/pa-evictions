@@ -9,6 +9,8 @@ import java.util.*;
 
 public abstract class PdfData implements Comparable<PdfData>, Serializable {
 
+    public static final long serialVersionUID = 1;
+
     static DateTimeFormatter slashDateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     //static DateTimeFormatter dashDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 //

@@ -339,12 +339,12 @@ public class Worksheet {
     }
 
     public static void main (String [] args) throws IOException, ClassNotFoundException, InterruptedException {
-        String[] years = {"2021"};
-        createExcelMJ_CR("Lancaster", years);
+//        String[] years = {"2021"};
+//        createExcelMJ_CR("Lancaster", years);
 
         //deleteBlankOTNS();
 
-//        clearAllPreProcessed();
+        clearAllPreProcessed();
 //        csvAllLT();
 
 //        File file = new File(Scraper.PDF_CACHE_PATH);
@@ -392,13 +392,16 @@ public class Worksheet {
         String path = Scraper.PDF_CACHE_PATH + "OTN";
         File dir = new File(path);
         File[] otnFiles = dir.listFiles();
+        int deleted = 0;
         for (File file: otnFiles) {
             BufferedReader br = new BufferedReader(new FileReader(file));
             String s = br.readLine();
             if (s == null || s.trim().length() == 0) {
                 file.delete();
+                deleted++;
             }
         }
+        System.out.println("Deleted " + deleted + " empties");
     }
 
     public static void csvAllLT() throws IOException, ClassNotFoundException, InterruptedException {
