@@ -1151,15 +1151,15 @@ public class LTAnalysis {
     }
      **/
 
-    private static void antwi(List<LTPdfData> data) {
-        List<LTPdfData> list = new LinkedList<>();
-        for (LTPdfData pdf: data) {
-            if (pdf.getDefendant().indexOf("Dixon, Antwi") > -1) {
-                list.add(pdf);
-            }
-        }
-        for (LTPdfData pdf: list) {
-            System.out.println("Antwi: " + pdf.isPlaintiffWin());
-        }
-    }
+//    private static void antwi(List<LTPdfData> data) {
+//        List<LTPdfData> list = new LinkedList<>();
+//        for (LTPdfData pdf: data) {
+//            if (pdf.getDefendant().indexOf("Dixon, Antwi") > -1) {
+//                list.add(pdf);
+//            }
+//        }
+//        for (LTPdfData pdf: list) {
+//            System.out.println("Antwi: " + pdf.isPlaintiffWin());
+//        }
+//    }
 }

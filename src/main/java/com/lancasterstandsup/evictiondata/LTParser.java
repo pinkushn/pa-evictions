@@ -1179,9 +1179,6 @@ public class LTParser implements Parser {
             noDoubleSpaces.add(s);
         }
 
-        //some weird typos we've seen
-
-
         strings = noDoubleSpaces;
 
         String[] ret = new String[2];

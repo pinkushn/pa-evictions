@@ -63,7 +63,8 @@ public class Update {
 //
 //        Runtime.getRuntime().exec(commands);
 
-        Worksheet.csvAllLT();
+        Worksheet.csvAllLT(false);
+        Worksheet.csvAllLT(true);
 
         System.out.println("\n*** Successfully updated " + totalPdfs + " pdfs. Now push to git.");
     }

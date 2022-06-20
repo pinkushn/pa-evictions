@@ -284,7 +284,7 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public void setDefendant(String defendantNames) {
         this.defendantNames = defendantNames;
-        setColumn(ColumnToken.DEFENDANT, defendantNames);
+        setColumn(ColumnToken.DEFENDANT, obfuscateNames(defendantNames));
     }
 
     private String obfuscateNames(String s) {
@@ -944,5 +944,9 @@ public class LTPdfData extends PdfData implements Serializable {
 
     public int getDocketDiff(LTPdfData previous) {
         return getDocketNumberAsInt() - previous.getDocketNumberAsInt();
+    }
+
+    public void setUseFullDefendantName() {
+        setColumn(ColumnToken.DEFENDANT, getDefendant());
     }
 }

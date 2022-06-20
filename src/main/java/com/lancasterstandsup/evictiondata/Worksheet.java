@@ -404,8 +404,9 @@ public class Worksheet {
         System.out.println("Deleted " + deleted + " empties");
     }
 
-    public static void csvAllLT() throws IOException, ClassNotFoundException, InterruptedException {
-        File file = new File("./LT_All.csv");
+    public static void csvAllLT(boolean showDefendantNames) throws IOException, ClassNotFoundException, InterruptedException {
+        String names = showDefendantNames ? "names" : "";
+        File file = new File("./LT_All" + names + ".csv");
         FileOutputStream fos = new FileOutputStream(file);
         PrintWriter pw = new PrintWriter(fos);
 
@@ -440,6 +441,9 @@ public class Worksheet {
 
             for (LTPdfData pdf: (List<LTPdfData>) list) {
                 pw.print(county + "\t");
+                if (showDefendantNames) {
+                    pdf.setUseFullDefendantName();
+                }
                 String[] rowData = pdf.getRowValues().getRow();
                 for (int c = 0; c < rowData.length; c++) {
                     String cellValue = rowData[c];
