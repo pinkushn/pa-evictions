@@ -406,7 +406,7 @@ public class Worksheet {
 
     public static void csvAllLT(boolean showDefendantNames) throws IOException, ClassNotFoundException, InterruptedException {
         String names = showDefendantNames ? "names" : "";
-        File file = new File("./LT_All" + names + ".csv");
+        File file = new File("./webdata/csvs/LT_All" + names + ".csv");
         FileOutputStream fos = new FileOutputStream(file);
         PrintWriter pw = new PrintWriter(fos);
 
