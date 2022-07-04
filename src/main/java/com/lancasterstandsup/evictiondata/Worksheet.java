@@ -404,9 +404,14 @@ public class Worksheet {
         System.out.println("Deleted " + deleted + " empties");
     }
 
-    public static void csvAllLT(boolean showDefendantNames) throws IOException, ClassNotFoundException, InterruptedException {
-        String path = showDefendantNames ? "./webdata/csvs/evictionlab/PA_Evictions.csv" :
-                "./webdata/csvs/LT_All.csv";
+    public static void csvAllLT(boolean forEvictionLab, Integer year) throws IOException, ClassNotFoundException, InterruptedException {
+        String path = forEvictionLab ? "./webdata/csvs/evictionlab/PA_Evictions" :
+                "./webdata/csvs/LT_All";
+        if (year != null) {
+            path += "_" + year;
+        }
+        path += ".csv";
+
         File file = new File(path);
         FileOutputStream fos = new FileOutputStream(file);
         PrintWriter pw = new PrintWriter(fos);
@@ -422,8 +427,8 @@ public class Worksheet {
         for (String county: Website.counties) {
             System.out.println("Next county for csv: " + county);
             CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.CourtMode.MDJ_LT);
-            int startYear = ccr.getStart().getYear();
-            int endYear = ccr.getEnd().getYear();
+            int startYear = year != null ? year : ccr.getStart().getYear();
+            int endYear = year != null ? year : ccr.getEnd().getYear();
             int distinctYears = endYear - startYear + 1;
             String [] years = new String[distinctYears];
             for (int x = 0; x < distinctYears; x++) {
@@ -442,7 +447,7 @@ public class Worksheet {
 
             for (LTPdfData pdf: (List<LTPdfData>) list) {
                 pw.print(county + "\t");
-                if (showDefendantNames) {
+                if (forEvictionLab) {
                     pdf.setUseFullDefendantName();
                 }
                 String[] rowData = pdf.getRowValues().getRow();

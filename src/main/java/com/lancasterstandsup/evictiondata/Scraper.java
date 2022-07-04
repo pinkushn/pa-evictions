@@ -479,7 +479,6 @@ public class Scraper {
             pointer.setSequenceNumberUnformatted(1);
 
             int year = pointer.getYear();
-            //may just increment year if not in current year
             if (year != getCurrentYear()) {
                 pointer.setYear(year + 1);
             }
@@ -638,10 +637,12 @@ public class Scraper {
         else if (courtMode == CourtMode.CP_CR) return 2022;
         //return LocalDateTime.now().getYear() - 1;
         else return 2022;
+        //return 2017;
     }
 
     static int getCurrentYear() {
         return LocalDateTime.now().getYear();
+        //return 2018;
     }
 //
 //    private static File getPdfDir(Pointer pointer, Mode mode) {

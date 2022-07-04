@@ -6,7 +6,8 @@ import java.util.TreeSet;
 public class Update {
 
     public static void main(String [] args) throws IOException, ClassNotFoundException, InterruptedException {
-        update(Scraper.CourtMode.MDJ_LT);
+        //update(Scraper.CourtMode.MDJ_LT);
+        Worksheet.csvAllLT(true, 2017);
     }
 
     public static void update (Scraper.CourtMode courtMode) throws IOException, ClassNotFoundException, InterruptedException {
@@ -63,8 +64,13 @@ public class Update {
 //
 //        Runtime.getRuntime().exec(commands);
 
-        Worksheet.csvAllLT(false);
-        Worksheet.csvAllLT(true);
+        Worksheet.csvAllLT(false, null);
+//        Worksheet.csvAllLT(true, 2017);
+//        Worksheet.csvAllLT(true, 2018);
+//        Worksheet.csvAllLT(true, 2019);
+//        Worksheet.csvAllLT(true, 2020);
+//        Worksheet.csvAllLT(true, 2021);
+//        Worksheet.csvAllLT(true, 2022);
 
         System.out.println("\n*** Successfully updated " + totalPdfs + " pdfs. Now push to git.");
     }
