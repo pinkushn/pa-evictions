@@ -427,7 +427,8 @@ public class Worksheet {
         for (String county: Website.counties) {
             System.out.println("Next county for csv: " + county);
             CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.CourtMode.MDJ_LT);
-            int startYear = year != null ? year : ccr.getStart().getYear();
+            //int startYear = year != null ? year : ccr.getStart().getYear();
+            int startYear = 2019;
             int endYear = year != null ? year : ccr.getEnd().getYear();
             int distinctYears = endYear - startYear + 1;
             String [] years = new String[distinctYears];
