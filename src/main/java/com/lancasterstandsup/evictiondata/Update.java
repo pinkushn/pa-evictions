@@ -12,21 +12,22 @@ public class Update {
 
     public static void update (Scraper.CourtMode courtMode) throws IOException, ClassNotFoundException, InterruptedException {
         TreeSet<String> countiesWithData = new TreeSet<>();
-        for (String county: Website.counties) {
-            try {
-                if (Scraper.getCountyStartAndEnd(county, courtMode) != null) {
-                    countiesWithData.add(county);
-                }
-            } catch (IOException e) {
-                System.err.println("Failed to build update counties list, abandoning update");
-                e.printStackTrace();
-                return;
-            } catch (ClassNotFoundException e) {
-                System.err.println("Failed to build update counties list, abandoning update");
-                e.printStackTrace();
-                return;
-            }
-        }
+//        for (String county: Website.counties) {
+//            try {
+//                if (Scraper.getCountyStartAndEnd(county, courtMode) != null) {
+//                    countiesWithData.add(county);
+//                }
+//            } catch (IOException e) {
+//                System.err.println("Failed to build update counties list, abandoning update");
+//                e.printStackTrace();
+//                return;
+//            } catch (ClassNotFoundException e) {
+//                System.err.println("Failed to build update counties list, abandoning update");
+//                e.printStackTrace();
+//                return;
+//            }
+//        }
+        countiesWithData.addAll(Website.counties);
 
         System.out.println("Counties with data: " + countiesWithData);
 
@@ -34,7 +35,7 @@ public class Update {
 
         for (String county: countiesWithData) {
             try {
-                totalPdfs += Worksheet.createExcelLT(county);
+                totalPdfs += Worksheet.createExcelLT(county, 2019);
             } catch (IOException e) {
                 System.err.println("Failed to create spreadsheet for " + county + ", abandoning update");
                 e.printStackTrace();

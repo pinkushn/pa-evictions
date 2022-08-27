@@ -26,9 +26,9 @@ public class Worksheet {
         if (!webData.exists()) webData.mkdir();
     }
 
-    public static int createExcelLT(String county) throws IOException, ClassNotFoundException, InterruptedException {
+    public static int createExcelLT(String county, int startYear) throws IOException, ClassNotFoundException, InterruptedException {
         CountyCoveredRange ccr = Scraper.getCountyStartAndEnd(county, Scraper.CourtMode.MDJ_LT);
-        int startYear = ccr.getStart().getYear();
+        //int startYear = ccr.getStart().getYear();
         int endYear = ccr.getEnd().getYear();
         int distinctYears = endYear - startYear + 1;
         String [] years = new String[distinctYears];
