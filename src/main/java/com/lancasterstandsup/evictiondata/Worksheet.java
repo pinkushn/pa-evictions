@@ -418,9 +418,10 @@ public class Worksheet {
 
         System.out.println("building csv of all LT pdfs");
 
-        pw.print("County\t");
+        pw.print("County");
         for (String h: LTParser.colHeaders) {
-            pw.print(h + "\t");
+            pw.print("\t");
+            pw.print(h);
         }
         pw.println();
 
@@ -447,7 +448,7 @@ public class Worksheet {
             }
 
             for (LTPdfData pdf: (List<LTPdfData>) list) {
-                pw.print(county + "\t");
+                pw.print(county);
                 if (forEvictionLab) {
                     pdf.setUseFullDefendantName();
                 }
@@ -455,7 +456,8 @@ public class Worksheet {
                 for (int c = 0; c < rowData.length; c++) {
                     String cellValue = rowData[c];
                     if (cellValue == null) cellValue = "";
-                    pw.print(cellValue + "\t");
+                    pw.print("\t");
+                    pw.print(cellValue);
                 }
                 pw.println();
             }
