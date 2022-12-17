@@ -909,10 +909,13 @@ public class LTParser implements Parser {
                     data.setCosts(m);
                 }
                 else if (s.indexOf(interestS) > -1) {
-                    int i = s.indexOf(interestS);
-                    String m = s.substring(i + interestS.length());
-                    m = m.substring(0, m.indexOf(' '));
-                    data.setInterest(m);
+                    //exclude very unusual edge case
+                    if (!data.getDocket().equals("MJ-11103-LT-0000137-2022")) {
+                        int i = s.indexOf(interestS);
+                        String m = s.substring(i + interestS.length());
+                        m = m.substring(0, m.indexOf(' '));
+                        data.setInterest(m);
+                    }
                 }
                 else if (s.indexOf(grantPossession) > -1) {
                     if (previous.equals("No") || previous.equals("Yes")) {
