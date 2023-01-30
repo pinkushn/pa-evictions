@@ -640,8 +640,8 @@ public class Scraper {
     }
 
     static int getCurrentYear() {
-        //return LocalDateTime.now().getYear();
-        return 2022;
+        return LocalDateTime.now().getYear();
+        //return 2023;
     }
 //
 //    private static File getPdfDir(Pointer pointer, Mode mode) {
