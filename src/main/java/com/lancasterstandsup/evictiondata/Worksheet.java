@@ -127,7 +127,7 @@ public class Worksheet {
         return pdfs.size();
     }
 
-    public static int createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
+    public static int   createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
         String excelFileName = county + "_mdj_criminal_dockets_" +
                 years[0] +
                 (years.length == 1 ?
@@ -339,12 +339,14 @@ public class Worksheet {
     }
 
     public static void main (String [] args) throws IOException, ClassNotFoundException, InterruptedException {
-//        String[] years = {"2021"};
-//        createExcelMJ_CR("Lancaster", years);
+
+        //clearAllPreProcessed();
+        String[] years = {"2021"};
+        createExcelMJ_CR("Lancaster", years);
 
         //deleteBlankOTNS();
 
-        clearAllPreProcessed();
+        //clearAllPreProcessed();
 //        csvAllLT();
 
 //        File file = new File(Scraper.PDF_CACHE_PATH);
