@@ -911,7 +911,7 @@ public class LTParser implements Parser {
                 else if (s.indexOf(interestS) > -1) {
                     //exclude very unusual edge case
                     if (!data.getDocket().equals("MJ-11103-LT-0000137-2022") &&
-                        !data.getDocket().equals("MJ-0   3301-LT-0000027-2023")) {
+                        !data.getDocket().equals("MJ-03301-LT-0000027-2023")) {
                         int i = s.indexOf(interestS);
                         String m = s.substring(i + interestS.length());
                         m = m.substring(0, m.indexOf(' '));
