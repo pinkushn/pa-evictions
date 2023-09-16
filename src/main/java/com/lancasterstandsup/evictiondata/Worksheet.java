@@ -139,6 +139,8 @@ public class Worksheet {
 
         PrintWriter out = new PrintWriter(file);
 
+        out.println("date,value");
+
         for (LocalDate month: map.keySet()) {
             out.println(month + "," + map.get(month));
         }
