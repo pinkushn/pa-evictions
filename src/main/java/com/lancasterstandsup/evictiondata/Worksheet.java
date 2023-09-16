@@ -124,18 +124,24 @@ public class Worksheet {
         return pdfs.size();
     }
 
-    public static void createLTCVS(String county, String[] years) throws IOException, ClassNotFoundException {
-        List<LTPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
+    public static void createLTCVS(String[] years) throws IOException, ClassNotFoundException {
+
+        List<LTPdfData> list = new ArrayList<>();
+
+        for (String county: Website.counties) {
+            list.addAll(ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years));
+        }
+
         Map<LocalDate, Integer> map = LTAnalysis.monthly(list);
 
-        String fileName = county + ".csv";
+        String fileName = "Pennsylvania.csv";
 
-        String countyPath = webDataPath + county;
-        File countyDir = new File(countyPath);
+        String path = webDataPath;
+        File dir = new File(path);
 
-        if (!countyDir.exists()) countyDir.mkdir();
+        if (!dir.exists()) dir.mkdir();
 
-        File file = new File(countyDir, fileName);
+        File file = new File(dir, fileName);
 
         PrintWriter out = new PrintWriter(file);
 
@@ -149,7 +155,7 @@ public class Worksheet {
         out.close();
     }
 
-    public static int   createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
+    public static int createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
         String excelFileName = county + "_mdj_criminal_dockets_" +
                 years[0] +
                 (years.length == 1 ?
@@ -368,7 +374,7 @@ public class Worksheet {
 
         String[] years = {"2019", "2020", "2021", "2022", "2023"};
         //String[] years = {"2019"};
-        createLTCVS("Lancaster", years);
+        createLTCVS(years);
 
         //deleteBlankOTNS();
 
