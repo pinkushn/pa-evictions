@@ -10,10 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Worksheet {
 
@@ -125,6 +122,29 @@ public class Worksheet {
         writeExcel(Scraper.LOCAL_DATA_PATH + county + "/" + excelFileName, pdfs, null, null);
 
         return pdfs.size();
+    }
+
+    public static void createLTCVS(String county, String[] years) throws IOException, ClassNotFoundException {
+        List<LTPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
+        Map<LocalDate, Integer> map = LTAnalysis.monthly(list);
+
+        String fileName = county + ".csv";
+
+        String countyPath = webDataPath + county;
+        File countyDir = new File(countyPath);
+
+        if (!countyDir.exists()) countyDir.mkdir();
+
+        File file = new File(countyDir, fileName);
+
+        PrintWriter out = new PrintWriter(file);
+
+        for (LocalDate month: map.keySet()) {
+            out.println(month + "," + map.get(month));
+        }
+
+        out.flush();
+        out.close();
     }
 
     public static int   createExcelMJ_CR(String county, String[] years) throws IOException, ClassNotFoundException, InterruptedException {
@@ -341,8 +361,12 @@ public class Worksheet {
     public static void main (String [] args) throws IOException, ClassNotFoundException, InterruptedException {
 
         //clearAllPreProcessed();
-        String[] years = {"2021"};
-        createExcelMJ_CR("Lancaster", years);
+        //String[] years = {"2021"};
+        //createExcelMJ_CR("Lancaster", years);
+
+        String[] years = {"2019", "2020", "2021", "2022", "2023"};
+        //String[] years = {"2019"};
+        createLTCVS("Lancaster", years);
 
         //deleteBlankOTNS();
 

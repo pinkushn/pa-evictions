@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <div id="chart-container"></div>
+  <div id="tooltip" style="position: absolute; opacity: 0; background-color: white; padding: 5px; border: 1px solid gray;"></div>
+</body>
+
+<script>
+         // Load JSON data from a separate file
+         d3.json('eviction_data.json').then(function(data) {
+
+
+        // Set up the SVG dimensions
+        const width = 600;
+        const height = 400;
+        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+
+        // Create an SVG element
+        const svg = d3.select('#chart-container')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+
+        // Create scales for the x and y axes
+        const xScale = d3.scaleBand()
+            .domain(data.map(d => d.month))
+            .range([margin.left, width - margin.right])
+            .padding(0.1);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value)])
+            .nice()
+            .range([height - margin.bottom, margin.top]);
+
+        // Create and append the line
+        svg.append('path')
+            .datum(data)
+            .attr('fill', 'none')
+            .attr('stroke', 'steelblue')
+            .attr('stroke-width', 2)
+            .attr('d', d3.line()
+                .x(d => xScale(d.month) + xScale.bandwidth() / 2)
+                .y(d => yScale(d.value))
+            );
+
+        // Create and append the x-axis
+        svg.append('g')
+            .attr('transform', `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale));
+
+        // Create and append the y-axis
+        svg.append('g')
+            .attr('transform', `translate(${margin.left}, 0)`)
+            .call(d3.axisLeft(yScale));
+
+        // Create a tooltip element
+        const tooltip = d3.select('#tooltip');
+
+        // Add mouse sensitivity to display values
+        svg.selectAll('circle')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('cx', d => xScale(d.month) + xScale.bandwidth() / 2)
+            .attr('cy', d => yScale(d.value))
+            .attr('r', 5)
+            .attr('fill', 'steelblue')
+            .on('mouseover', (event, d) => {
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0.9);
+                tooltip.html(`${d.month}: ${d.value}`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 20) + 'px');
+            })
+            .on('mouseout', () => {
+                tooltip.transition()
+                    .duration(500)
+                    .style('opacity', 0);
+            });
+        }).catch(function(error) {
+            // Handle any loading or parsing errors here
+            console.error(error);
+        });
+
+    </script>
+</body>
+</html>
+
+    </script>
+</body>
+</html>
+
+</script>
+
+
+
+
+</html>

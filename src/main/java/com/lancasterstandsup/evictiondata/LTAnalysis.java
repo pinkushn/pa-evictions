@@ -55,7 +55,7 @@ public class LTAnalysis {
         //String[] years = {"2019"};
         //String[] years = {"2020"};
         //String[] years = {"2021"};
-        String[] years = {"2020", "2021"};
+        String[] years = {"2019", "2020", "2021", "2022", "2023"};
         //String[] years = {"2019", "2020"};
         //String[] years = {"2020", "2021", "2022"};
         //String[] years = {"2019", "2020", "2021"};
@@ -432,7 +432,7 @@ public class LTAnalysis {
         evictions(james);
     }
 
-    public static void monthly(List<LTPdfData> data) {
+    public static Map<LocalDate, Integer> monthly(List<LTPdfData> data) {
         Map<LocalDate, Integer> map = new TreeMap<>();
         for (LTPdfData d: data) {
             LocalDate date = d.getFileDate();
@@ -440,9 +440,10 @@ public class LTAnalysis {
             if (!map.containsKey(month)) map.put(month, 0);
             map.put(month, map.get(month) + 1);
         }
-        for (LocalDate month: map.keySet()) {
-            System.out.println(month.getMonth() + " " + month.getYear() + ": " + map.get(month));
-        }
+//        for (LocalDate month: map.keySet()) {
+//            System.out.println(month.getMonth() + " " + month.getYear() + ": " + map.get(month));
+//        }
+        return map;
     }
 
     public static void weekly(List<LTPdfData> data, boolean showEachWeek) {
