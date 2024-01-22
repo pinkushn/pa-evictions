@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8">
+      <title>D3.js Multi-Year Line Chart!</title>
+      <script src="https://d3js.org/d3.v4.js"></script>
+  </head>
+<body>
+    <h1>Multi-Year Line Chart!</h1>
+    <div id="chart"></div>
+</body>
+<script>
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    //Read the data
+    d3.csv("https://raw.githubusercontent.com/otisexplodis/playground/main/Lancaster.csv", function(data) {
+
+    // group the data: I want to draw one line per group
+    var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
+        .key(function(d) { return d.Year;})
+        .entries(data);
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleLinear()
+        .domain([1,12])
+            //d3.extent(data, function(d) { return d.Month; }))
+        .range([ 0, width ]);
+    svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x).ticks());
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(data, function(d) { return +d.Value; })])
+        .range([ height, 0 ]);
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    // color palette
+    var res = sumstat.map(function(d){ return d.key }) // list of group names
+    var color = d3.scaleOrdinal()
+        .domain(res)
+        .range(['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999'])
+
+    // Draw the line
+    svg.selectAll(".line")
+        .data(sumstat)
+        .enter()
+        .append("path")
+            .attr("fill", "none")
+            .attr("stroke", function(d){ return color(d.key) })
+            .attr("stroke-width", 1.5)
+            .attr("d", function(d){
+            return d3.line()
+                .x(function(d) { return x(d.Month); })
+                .y(function(d) { return y(+d.Value); })
+                (d.values)
+            })
+    // create a list of keys
+    var keys = ["2019","2020","2021","2022","2023"]
+
+    // Add one dot in the legend for each name.
+    svg.selectAll("mydots")
+    .data(keys)
+    .enter()
+    .append("circle")
+        .attr("cx", 340)
+        .attr("cy", function(d,i){ return 0 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+        .attr("r", 7)
+        .style("fill", function(d){ return color(d)})
+
+    // Add one dot in the legend for each name.
+    svg.selectAll("mylabels")
+    .data(keys)
+    .enter()
+    .append("text")
+        .attr("x", 360)
+        .attr("y", function(d,i){ return 0 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+        .style("fill", function(d){ return color(d)})
+        .text(function(d){ return d})
+        .attr("text-anchor", "left")
+        .style("alignment-baseline", "middle")
+
+
+    })
+</script> 
+</html>
+
