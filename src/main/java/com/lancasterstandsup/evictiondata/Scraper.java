@@ -633,7 +633,7 @@ public class Scraper {
     }
 
     private static int  getStartYear(CourtMode courtMode) {
-        return 2022;
+        return 2023;
 //        if (courtMode == CourtMode.MDJ_CR) return 2015;
 //        else if (courtMode == CourtMode.CP_CR) return 2022;
 //        return LocalDateTime.now().getYear() - 1;
