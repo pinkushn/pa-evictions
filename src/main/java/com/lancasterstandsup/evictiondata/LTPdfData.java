@@ -735,7 +735,7 @@ public class LTPdfData extends PdfData implements Serializable {
 
     private boolean isSettled() {
         return this.settled != null;
-    }
+    } 
 
     private boolean isWithdrawn() {
         return "TRUE".equals(withdrawn);

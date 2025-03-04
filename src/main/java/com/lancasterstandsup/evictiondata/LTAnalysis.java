@@ -55,7 +55,8 @@ public class LTAnalysis {
         //String[] years = {"2019"};
         //String[] years = {"2020"};
         //String[] years = {"2021"};
-        String[] years = {"2019", "2020", "2021", "2022", "2023"};
+        String[] years = {"2023"};
+        //String[] years = {"2019", "2020", "2021", "2022", "2023"};
         //String[] years = {"2019", "2020"};
         //String[] years = {"2020", "2021", "2022"};
         //String[] years = {"2019", "2020", "2021"};
@@ -69,9 +70,20 @@ public class LTAnalysis {
 
 
 
-        List<LTPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
+        //List<LTPdfData> list = ParseAll.get(Scraper.CourtMode.MDJ_LT, county, years);
 
-        monthly(list);
+
+        List<LTPdfData> list = new ArrayList<>();
+        for (String cty: Website.counties) {
+            System.out.println("adding " + cty);
+            list.addAll(ParseAll.get(Scraper.CourtMode.MDJ_LT, cty, years));
+        }
+
+        System.out.println("2023 total: " + list.size());
+        System.out.println("Plaintiff winds: " + plaintiffWins(list));
+        System.out.println("Evictions: " + evictions(list));
+
+        //monthly(list);
 
 
 
@@ -713,20 +725,6 @@ public class LTAnalysis {
         return retS;
     }
 
-    private static String plaintiffWins(List<LTPdfData> list) {
-        int ret = 0;
-        for(LTPdfData pdf: list) {
-            if (pdf.isPlaintiffWin()) {
-                ret++;
-            }
-        }
-
-//        double per = Math.round(100 * ((double) ret)/list.size());
-//        return per + "%";
-
-        return getPercentage(ret, list.size(), true);
-    }
-
     public static Map<String, List<LTPdfData>> groupByJudge(List<LTPdfData> list) {
         Map<String, List<LTPdfData>> ret = new TreeMap<>();
         for (LTPdfData pdf: list) {
@@ -826,6 +824,20 @@ public class LTAnalysis {
 
         System.out.println("plaintiff win: " +
                 getPercentage(forP, list.size(), true));
+    }
+
+    private static String plaintiffWins(List<LTPdfData> list) {
+        int ret = 0;
+        for(LTPdfData pdf: list) {
+            if (pdf.isPlaintiffWin()) {
+                ret++;
+            }
+        }
+
+//        double per = Math.round(100 * ((double) ret)/list.size());
+//        return per + "%";
+
+        return getPercentage(ret, list.size(), true);
     }
 
     private static void judgmentForPlaintiff(List<LTPdfData> list) {
